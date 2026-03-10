@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌿 Pollenflug Hannover</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f0f7f0;
+      min-height: 100vh;
+      padding: 24px 16px;
+      color: #1a1a1a;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      color: #2e7d32;
+      font-weight: 700;
+    }
+
+    header p {
+      color: #666;
+      margin-top: 4px;
+      font-size: 0.9rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      max-width: 700px;
+      margin: 0 auto 20px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: #e8f5e9;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-header h2 {
+      font-size: 1rem;
+      color: #2e7d32;
+      font-weight: 600;
+    }
+
+    .card-header span {
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      padding: 12px 16px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: #555;
+      border-bottom: 1px solid #eee;
+      background: #fafafa;
+    }
+
+    thead th:first-child { text-align: left; }
+
+    tbody td {
+      padding: 10px 16px;
+      text-align: center;
+      font-size: 0.9rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    tbody td:first-child {
+      text-align: left;
+      font-weight: 500;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    .level-0   { background: #f5f5f5; color: #999; }
+    .level-low  { background: #fff9c4; }
+    .level-mid  { background: #ffe0b2; }
+    .level-high { background: #ffcdd2; }
+
+    .summary {
+      padding: 14px 20px;
+      border-top: 1px solid #eee;
+      font-size: 0.9rem;
+    }
+
+    .summary.ok    { color: #2e7d32; }
+    .summary.warn  { color: #c62828; }
+
+    .loading {
+      text-align: center;
+      padding: 48px;
+      color: #aaa;
+      font-size: 0.95rem;
+    }
+
+    .error {
+      text-align: center;
+      padding: 32px;
+      color: #c62828;
+      font-size: 0.9rem;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #bbb;
+      margin-top: 24px;
+    }
+
+    .day-label { font-size: 0.75rem; color: #aaa; display: block; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🌿 Pollenflug</h1>
+  <p id="region-label">Hannover · Östl. Niedersachsen</p>
+</header>
+
+<div class="card" id="main-card">
+  <div class="loading">Lade DWD-Daten…</div>
+</div>
+
+<footer>
+  Quelle: Deutscher Wetterdienst (DWD) · opendata.dwd.de
+</footer>
+
+<script>
+const DWD_URL = "https://opendata.dwd.de/climate_environment/health/alerts/s31fg.json";
+const REGION_ID = 30;
+const PARTREGION_ID = 32;
+
+const POLLEN = [
+  { key: "Graeser", name: "Gräser" },
+  { key: "Roggen",  name: "Roggen" },
+  { key: "Birke",   name: "Birke" },
+  { key: "Erle",    name: "Erle" },
+  { key: "Hasel",   name: "Hasel" },
+  { key: "Esche",   name: "Esche" },
+  { key: "Beifuss", name: "Beifuß" },
+  { key: "Ambrosia",name: "Ambrosia" },
+];
+
+const LEVELS = {
+  "-1": { cls: "level-0",   emoji: "⬜", label: "–" },
+  "0":  { cls: "level-0",   emoji: "🟢", label: "keine" },
+  "0-1":{ cls: "level-low", emoji: "🟡", label: "keine–gering" },
+  "1":  { cls: "level-low", emoji: "🟡", label: "gering" },
+  "1-2":{ cls: "level-mid", emoji: "🟠", label: "gering–mittel" },
+  "2":  { cls: "level-mid", emoji: "🟠", label: "mittel" },
+  "2-3":{ cls: "level-high",emoji: "🔴", label: "mittel–hoch" },
+  "3":  { cls: "level-high",emoji: "🔴", label: "hoch" },
+};
+
+function formatDate(offset = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return d.toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit" });
+}
+
+function cell(val) {
+  const l = LEVELS[String(val)] ?? { cls: "level-0", emoji: "❓", label: val };
+  return `<td class="${l.cls}">${l.emoji} ${l.label}</td>`;
+}
+
+async function load() {
+  const card = document.getElementById("main-card");
+  try {
+    const resp = await fetch(DWD_URL);
+    const data = await resp.json();
+
+    const region = data.content.find(r =>
+      r.region_id === REGION_ID && r.partregion_id === PARTREGION_ID
+    ) ?? data.content.find(r => r.region_id === REGION_ID);
+
+    if (!region) throw new Error("Region nicht gefunden");
+
+    document.getElementById("region-label").textContent =
+      `${region.region_name} · ${region.partregion_name}`;
+
+    const pollen = region.Pollen;
+    const aktiv = [];
+
+    let rows = "";
+    for (const { key, name } of POLLEN) {
+      if (!pollen[key]) continue;
+      const { today, tomorrow, dayafter_to } = pollen[key];
+      if (today !== "0" && today !== "-1") aktiv.push(name);
+      rows += `<tr>
+        <td>${name}</td>
+        ${cell(today)}${cell(tomorrow)}${cell(dayafter_to)}
+      </tr>`;
+    }
+
+    const summary = aktiv.length
+      ? `<div class="summary warn">⚠️ Heute aktiv: ${aktiv.join(", ")}</div>`
+      : `<div class="summary ok">✅ Heute keine nennenswerte Belastung</div>`;
+
+    card.innerHTML = `
+      <div class="card-header">
+        <h2>Vorhersage</h2>
+        <span>Stand: ${formatDate()}</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left">Pollen</th>
+            <th>Heute<span class="day-label">${formatDate(0)}</span></th>
+            <th>Morgen<span class="day-label">${formatDate(1)}</span></th>
+            <th>Übermorgen<span class="day-label">${formatDate(2)}</span></th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+      ${summary}`;
+
+  } catch (e) {
+    card.innerHTML = `<div class="error">❌ Fehler beim Laden: ${e.message}<br><small>DWD-API möglicherweise nicht erreichbar</small></div>`;
+  }
+}
+
+load();
+</script>
+</body>
+</html>
