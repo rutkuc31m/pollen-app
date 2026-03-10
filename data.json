@@ -1,0 +1,47 @@
+{
+  "updated": "2026-03-10",
+  "region_name": "Niedersachsen und Bremen",
+  "partregion_name": "Östl. Niedersachsen",
+  "pollen": {
+    "Ambrosia": {
+      "dayafter_to": "0",
+      "tomorrow": "0",
+      "today": "0"
+    },
+    "Erle": {
+      "tomorrow": "2-3",
+      "dayafter_to": "3",
+      "today": "3"
+    },
+    "Hasel": {
+      "today": "2",
+      "dayafter_to": "2",
+      "tomorrow": "2"
+    },
+    "Esche": {
+      "today": "0",
+      "tomorrow": "0",
+      "dayafter_to": "0"
+    },
+    "Birke": {
+      "today": "0",
+      "dayafter_to": "0",
+      "tomorrow": "0"
+    },
+    "Beifuss": {
+      "tomorrow": "0",
+      "dayafter_to": "0",
+      "today": "0"
+    },
+    "Roggen": {
+      "today": "0",
+      "dayafter_to": "0",
+      "tomorrow": "0"
+    },
+    "Graeser": {
+      "dayafter_to": "0",
+      "tomorrow": "0",
+      "today": "0"
+    }
+  }
+}

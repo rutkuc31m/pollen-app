@@ -4,18 +4,30 @@ on:
   schedule:
     # 06:00 UTC = 07:00 CET / 08:00 CEST
     - cron: "0 6 * * *"
-  workflow_dispatch:  # Manuell auslösbar im GitHub UI
+  workflow_dispatch:
 
 jobs:
   send-pollen-alert:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
-      - name: Python setup
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Pollendaten für Web-Dashboard aktualisieren
+        run: python fetch_data.py
+
+      - name: data.json committen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git diff --cached --quiet || git commit -m "Update pollen data $(date +%Y-%m-%d)"
+          git push
 
       - name: Pollenflug-Mail senden
         env:

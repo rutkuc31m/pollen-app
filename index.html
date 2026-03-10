@@ -144,9 +144,7 @@
 </footer>
 
 <script>
-const DWD_URL = "https://opendata.dwd.de/climate_environment/health/alerts/s31fg.json";
-const REGION_ID = 30;
-const PARTREGION_ID = 32;
+const DATA_URL = "./data.json";
 
 const POLLEN = [
   { key: "Graeser", name: "Gräser" },
@@ -184,19 +182,13 @@ function cell(val) {
 async function load() {
   const card = document.getElementById("main-card");
   try {
-    const resp = await fetch(DWD_URL);
+    const resp = await fetch(DATA_URL);
     const data = await resp.json();
 
-    const region = data.content.find(r =>
-      r.region_id === REGION_ID && r.partregion_id === PARTREGION_ID
-    ) ?? data.content.find(r => r.region_id === REGION_ID);
-
-    if (!region) throw new Error("Region nicht gefunden");
-
     document.getElementById("region-label").textContent =
-      `${region.region_name} · ${region.partregion_name}`;
+      `${data.region_name} · ${data.partregion_name}`;
 
-    const pollen = region.Pollen;
+    const pollen = data.pollen;
     const aktiv = [];
 
     let rows = "";
