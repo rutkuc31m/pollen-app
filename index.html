@@ -430,7 +430,7 @@ let filter    = JSON.parse(localStorage.getItem(LS.filter) || "null") || POLLEN.
 let activeDay = 0;
 let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
-let draft     = {niesen:0,augen:0,atmung:0};
+let draft     = {niesen:0,augen:0,atmung:0,muedigkeit:0};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME
@@ -500,7 +500,7 @@ function render() {
 
   // pre-fill draft from today's saved entry
   const ts = symptoms[todayISO()];
-  if (ts) draft = {niesen:ts.niesen, augen:ts.augen, atmung:ts.atmung};
+  if (ts) draft = {niesen:ts.niesen, augen:ts.augen, atmung:ts.atmung, muedigkeit:ts.muedigkeit||0};
 
   const dayScores = DAYS.map((_,i) => personalRisk(pol,i).max);
 
@@ -686,7 +686,7 @@ function render() {
       </div>
       <div class="collapsible-body" id="sym-body">
       <div class="sym-date">${new Date().toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long"})}</div>
-      ${[["niesen","🤧","Niesen"],["augen","👁","Augen"],["atmung","💨","Atmung"]].map(([k,ic,lb])=>`
+      ${[["niesen","🤧","Niesen"],["augen","👁","Augen"],["atmung","💨","Atmung"],["muedigkeit","😴","Müdigkeit"]].map(([k,ic,lb])=>`
         <div class="sym-row">
           <div class="sym-icon">${ic}</div>
           <div class="sym-label">${lb}</div>
@@ -791,9 +791,9 @@ function renderSymHistory() {
       ${entries.map(([d,s])=>`
         <div class="sym-hist-row">
           <div class="sym-hist-date">${new Date(d+"T12:00:00").toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})}</div>
-          ${["niesen","augen","atmung"].map(k=>`
+          ${["niesen","augen","atmung","muedigkeit"].map(k=>`
             <div class="sym-dot" style="background:${sc(s[k])};color:#fff">${s[k]||"–"}</div>`).join("")}
-          <span style="font-size:.7rem;color:var(--text3)">N · A · At</span>
+          <span style="font-size:.7rem;color:var(--text3)">N · A · At · M</span>
         </div>`).join("")}
     </div>`;
 }
@@ -816,7 +816,7 @@ function resetFilter() {
 
 function setSym(key, val) {
   draft[key] = val;
-  const map = {niesen:"Niesen", augen:"Augen", atmung:"Atmung"};
+  const map = {niesen:"Niesen", augen:"Augen", atmung:"Atmung", muedigkeit:"Müdigkeit"};
   document.querySelectorAll(".sym-row").forEach(row => {
     const lb = row.querySelector(".sym-label");
     if (lb?.textContent === map[key]) {
@@ -947,7 +947,7 @@ function renderCorrelation() {
       const hist = history[date];
       if (!hist) continue;
       const polLevel = lv(hist[p.key] ?? "-1").sc;
-      const symScore = (sym.niesen || 0) + (sym.augen || 0) + (sym.atmung || 0);
+      const symScore = (sym.niesen || 0) + (sym.augen || 0) + (sym.atmung || 0) + (sym.muedigkeit || 0);
       if (polLevel >= 1) activeScores.push(symScore);
       else inactiveScores.push(symScore);
     }
