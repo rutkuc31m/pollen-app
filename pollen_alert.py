@@ -110,7 +110,7 @@ def erstelle_html(region_data, today):
         "<p style='color:#2e7d32'>✅ Heute keine nennenswerte Pollenbelastung.</p>"
     )
 
-    return f"""
+    html = f"""
 <html><body style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:20px">
   <h2 style="color:#2e7d32">🌿 Pollenflug-Vorhersage</h2>
   <p><strong>{region_name}</strong><br><small>{partregion_name}</small></p>
@@ -130,6 +130,7 @@ def erstelle_html(region_data, today):
   <hr style="margin-top:24px">
   <p style="color:#999;font-size:12px">Quelle: Deutscher Wetterdienst (DWD) – opendata.dwd.de</p>
 </body></html>"""
+    return html, aktiv
 
 
 def sende_email(gmail, password, betreff, html):
@@ -162,8 +163,11 @@ def main():
         print("❌ Region nicht gefunden.", file=sys.stderr)
         sys.exit(1)
 
-    html = erstelle_html(region_data, today)
-    betreff = f"🌿 Pollenflug {today.strftime('%d.%m.%Y')}"
+    html, aktiv = erstelle_html(region_data, today)
+    if not aktiv:
+        print("✅ Heute keine nennenswerte Pollenbelastung – keine E-Mail gesendet.")
+        return
+    betreff = f"🌿 Pollenflug {today.strftime('%d.%m.%Y')} – {', '.join(aktiv)}"
     sende_email(gmail, password, betreff, html)
 
 

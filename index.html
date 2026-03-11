@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#ffffff" id="theme-meta">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Pollenflug">
+  <link rel="apple-touch-icon" href="./icon.svg">
   <title>Pollenflug</title>
   <style>
     /* ── TOKENS ─────────────────────────────────────── */
@@ -294,6 +300,49 @@
     .center { text-align: center; padding: 60px 20px; color: var(--text2); }
     .spin { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: sp .7s linear infinite; margin: 0 auto 12px; }
     @keyframes sp { to { transform: rotate(360deg); } }
+
+    /* ── GEO BUTTON ──────────────────────────────────── */
+    .regionbar-inner { display: flex; gap: 6px; align-items: center; }
+    .geo-btn {
+      flex-shrink: 0; padding: 7px 10px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--card2);
+      color: var(--text2); cursor: pointer; font-size: .84rem;
+      white-space: nowrap;
+    }
+    .geo-btn:hover { background: var(--border); }
+    .geo-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── SWIPE DOTS ───────────────────────────────────── */
+    .swipe-dots { display: flex; justify-content: center; gap: 6px; margin: -4px 0 8px; }
+    .swipe-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background .2s; }
+    .swipe-dot.active { background: var(--accent); }
+
+    /* ── WEEK WEATHER ────────────────────────────────── */
+    .week-strip { padding: 0 14px 12px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+    .week-strip::-webkit-scrollbar { display: none; }
+    .week-day {
+      flex: 0 0 auto; min-width: 52px; text-align: center;
+      padding: 7px 5px; border-radius: 9px; background: var(--card2);
+      border: 1px solid var(--border);
+    }
+    .week-day.today-wk { border-color: var(--accent); }
+    .wd-name { font-size: .62rem; color: var(--text3); font-weight: 600; text-transform: uppercase; }
+    .wd-icon { font-size: .95rem; margin: 3px 0; }
+    .wd-temp { font-size: .8rem; font-weight: 700; }
+    .wd-rain { font-size: .62rem; color: var(--text3); margin-top: 1px; }
+    .wd-uv   { font-size: .6rem; color: var(--text3); margin-top: 1px; }
+    .uv-hi   { color: #b91c1c; }
+    .uv-mid  { color: #c2410c; }
+    .uv-low  { color: #a16207; }
+
+    /* ── CORRELATION ─────────────────────────────────── */
+    .corr-wrap { padding: 10px 14px 14px; border-top: 1px solid var(--border); }
+    .corr-title { font-size: .72rem; text-transform: uppercase; letter-spacing: .4px; color: var(--text3); margin-bottom: 8px; }
+    .corr-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .corr-name { width: 62px; font-size: .78rem; flex-shrink: 0; }
+    .corr-track { flex: 1; background: var(--border); border-radius: 4px; height: 7px; overflow: hidden; }
+    .corr-fill { height: 100%; border-radius: 4px; background: var(--accent); }
+    .corr-lbl { font-size: .7rem; color: var(--text3); width: 28px; text-align: right; flex-shrink: 0; }
   </style>
 </head>
 <body>
@@ -307,6 +356,7 @@
   <div class="regionbar">
     <div class="regionbar-inner">
       <select id="region-sel"><option>Lade Regionen…</option></select>
+      <button class="geo-btn" id="geo-btn" onclick="geoLocate()" title="Nächste Region automatisch wählen">📍</button>
     </div>
   </div>
 </div>
@@ -374,7 +424,7 @@ const REGION_COORDS = {
 // STATE
 // ─────────────────────────────────────────────────────────────────────────────
 let db        = null;
-let weather   = null; // { current, daily }
+let weather   = null; // { current, daily, fetchedAt }
 let rKey      = localStorage.getItem(LS.region)  || "30-32";
 let filter    = JSON.parse(localStorage.getItem(LS.filter) || "null") || POLLEN.map(p=>p.key);
 let activeDay = 0;
@@ -495,24 +545,54 @@ function render() {
       const w = weather.current;
       const effect = calcPollenEffect(activeDay);
       const d = weather.daily[activeDay] ?? weather.daily[0];
+      const uvVal = d.uv ?? null;
+      const uvCls = uvVal === null ? "" : uvVal >= 8 ? "uv-hi" : uvVal >= 5 ? "uv-mid" : uvVal >= 2 ? "uv-low" : "";
+      const uvLabel = uvVal === null ? "–" : uvVal;
+      const fetchedStr = weather.fetchedAt
+        ? new Date(weather.fetchedAt).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})
+        : "";
+      // week day names
+      const wkNames = ["Mo","Di","Mi","Do","Fr","Sa","So"];
+      function wkIcon(rain, wind) {
+        if (rain > 3) return "🌧";
+        if (rain > 0.5) return "🌦";
+        if (wind > 25) return "💨";
+        return "☀️";
+      }
       return `
       <div class="card" style="margin-bottom:12px">
         <div class="card-head">
           <span class="card-title">Wetter & Polleneinfluss</span>
-          <span style="font-size:.72rem;color:var(--text3)">Open-Meteo · DWD ICON</span>
+          <span style="font-size:.72rem;color:var(--text3)">${fetchedStr ? `Stand ${fetchedStr} · ` : ""}Open-Meteo</span>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:12px 14px 6px;text-align:center">
-          ${[["🌡","Temp",`${w.temp}°C`],["💨","Wind",`${d.wind} km/h`],["💧","Feuchte",`${w.humidity}%`],["🌧","Regen",`${d.rain} mm`]].map(([ic,lb,val])=>`
-          <div style="padding:4px 2px">
-            <div style="font-size:1.2rem">${ic}</div>
-            <div style="font-size:1rem;font-weight:700;margin:2px 0">${val}</div>
-            <div style="font-size:.68rem;color:var(--text3)">${lb}</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:12px 14px 6px;text-align:center">
+          ${[["🌡","Temp",`${w.temp}°C`],["💨","Wind",`${d.wind} km/h`],["💧","Feuchte",`${w.humidity}%`],["🌧","Regen",`${d.rain} mm`],["☀️","UV max",`<span class="${uvCls}">${uvLabel}</span>`]].map(([ic,lb,val])=>`
+          <div style="padding:4px 1px">
+            <div style="font-size:1.1rem">${ic}</div>
+            <div style="font-size:.95rem;font-weight:700;margin:2px 0">${val}</div>
+            <div style="font-size:.63rem;color:var(--text3)">${lb}</div>
           </div>`).join("")}
         </div>
-        <div style="margin:4px 14px 12px;padding:9px 12px;border-radius:9px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;gap:10px">
+        <div style="margin:4px 14px 10px;padding:9px 12px;border-radius:9px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;gap:10px">
           <span style="font-size:1.3rem">${effect.icon}</span>
           <span style="font-size:.83rem;font-weight:500">${effect.text}</span>
         </div>
+        ${weather.daily.length > 3 ? `
+        <div class="week-strip">
+          ${weather.daily.map((wd, i) => {
+            const dt = new Date(); dt.setDate(dt.getDate() + i);
+            const dayName = wkNames[dt.getDay() === 0 ? 6 : dt.getDay() - 1];
+            const uvW = wd.uv ?? null;
+            const uvWCls = uvW === null ? "" : uvW >= 8 ? "uv-hi" : uvW >= 5 ? "uv-mid" : uvW >= 2 ? "uv-low" : "";
+            return `<div class="week-day${i===0?" today-wk":""}">
+              <div class="wd-name">${i===0?"Heute":dayName}</div>
+              <div class="wd-icon">${wkIcon(wd.rain, wd.wind)}</div>
+              <div class="wd-temp">${wd.tempMax}°</div>
+              <div class="wd-rain">${wd.rain > 0 ? wd.rain+"mm" : "–"}</div>
+              ${uvW !== null ? `<div class="wd-uv ${uvWCls}">UV ${uvW}</div>` : ""}
+            </div>`;
+          }).join("")}
+        </div>` : ""}
       </div>`;
     })() : ""}
 
@@ -536,6 +616,9 @@ function render() {
           ${wd ? `<div style="font-size:.66rem;color:var(--text3);margin-top:3px">${wd.tempMax}° · ${wd.wind}km/h</div>` : ""}
         </div>`;
       }).join("")}
+    </div>
+    <div class="swipe-dots">
+      ${[0,1,2].map(i=>`<div class="swipe-dot${i===activeDay?" active":""}"></div>`).join("")}
     </div>
 
     <!-- MY ALLERGIES -->
@@ -613,6 +696,7 @@ function render() {
         </div>`).join("")}
       <button class="sym-save" onclick="saveSym()">Speichern</button>
       ${renderSymHistory()}
+      ${renderCorrelation()}
       </div>
     </div>
 
@@ -767,8 +851,8 @@ async function loadWeather() {
   const coords = REGION_COORDS[rKey] || {lat:52.37,lon:9.73};
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}`
     + `&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m`
-    + `&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max`
-    + `&timezone=Europe%2FBerlin&forecast_days=3`;
+    + `&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,uv_index_max`
+    + `&timezone=Europe%2FBerlin&forecast_days=7`;
   try {
     const res = await fetch(url);
     const data = await res.json();
@@ -781,9 +865,11 @@ async function loadWeather() {
       },
       daily: data.daily.time.map((_, i) => ({
         tempMax: Math.round(data.daily.temperature_2m_max[i]),
-        rain:    data.daily.precipitation_sum[i],
+        rain:    Math.round((data.daily.precipitation_sum[i] ?? 0) * 10) / 10,
         wind:    Math.round(data.daily.wind_speed_10m_max[i]),
+        uv:      data.daily.uv_index_max ? Math.round(data.daily.uv_index_max[i]) : null,
       })),
+      fetchedAt: Date.now(),
     };
   } catch { weather = null; }
   render();
@@ -802,6 +888,81 @@ function calcPollenEffect(dayIdx) {
   if (humidity > 80)          return { cls:"risk-low",   icon:"💧", text:"Hohe Luftfeuchte hemmt Pollen" };
   if (rain > 0.5)             return { cls:"risk-low",   icon:"🌦", text:"Leichter Regen reduziert Pollen" };
   return                             { cls:"risk-none",  icon:"☀️", text:"Wetter hat geringen Einfluss" };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GEO LOCATE
+// ─────────────────────────────────────────────────────────────────────────────
+function geoLocate() {
+  if (!navigator.geolocation) { alert("Geolocation wird nicht unterstützt."); return; }
+  const btn = document.getElementById("geo-btn");
+  btn.disabled = true; btn.textContent = "⏳";
+  navigator.geolocation.getCurrentPosition(pos => {
+    const { latitude: lat, longitude: lon } = pos.coords;
+    let best = null, bestDist = Infinity;
+    for (const [key, c] of Object.entries(REGION_COORDS)) {
+      const d = Math.hypot(c.lat - lat, c.lon - lon);
+      if (d < bestDist) { bestDist = d; best = key; }
+    }
+    if (best) {
+      rKey = best;
+      localStorage.setItem(LS.region, rKey);
+      const sel = document.getElementById("region-sel");
+      if (sel) sel.value = rKey;
+      weather = null;
+      render();
+      loadWeather();
+    }
+    btn.disabled = false; btn.textContent = "📍";
+  }, () => {
+    alert("Standort konnte nicht ermittelt werden.");
+    btn.disabled = false; btn.textContent = "📍";
+  }, { timeout: 8000 });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SYMPTOM–POLLEN CORRELATION
+// ─────────────────────────────────────────────────────────────────────────────
+function renderCorrelation() {
+  const symEntries = Object.entries(symptoms);
+  if (symEntries.length < 3) return ""; // need at least 3 days
+  const filteredPollen = POLLEN.filter(p => filter.includes(p.key));
+  if (!filteredPollen.length) return "";
+
+  // For each pollen, compute avg total symptom score on days with that pollen active vs not
+  const results = [];
+  for (const p of filteredPollen) {
+    const activeScores = [], inactiveScores = [];
+    for (const [date, sym] of symEntries) {
+      const hist = history[date];
+      if (!hist) continue;
+      const polLevel = lv(hist[p.key] ?? "-1").sc;
+      const symScore = (sym.niesen || 0) + (sym.augen || 0) + (sym.atmung || 0);
+      if (polLevel >= 1) activeScores.push(symScore);
+      else inactiveScores.push(symScore);
+    }
+    if (!activeScores.length || !inactiveScores.length) continue;
+    const avgActive   = activeScores.reduce((a,b)=>a+b,0)   / activeScores.length;
+    const avgInactive = inactiveScores.reduce((a,b)=>a+b,0) / inactiveScores.length;
+    const diff = avgActive - avgInactive;
+    if (diff > 0.5) results.push({ p, diff, avgActive });
+  }
+
+  if (!results.length) return "";
+  results.sort((a,b) => b.diff - a.diff);
+  const maxDiff = results[0].diff;
+
+  return `
+    <div class="corr-wrap">
+      <div class="corr-title">Mögliche Auslöser (Symptom-Korrelation)</div>
+      ${results.map(({p, diff}) => `
+        <div class="corr-row">
+          <div class="corr-name">${p.icon} ${p.name}</div>
+          <div class="corr-track"><div class="corr-fill" style="width:${Math.round((diff/maxDiff)*100)}%"></div></div>
+          <div class="corr-lbl">+${diff.toFixed(1)}</div>
+        </div>`).join("")}
+      <div style="font-size:.68rem;color:var(--text3);margin-top:6px">Ø Symptom-Score an Pollentagen vs. pollenenfreien Tagen</div>
+    </div>`;
 }
 
 // LOAD
