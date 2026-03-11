@@ -395,7 +395,7 @@
 <div id="drawer-overlay" onclick="closeDrawer()"></div>
 <div id="drawer">
   <div id="drawer-head">
-    <span>Menü</span>
+    <span id="drawer-head-title">Menü</span>
     <button onclick="closeDrawer()">✕</button>
   </div>
   <div id="drawer-content"></div>
@@ -411,7 +411,7 @@
   <div class="regionbar">
     <div class="regionbar-inner">
       <select id="region-sel"><option>Lade Regionen…</option></select>
-      <button class="geo-btn" id="geo-btn" onclick="geoLocate()" title="Nächste Region automatisch wählen">📍</button>
+      <button class="geo-btn" id="geo-btn" onclick="geoLocate()">📍</button>
     </div>
   </div>
 </div>
@@ -422,40 +422,155 @@
 
 <script>
 // ─────────────────────────────────────────────────────────────────────────────
+// I18N
+// ─────────────────────────────────────────────────────────────────────────────
+const lang = (navigator.language || "de").toLowerCase().startsWith("de") ? "de" : "en";
+function t(key) { return STRINGS[lang][key] ?? STRINGS.de[key] ?? key; }
+
+const STRINGS = {
+  de: {
+    // days
+    today:"Heute", tomorrow:"Morgen", dayafter:"Übermorgen",
+    // risk levels
+    risk0:"Keine Belastung", risk1:"Geringe Belastung", risk2:"Mittlere Belastung", risk3:"Hohe Belastung",
+    // pollen levels
+    lv_none:"keine", lv_low:"gering", lv_mid:"mittel", lv_high:"hoch",
+    lv_none_low:"keine–gering", lv_low_mid:"gering–mittel", lv_mid_high:"mittel–hoch",
+    // pollen names
+    Hasel:"Hasel", Erle:"Erle", Esche:"Esche", Birke:"Birke",
+    Graeser:"Gräser", Roggen:"Roggen", Beifuss:"Beifuß", Ambrosia:"Ambrosia",
+    // seasons
+    s_Hasel:"Jan–Mär", s_Erle:"Feb–Apr", s_Esche:"Mär–Mai", s_Birke:"Mär–Mai",
+    s_Graeser:"Mai–Aug", s_Roggen:"Mai–Jul", s_Beifuss:"Jul–Sep", s_Ambrosia:"Aug–Okt",
+    // months
+    months:"Jan,Feb,Mär,Apr,Mai,Jun,Jul,Aug,Sep,Okt,Nov,Dez",
+    // ui
+    menu:"Menü", close:"✕", offline:"Offline",
+    loading:"Lade DWD-Daten…", no_data:"❌ Keine Daten verfügbar.",
+    check_conn:"Bitte Verbindung prüfen.",
+    dwd_stand:"Stand", next_update:"Nächstes Update",
+    region:"Region", geo_title:"Nächste Region automatisch wählen",
+    weather_title:"Wetter & Polleneinfluss",
+    temp:"Temp", wind:"Wind", humidity:"Feuchte", rain:"Regen", uv:"UV max",
+    all_pollen:"Alle Pollen", select_all:"Alle auswählen",
+    tap_hint:"Zeile antippen = für dein Risiko ein/ausschließen",
+    history_title:"Verlauf – letzte", days:"Tage",
+    sym_title:"Wie geht's dir heute?",
+    niesen:"Niesen", augen:"Augen", atmung:"Atmung", muedigkeit:"Müdigkeit",
+    save:"Speichern", saved_entries:"Letzte Einträge",
+    season_title:"Saisonkalender",
+    legend_title:"Legende",
+    risk_calc_title:"Wie wird dein Risiko berechnet?",
+    risk_calc_body:"Das <strong>persönliche Risiko</strong> oben entspricht dem <strong>höchsten Einzelwert</strong> deiner ausgewählten Pollen (grüner Rand in der Tabelle).<br><br>Beispiel: Hasel = gering, Erle = hoch → Risiko = <strong>hoch</strong>.",
+    uv_scale:"UV-Index Skala (WHO, 0–11+)",
+    uv_low:"niedrig", uv_moderate:"mäßig", uv_high:"hoch", uv_very_high:"sehr hoch", uv_extreme:"extrem",
+    trend_rising:"steigt morgen", trend_falling:"sinkt morgen", trend_stable:"stabil",
+    tendency:"Tendenz",
+    no_load:"Keine Belastung für deine Allergene.",
+    in_season:"Saison", off_season:"außer Saison",
+    effect_rain_heavy:"Regen dämpft Pollenflug",
+    effect_wind_strong:"Wind verbreitet Pollen stark",
+    effect_wind:"Wind verbreitet Pollen",
+    effect_humid:"Hohe Luftfeuchte hemmt Pollen",
+    effect_rain_light:"Leichter Regen reduziert Pollen",
+    effect_neutral:"Wetter hat geringen Einfluss",
+    corr_title:"Mögliche Auslöser (Symptom-Korrelation)",
+    corr_hint:"Ø Symptom-Score an Pollentagen vs. pollenfreien Tagen",
+    geo_error:"Standort konnte nicht ermittelt werden.",
+    geo_unsupported:"Geolocation wird nicht unterstützt.",
+    n_label:"N", a_label:"A", at_label:"At", m_label:"M",
+    logo_title:"Pollenflug",
+  },
+  en: {
+    // days
+    today:"Today", tomorrow:"Tomorrow", dayafter:"Day after",
+    // risk levels
+    risk0:"No exposure", risk1:"Low exposure", risk2:"Moderate exposure", risk3:"High exposure",
+    // pollen levels
+    lv_none:"none", lv_low:"low", lv_mid:"moderate", lv_high:"high",
+    lv_none_low:"none–low", lv_low_mid:"low–moderate", lv_mid_high:"moderate–high",
+    // pollen names
+    Hasel:"Hazel", Erle:"Alder", Esche:"Ash", Birke:"Birch",
+    Graeser:"Grasses", Roggen:"Rye", Beifuss:"Mugwort", Ambrosia:"Ragweed",
+    // seasons
+    s_Hasel:"Jan–Mar", s_Erle:"Feb–Apr", s_Esche:"Mar–May", s_Birke:"Mar–May",
+    s_Graeser:"May–Aug", s_Roggen:"May–Jul", s_Beifuss:"Jul–Sep", s_Ambrosia:"Aug–Oct",
+    // months
+    months:"Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec",
+    // ui
+    menu:"Menu", close:"✕", offline:"Offline",
+    loading:"Loading DWD data…", no_data:"❌ No data available.",
+    check_conn:"Please check your connection.",
+    dwd_stand:"Updated", next_update:"Next update",
+    region:"Region", geo_title:"Auto-detect nearest region",
+    weather_title:"Weather & Pollen impact",
+    temp:"Temp", wind:"Wind", humidity:"Humidity", rain:"Rain", uv:"UV max",
+    all_pollen:"All Pollen", select_all:"Select all",
+    tap_hint:"Tap a row to include/exclude from your risk",
+    history_title:"History – last", days:"days",
+    sym_title:"How are you today?",
+    niesen:"Sneezing", augen:"Eyes", atmung:"Breathing", muedigkeit:"Fatigue",
+    save:"Save", saved_entries:"Recent entries",
+    season_title:"Season calendar",
+    legend_title:"Legend",
+    risk_calc_title:"How is your risk calculated?",
+    risk_calc_body:"Your <strong>personal risk</strong> equals the <strong>highest individual value</strong> among your selected pollen (green border in the table).<br><br>Example: Hazel = low, Alder = high → Risk = <strong>high</strong>.",
+    uv_scale:"UV Index Scale (WHO, 0–11+)",
+    uv_low:"low", uv_moderate:"moderate", uv_high:"high", uv_very_high:"very high", uv_extreme:"extreme",
+    trend_rising:"rising tomorrow", trend_falling:"falling tomorrow", trend_stable:"stable",
+    tendency:"Trend",
+    no_load:"No exposure for your allergens.",
+    in_season:"season", off_season:"off season",
+    effect_rain_heavy:"Rain reduces pollen dispersal",
+    effect_wind_strong:"Strong wind spreads pollen widely",
+    effect_wind:"Wind spreads pollen",
+    effect_humid:"High humidity reduces pollen",
+    effect_rain_light:"Light rain reduces pollen",
+    effect_neutral:"Weather has little effect",
+    corr_title:"Likely triggers (symptom correlation)",
+    corr_hint:"Avg. symptom score on pollen days vs. pollen-free days",
+    geo_error:"Could not determine location.",
+    geo_unsupported:"Geolocation is not supported.",
+    n_label:"Sn", a_label:"Ey", at_label:"Br", m_label:"Fa",
+    logo_title:"Pollen",
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // CONSTANTS
 // ─────────────────────────────────────────────────────────────────────────────
 const POLLEN = [
-  { key:"Hasel",    name:"Hasel",    icon:"🌰", mo:[1,2,3],    s:"Jan–Mär" },
-  { key:"Erle",     name:"Erle",     icon:"🌲", mo:[2,3,4],    s:"Feb–Apr" },
-  { key:"Esche",    name:"Esche",    icon:"🌳", mo:[3,4,5],    s:"Mär–Mai" },
-  { key:"Birke",    name:"Birke",    icon:"🍃", mo:[3,4,5],    s:"Mär–Mai" },
-  { key:"Graeser",  name:"Gräser",   icon:"🌾", mo:[5,6,7,8],  s:"Mai–Aug" },
-  { key:"Roggen",   name:"Roggen",   icon:"🌿", mo:[5,6,7],    s:"Mai–Jul" },
-  { key:"Beifuss",  name:"Beifuß",   icon:"🌱", mo:[7,8,9],    s:"Jul–Sep" },
-  { key:"Ambrosia", name:"Ambrosia", icon:"🌻", mo:[8,9,10],   s:"Aug–Okt" },
+  { key:"Hasel",    icon:"🌰", mo:[1,2,3]    },
+  { key:"Erle",     icon:"🌲", mo:[2,3,4]    },
+  { key:"Esche",    icon:"🌳", mo:[3,4,5]    },
+  { key:"Birke",    icon:"🍃", mo:[3,4,5]    },
+  { key:"Graeser",  icon:"🌾", mo:[5,6,7,8]  },
+  { key:"Roggen",   icon:"🌿", mo:[5,6,7]    },
+  { key:"Beifuss",  icon:"🌱", mo:[7,8,9]    },
+  { key:"Ambrosia", icon:"🌻", mo:[8,9,10]   },
 ];
 
 const LV = {
-  "-1":{ cls:"b-none", sc:0, label:"–",            rc:"none" },
-  "0": { cls:"b-none", sc:0, label:"keine",         rc:"none" },
-  "0-1":{ cls:"b-low", sc:1, label:"keine–gering",  rc:"low"  },
-  "1": { cls:"b-low",  sc:1, label:"gering",         rc:"low"  },
-  "1-2":{ cls:"b-mid", sc:2, label:"gering–mittel",  rc:"mid"  },
-  "2": { cls:"b-mid",  sc:2, label:"mittel",          rc:"mid"  },
-  "2-3":{ cls:"b-high",sc:3, label:"mittel–hoch",    rc:"high" },
-  "3": { cls:"b-high", sc:3, label:"hoch",            rc:"high" },
+  "-1":{ cls:"b-none", sc:0, get label(){ return "–"; },            rc:"none" },
+  "0": { cls:"b-none", sc:0, get label(){ return t("lv_none"); },   rc:"none" },
+  "0-1":{ cls:"b-low", sc:1, get label(){ return t("lv_none_low");},rc:"low"  },
+  "1": { cls:"b-low",  sc:1, get label(){ return t("lv_low"); },    rc:"low"  },
+  "1-2":{ cls:"b-mid", sc:2, get label(){ return t("lv_low_mid");}, rc:"mid"  },
+  "2": { cls:"b-mid",  sc:2, get label(){ return t("lv_mid"); },    rc:"mid"  },
+  "2-3":{ cls:"b-high",sc:3, get label(){ return t("lv_mid_high");},rc:"high" },
+  "3": { cls:"b-high", sc:3, get label(){ return t("lv_high"); },   rc:"high" },
 };
 
 const RISK = [
-  { label:"Keine Belastung",   cls:"risk-none" },
-  { label:"Geringe Belastung", cls:"risk-low"  },
-  { label:"Mittlere Belastung",cls:"risk-mid"  },
-  { label:"Hohe Belastung",    cls:"risk-high" },
+  { get label(){ return t("risk0"); }, cls:"risk-none" },
+  { get label(){ return t("risk1"); }, cls:"risk-low"  },
+  { get label(){ return t("risk2"); }, cls:"risk-mid"  },
+  { get label(){ return t("risk3"); }, cls:"risk-high" },
 ];
 
 const DAYS      = ["today","tomorrow","dayafter_to"];
-const DAY_NAMES = ["Heute","Morgen","Übermorgen"];
-const MONTHS    = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+const DAY_NAMES = [t("today"), t("tomorrow"), t("dayafter")];
+const MONTHS    = t("months").split(",");
 
 const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist" };
 
@@ -510,7 +625,7 @@ applyTheme(localStorage.getItem(LS.theme) ||
 const todayISO = () => new Date().toISOString().slice(0,10);
 function dStr(n) {
   const d=new Date(); d.setDate(d.getDate()+n);
-  return d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"});
+  return d.toLocaleDateString(lang==="de"?"de-DE":"en-GB",{weekday:"short",day:"2-digit",month:"2-digit"});
 }
 function lv(v)  { return LV[String(v)] ?? {cls:"b-none",sc:0,label:String(v),rc:"none"}; }
 function rk(r)  { return `${r.region_id}-${r.partregion_id}`; }
@@ -566,7 +681,7 @@ function render() {
 
     <!-- UPDATE LINE -->
     <div style="font-size:.72rem;color:var(--text3);text-align:center;padding:4px 0 10px">
-      ${[db.last_update&&`Stand: ${db.last_update}`, db.next_update&&`Nächstes Update: ${db.next_update}`].filter(Boolean).join(" · ")}
+      ${[db.last_update&&`${t("dwd_stand")}: ${db.last_update}`, db.next_update&&`${t("next_update")}: ${db.next_update}`].filter(Boolean).join(" · ")}
     </div>
 
     <!-- HERO: personal risk -->
@@ -577,7 +692,7 @@ function render() {
         ? (tomorrowScore > todayScore ? "↑" : tomorrowScore < todayScore ? "↓" : "→")
         : "";
       const trendLabel = activeDay === 0
-        ? (tomorrowScore > todayScore ? "steigt morgen" : tomorrowScore < todayScore ? "sinkt morgen" : "stabil")
+        ? (tomorrowScore > todayScore ? t("trend_rising") : tomorrowScore < todayScore ? t("trend_falling") : t("trend_stable"))
         : "";
       return `
     <div class="hero">
@@ -588,12 +703,12 @@ function render() {
         <div class="hero-risk ${risk.cls}" style="font-size:1.4rem">
           ${risk.label}${trend ? ` <span style="font-size:1rem;opacity:.8">${trend}</span>` : ""}
         </div>
-        ${trendLabel ? `<div style="font-size:.76rem;color:var(--text2);margin-top:1px">Tendenz: ${trendLabel}</div>` : ""}
+        ${trendLabel ? `<div style="font-size:.76rem;color:var(--text2);margin-top:1px">${t("tendency")}: ${trendLabel}</div>` : ""}
         <div class="hero-loc">${reg.region_name}${reg.partregion_name?` · ${reg.partregion_name}`:""} · ${DAY_NAMES[activeDay]}</div>
         ${risk.drivers.length ? `
           <div class="hero-drivers">
-            ${risk.drivers.map(p=>`<span class="driver-pill ${p.pillCls}">${p.icon} ${p.name}</span>`).join("")}
-          </div>` : `<div style="font-size:.8rem;color:var(--text2);margin-top:5px">Keine Belastung für deine Allergene.</div>`}
+            ${risk.drivers.map(p=>`<span class="driver-pill ${p.pillCls}">${p.icon} ${t(p.key)}</span>`).join("")}
+          </div>` : `<div style="font-size:.8rem;color:var(--text2);margin-top:5px">${t("no_load")}</div>`}
       </div>
     </div>`;
     })()}
@@ -605,13 +720,13 @@ function render() {
       const d = weather.daily[activeDay] ?? weather.daily[0];
       const uvVal = d.uv ?? null;
       const uvCls = uvVal === null ? "" : uvVal >= 8 ? "uv-hi" : uvVal >= 5 ? "uv-mid" : uvVal >= 2 ? "uv-low" : "";
-      function uvCat(v) { return v === null ? "" : v <= 2 ? "niedrig" : v <= 5 ? "mäßig" : v <= 7 ? "hoch" : v <= 10 ? "sehr hoch" : "extrem"; }
+      function uvCat(v) { return v === null ? "" : v <= 2 ? t("uv_low") : v <= 5 ? t("uv_moderate") : v <= 7 ? t("uv_high") : v <= 10 ? t("uv_very_high") : t("uv_extreme"); }
       const uvLabel = uvVal === null ? "–" : `${uvVal} <span style="font-size:.65rem;font-weight:400">(${uvCat(uvVal)})</span>`;
       const fetchedStr = weather.fetchedAt
-        ? new Date(weather.fetchedAt).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})
+        ? new Date(weather.fetchedAt).toLocaleTimeString(lang==="de"?"de-DE":"en-GB",{hour:"2-digit",minute:"2-digit"})
         : "";
       // week day names
-      const wkNames = ["Mo","Di","Mi","Do","Fr","Sa","So"];
+      const wkNames = lang==="de" ? ["Mo","Di","Mi","Do","Fr","Sa","So"] : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
       function wkIcon(rain, wind) {
         if (rain > 3) return "🌧";
         if (rain > 0.5) return "🌦";
@@ -621,11 +736,11 @@ function render() {
       return `
       <div class="card" style="margin-bottom:12px">
         <div class="card-head">
-          <span class="card-title">Wetter & Polleneinfluss</span>
+          <span class="card-title">${t("weather_title")}</span>
           <span style="font-size:.72rem;color:var(--text3)">${fetchedStr ? `Stand ${fetchedStr} · ` : ""}Open-Meteo</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:12px 14px 6px;text-align:center">
-          ${[["🌡","Temp",`${w.temp}°C`],["💨","Wind",`${d.wind} km/h`],["💧","Feuchte",`${w.humidity}%`],["🌧","Regen",`${d.rain} mm`],["☀️","UV max",`<span class="${uvCls}">${uvLabel}</span>`]].map(([ic,lb,val])=>`
+          ${[["🌡",t("temp"),`${w.temp}°C`],["💨",t("wind"),`${d.wind} km/h`],["💧",t("humidity"),`${w.humidity}%`],["🌧",t("rain"),`${d.rain} mm`],["☀️",t("uv"),`<span class="${uvCls}">${uvLabel}</span>`]].map(([ic,lb,val])=>`
           <div style="padding:4px 1px">
             <div style="font-size:1.1rem">${ic}</div>
             <div style="font-size:.95rem;font-weight:700;margin:2px 0">${val}</div>
@@ -644,7 +759,7 @@ function render() {
             const uvW = wd.uv ?? null;
             const uvWCls = uvW === null ? "" : uvW >= 8 ? "uv-hi" : uvW >= 5 ? "uv-mid" : uvW >= 2 ? "uv-low" : "";
             return `<div class="week-day${i===0?" today-wk":""}">
-              <div class="wd-name">${i===0?"Heute":dayName}</div>
+              <div class="wd-name">${i===0?t("today"):dayName}</div>
               <div class="wd-icon">${wkIcon(wd.rain, wd.wind)}</div>
               <div class="wd-temp">${wd.tempMax}°</div>
               <div class="wd-rain">${wd.rain > 0 ? wd.rain+"mm" : "–"}</div>
@@ -683,11 +798,11 @@ function render() {
     <!-- POLLEN TABLE -->
     <div class="card">
       <div class="card-head collapsible" onclick="toggleSection('pollen')">
-        <span class="card-title">Alle Pollen · ${DAY_NAMES[activeDay]}</span>
+        <span class="card-title">${t("all_pollen")} · ${DAY_NAMES[activeDay]}</span>
         <span class="collapse-arrow">▼</span>
       </div>
       <div class="collapsible-body" id="pollen-body">
-      <div style="font-size:.71rem;color:var(--text3);padding:7px 14px 4px">Zeile antippen = für dein Risiko ein/ausschließen</div>
+      <div style="font-size:.71rem;color:var(--text3);padding:7px 14px 4px">${t("tap_hint")}</div>
       <table class="ptable">
         <thead>
           <tr>
@@ -703,8 +818,8 @@ function render() {
             const lvls = vals.map(lv);
             return `<tr class="${!on?"dim":"active-row"}" onclick="toggleFilter('${p.key}')" style="cursor:pointer">
               <td>
-                <span class="picon">${p.icon}</span><span class="pname">${p.name}</span>
-                <span class="ps ${inSeason?"on":"off"}">${inSeason?"🌱 "+p.s:"💤 "+p.s}</span>
+                <span class="picon">${p.icon}</span><span class="pname">${t(p.key)}</span>
+                <span class="ps ${inSeason?"on":"off"}">${inSeason?"🌱 "+t("s_"+p.key):"💤 "+t("s_"+p.key)}</span>
               </td>
               ${lvls.map((l,i)=>`
                 <td class="${i===activeDay?"col-hi":""}">
@@ -715,7 +830,7 @@ function render() {
         </tbody>
       </table>
       <div style="padding:8px 14px 10px;text-align:right">
-        <button class="card-action" onclick="event.stopPropagation();resetFilter()" style="font-size:.78rem">Alle auswählen</button>
+        <button class="card-action" onclick="event.stopPropagation();resetFilter()" style="font-size:.78rem">${t("select_all")}</button>
       </div>
       </div>
     </div>
@@ -735,17 +850,17 @@ function renderHistory() {
 
   const dateLabels = days.map(d => {
     const dt = new Date(d+"T12:00:00");
-    return dt.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
+    return dt.toLocaleDateString(lang==="de"?"de-DE":"en-GB",{day:"2-digit",month:"2-digit"});
   });
 
   return `
     <div class="card">
-      <div class="card-head"><span class="card-title">Verlauf – letzte ${days.length} Tage</span></div>
+      <div class="card-head"><span class="card-title">${t("history_title")} ${days.length} ${t("days")}</span></div>
       <div class="history-wrap">
         <div class="hist-dates">${dateLabels.map(d=>`<div class="hist-dt">${d}</div>`).join("")}</div>
         ${filteredPollen.map(p=>`
           <div class="hist-row">
-            <div class="hist-name">${p.icon} ${p.name}</div>
+            <div class="hist-name">${p.icon} ${t(p.key)}</div>
             <div class="hist-bars">
               ${days.map(d=>{
                 const v = history[d]?.[p.key] ?? "-1";
@@ -764,13 +879,13 @@ function renderSymHistory() {
   const sc = v => !v?"#3f3f46":["#3f3f46","#22c55e","#eab308","#f97316","#ef4444","#b91c1c"][v]??"#b91c1c";
   return `
     <div class="sym-hist">
-      <div class="sym-hist-title">Letzte Einträge</div>
+      <div class="sym-hist-title">${t("saved_entries")}</div>
       ${entries.map(([d,s])=>`
         <div class="sym-hist-row">
-          <div class="sym-hist-date">${new Date(d+"T12:00:00").toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})}</div>
+          <div class="sym-hist-date">${new Date(d+"T12:00:00").toLocaleDateString(lang==="de"?"de-DE":"en-GB",{day:"2-digit",month:"2-digit"})}</div>
           ${["niesen","augen","atmung","muedigkeit"].map(k=>`
             <div class="sym-dot" style="background:${sc(s[k])};color:#fff">${s[k]||"–"}</div>`).join("")}
-          <span style="font-size:.7rem;color:var(--text3)">N · A · At · M</span>
+          <span style="font-size:.7rem;color:var(--text3)">${t("n_label")} · ${t("a_label")} · ${t("at_label")} · ${t("m_label")}</span>
         </div>`).join("")}
     </div>`;
 }
@@ -793,7 +908,7 @@ function resetFilter() {
 
 function setSym(key, val) {
   draft[key] = val;
-  const map = {niesen:"Niesen", augen:"Augen", atmung:"Atmung", muedigkeit:"Müdigkeit"};
+  const map = {niesen:t("niesen"), augen:t("augen"), atmung:t("atmung"), muedigkeit:t("muedigkeit")};
   document.querySelectorAll(".sym-row").forEach(row => {
     const lb = row.querySelector(".sym-label");
     if (lb?.textContent === map[key]) {
@@ -810,7 +925,7 @@ function setSym(key, val) {
       if (body && !body.querySelector(".sym-save")) {
         const btn = document.createElement("button");
         btn.className = "sym-save";
-        btn.textContent = "Speichern";
+        btn.textContent = t("save");
         btn.onclick = saveSym;
         body.querySelector(".sym-hist")
           ? body.insertBefore(btn, body.querySelector(".sym-hist"))
@@ -881,19 +996,19 @@ function calcPollenEffect(dayIdx) {
   const wind = d.wind ?? 0;
   const humidity = weather.current.humidity ?? 50;
 
-  if (rain > 2)               return { cls:"risk-none",  icon:"🌧", text:"Regen dämpft Pollenflug" };
-  if (wind > 25 && rain < 1)  return { cls:"risk-high",  icon:"💨", text:"Wind verbreitet Pollen stark" };
-  if (wind > 15 && rain < 1)  return { cls:"risk-mid",   icon:"💨", text:"Wind verbreitet Pollen" };
-  if (humidity > 80)          return { cls:"risk-low",   icon:"💧", text:"Hohe Luftfeuchte hemmt Pollen" };
-  if (rain > 0.5)             return { cls:"risk-low",   icon:"🌦", text:"Leichter Regen reduziert Pollen" };
-  return                             { cls:"risk-none",  icon:"☀️", text:"Wetter hat geringen Einfluss" };
+  if (rain > 2)               return { cls:"risk-none",  icon:"🌧", text:t("effect_rain_heavy") };
+  if (wind > 25 && rain < 1)  return { cls:"risk-high",  icon:"💨", text:t("effect_wind_strong") };
+  if (wind > 15 && rain < 1)  return { cls:"risk-mid",   icon:"💨", text:t("effect_wind") };
+  if (humidity > 80)          return { cls:"risk-low",   icon:"💧", text:t("effect_humid") };
+  if (rain > 0.5)             return { cls:"risk-low",   icon:"🌦", text:t("effect_rain_light") };
+  return                             { cls:"risk-none",  icon:"☀️", text:t("effect_neutral") };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GEO LOCATE
 // ─────────────────────────────────────────────────────────────────────────────
 function geoLocate() {
-  if (!navigator.geolocation) { alert("Geolocation wird nicht unterstützt."); return; }
+  if (!navigator.geolocation) { alert(t("geo_unsupported")); return; }
   const btn = document.getElementById("geo-btn");
   btn.disabled = true; btn.textContent = "⏳";
   navigator.geolocation.getCurrentPosition(pos => {
@@ -914,7 +1029,7 @@ function geoLocate() {
     }
     btn.disabled = false; btn.textContent = "📍";
   }, () => {
-    alert("Standort konnte nicht ermittelt werden.");
+    alert(t("geo_error"));
     btn.disabled = false; btn.textContent = "📍";
   }, { timeout: 8000 });
 }
@@ -953,14 +1068,14 @@ function renderCorrelation() {
 
   return `
     <div class="corr-wrap">
-      <div class="corr-title">Mögliche Auslöser (Symptom-Korrelation)</div>
+      <div class="corr-title">${t("corr_title")}</div>
       ${results.map(({p, diff}) => `
         <div class="corr-row">
-          <div class="corr-name">${p.icon} ${p.name}</div>
+          <div class="corr-name">${p.icon} ${t(p.key)}</div>
           <div class="corr-track"><div class="corr-fill" style="width:${Math.round((diff/maxDiff)*100)}%"></div></div>
           <div class="corr-lbl">+${diff.toFixed(1)}</div>
         </div>`).join("")}
-      <div style="font-size:.68rem;color:var(--text3);margin-top:6px">Ø Symptom-Score an Pollentagen vs. pollenenfreien Tagen</div>
+      <div style="font-size:.68rem;color:var(--text3);margin-top:6px">${t("corr_hint")}</div>
     </div>`;
 }
 
@@ -988,12 +1103,12 @@ function refreshDrawer() {
   el.innerHTML = `
     <!-- SYMPTOM TRACKER -->
     <div class="dsec-head" onclick="toggleDrawerSec('dsym')" id="dsym-head">
-      <span>Wie geht's dir heute?</span>
+      <span>${t("sym_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
     <div class="dsec-body open" id="dsym-body">
-      <div class="sym-date">${new Date().toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long"})}</div>
-      ${[["niesen","🤧","Niesen"],["augen","👁","Augen"],["atmung","💨","Atmung"],["muedigkeit","😴","Müdigkeit"]].map(([k,ic,lb])=>`
+      <div class="sym-date">${new Date().toLocaleDateString(lang==="de"?"de-DE":"en-GB",{weekday:"long",day:"2-digit",month:"long"})}</div>
+      ${[["niesen","🤧",t("niesen")],["augen","👁",t("augen")],["atmung","💨",t("atmung")],["muedigkeit","😴",t("muedigkeit")]].map(([k,ic,lb])=>`
         <div class="sym-row">
           <div class="sym-icon">${ic}</div>
           <div class="sym-label">${lb}</div>
@@ -1002,14 +1117,14 @@ function refreshDrawer() {
               <button class="sym-btn${draft[k]===v?" on":""}" onclick="setSym('${k}',${v})">${v===0?"–":v}</button>`).join("")}
           </div>
         </div>`).join("")}
-      ${symSaved ? "" : `<button class="sym-save" onclick="saveSym()">Speichern</button>`}
+      ${symSaved ? "" : `<button class="sym-save" onclick="saveSym()">${t("save")}</button>`}
       ${renderSymHistory()}
       ${renderCorrelation()}
     </div>
 
     <!-- SEASON CALENDAR -->
     <div class="dsec-head" onclick="toggleDrawerSec('dseason')" id="dseason-head">
-      <span>Saisonkalender</span>
+      <span>${t("season_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
     <div class="dsec-body" id="dseason-body">
@@ -1017,7 +1132,7 @@ function refreshDrawer() {
         <div class="season-mhead">${MONTHS.map(m=>`<div class="season-ml">${m}</div>`).join("")}</div>
         ${POLLEN.map(p=>`
           <div class="season-row">
-            <div class="season-name">${p.icon} ${p.name}</div>
+            <div class="season-name">${p.icon} ${t(p.key)}</div>
             <div class="season-bar">
               ${MONTHS.map((_,mi)=>{
                 const m=mi+1,on=p.mo.includes(m),now=(m===month&&on);
@@ -1030,24 +1145,23 @@ function refreshDrawer() {
 
     <!-- LEGEND -->
     <div class="dsec-head" onclick="toggleDrawerSec('dlegend')" id="dlegend-head">
-      <span>Legende</span>
+      <span>${t("legend_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
     <div class="dsec-body" id="dlegend-body">
       <div class="legend">
-        <div class="li"><div class="ld" style="background:#22c55e"></div>Keine Belastung</div>
-        <div class="li"><div class="ld" style="background:#eab308"></div>Gering</div>
-        <div class="li"><div class="ld" style="background:#f97316"></div>Mittel</div>
-        <div class="li"><div class="ld" style="background:#ef4444"></div>Hoch</div>
+        <div class="li"><div class="ld" style="background:#22c55e"></div>${t("risk0")}</div>
+        <div class="li"><div class="ld" style="background:#eab308"></div>${t("lv_low")}</div>
+        <div class="li"><div class="ld" style="background:#f97316"></div>${t("lv_mid")}</div>
+        <div class="li"><div class="ld" style="background:#ef4444"></div>${t("lv_high")}</div>
       </div>
       <div style="padding:8px 14px 12px;border-top:1px solid var(--border);font-size:.79rem;color:var(--text2);line-height:1.55">
-        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:6px">Wie wird dein Risiko berechnet?</div>
-        Das <strong>persönliche Risiko</strong> oben entspricht dem <strong>höchsten Einzelwert</strong> deiner ausgewählten Pollen (grüner Rand in der Tabelle).<br><br>
-        Beispiel: Hasel = gering, Erle = hoch → Risiko = <strong>hoch</strong>.
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:6px">${t("risk_calc_title")}</div>
+        ${t("risk_calc_body")}
       </div>
       <div style="padding:10px 14px 14px;border-top:1px solid var(--border)">
-        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:8px">UV-Index Skala (WHO, 0–11+)</div>
-        ${[["0–2","niedrig","#22c55e"],["3–5","mäßig","#eab308"],["6–7","hoch","#f97316"],["8–10","sehr hoch","#ef4444"],["11+","extrem","#b91c1c"]].map(([range,cat,col])=>`
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:8px">${t("uv_scale")}</div>
+        ${[["0–2",t("uv_low"),"#22c55e"],["3–5",t("uv_moderate"),"#eab308"],["6–7",t("uv_high"),"#f97316"],["8–10",t("uv_very_high"),"#ef4444"],["11+",t("uv_extreme"),"#b91c1c"]].map(([range,cat,col])=>`
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:.8rem">
           <div style="width:10px;height:10px;border-radius:50%;background:${col};flex-shrink:0"></div>
           <span style="width:36px;color:var(--text3);flex-shrink:0">${range}</span>
@@ -1082,7 +1196,7 @@ async function load() {
       document.getElementById("offline-pill").classList.add("show");
     } else {
       document.getElementById("page").innerHTML =
-        `<div class="center">❌ Keine Daten verfügbar.<br><small>Bitte Verbindung prüfen.</small></div>`;
+        `<div class="center">${t("no_data")}<br><small>${t("check_conn")}</small></div>`;
       return;
     }
   }
@@ -1114,6 +1228,15 @@ async function load() {
   render();
   loadWeather(); // läuft parallel, rendert nochmal wenn fertig
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT STATIC HTML WITH I18N
+// ─────────────────────────────────────────────────────────────────────────────
+document.getElementById("drawer-head-title").textContent = t("menu");
+document.getElementById("geo-btn").title = t("geo_title");
+document.querySelector(".offline-pill").textContent = t("offline");
+document.querySelector(".logo").innerHTML = `🌿 <em>Pollen</em>${lang==="de"?"flug":""}`;
+document.getElementById("page").innerHTML = `<div class="center"><div class="spin"></div><span>${t("loading")}</span></div>`;
 
 load();
 
