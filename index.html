@@ -824,6 +824,24 @@ function setSym(key, val) {
       row.querySelectorAll(".sym-btn").forEach((b,i) => b.classList.toggle("on",i===val));
     }
   });
+  // Speichern-Button wieder einblenden wenn Wert geändert
+  if (symSaved) {
+    const saved = symptoms[todayISO()];
+    const changed = !saved || Object.keys(draft).some(k => draft[k] !== (saved[k] || 0));
+    if (changed) {
+      symSaved = false;
+      const body = document.getElementById("sym-body");
+      if (body && !body.querySelector(".sym-save")) {
+        const btn = document.createElement("button");
+        btn.className = "sym-save";
+        btn.textContent = "Speichern";
+        btn.onclick = saveSym;
+        body.querySelector(".sym-hist")
+          ? body.insertBefore(btn, body.querySelector(".sym-hist"))
+          : body.appendChild(btn);
+      }
+    }
+  }
 }
 function saveSym() {
   symptoms[todayISO()] = {...draft};
