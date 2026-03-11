@@ -697,6 +697,7 @@ async function load() {
     if (!res.ok) throw new Error();
     db = await res.json();
     localStorage.setItem(LS.cache, JSON.stringify(db));
+    localStorage.setItem(LS.cache + "_ts", new Date().toISOString());
   } catch {
     const c = localStorage.getItem(LS.cache);
     if (c) {
@@ -737,6 +738,59 @@ async function load() {
 }
 
 load();
+
+// ── AUTO-REFRESH bei App-Wechsel ─────────────────────────────────────────────
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    const ts = localStorage.getItem(LS.cache + "_ts");
+    const ageMin = ts ? (Date.now() - new Date(ts).getTime()) / 60000 : 999;
+    if (ageMin > 30) load(); // neu laden wenn Daten älter als 30 Min
+  }
+});
+
+// ── PULL-TO-REFRESH ──────────────────────────────────────────────────────────
+let ptr_startY = 0, ptr_pulling = false;
+const ptr_threshold = 70;
+
+const ptr_el = document.createElement("div");
+ptr_el.id = "ptr";
+ptr_el.innerHTML = `<div id="ptr-icon">↓</div>`;
+ptr_el.style.cssText = `
+  position:fixed; top:0; left:0; right:0; z-index:200;
+  display:flex; justify-content:center; align-items:center;
+  height:0; overflow:hidden; transition:height .2s;
+  background:var(--card); border-bottom:1px solid var(--border);
+  font-size:.85rem; color:var(--text2);
+`;
+document.body.prepend(ptr_el);
+
+document.addEventListener("touchstart", e => {
+  if (window.scrollY === 0) ptr_startY = e.touches[0].clientY;
+}, { passive: true });
+
+document.addEventListener("touchmove", e => {
+  if (!ptr_startY) return;
+  const dy = e.touches[0].clientY - ptr_startY;
+  if (dy > 10 && window.scrollY === 0) {
+    ptr_pulling = true;
+    const h = Math.min(dy * 0.4, 52);
+    ptr_el.style.height = h + "px";
+    ptr_el.querySelector("#ptr-icon").textContent = h >= ptr_threshold * 0.4 ? "↺ Loslassen" : "↓ Ziehen";
+  }
+}, { passive: true });
+
+document.addEventListener("touchend", () => {
+  if (ptr_pulling && parseInt(ptr_el.style.height) >= ptr_threshold * 0.4) {
+    ptr_el.style.height = "42px";
+    ptr_el.querySelector("#ptr-icon").textContent = "⟳ Aktualisiere…";
+    load().finally(() => {
+      ptr_el.style.height = "0";
+    });
+  } else {
+    ptr_el.style.height = "0";
+  }
+  ptr_startY = 0; ptr_pulling = false;
+}, { passive: true });
 </script>
 </body>
 </html>
