@@ -11,7 +11,13 @@ from datetime import date, timedelta
 from urllib.error import URLError
 from urllib.request import urlopen, Request
 
-DWD_URL = "https://opendata.dwd.de/climate_environment/health/alerts/s31fg.json"
+DWD_URL     = "https://opendata.dwd.de/climate_environment/health/alerts/s31fg.json"
+WEATHER_URL = (
+    "https://api.open-meteo.com/v1/forecast"
+    "?latitude=52.37&longitude=9.73"
+    "&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,uv_index_max"
+    "&timezone=Europe%2FBerlin&forecast_days=2"
+)
 
 LEVEL_MAP = {
     "-1": ("⬜", "keine Daten"),
@@ -49,6 +55,21 @@ def lade_pollendaten():
         sys.exit(1)
 
 
+def lade_wetter():
+    try:
+        with urlopen(WEATHER_URL, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        d = data["daily"]
+        return {
+            "temp":  d["temperature_2m_max"][0],
+            "rain":  d["precipitation_sum"][0],
+            "wind":  d["wind_speed_10m_max"][0],
+            "uv":    d["uv_index_max"][0],
+        }
+    except Exception:
+        return None
+
+
 def finde_region(daten):
     for eintrag in daten.get("content", []):
         if (eintrag.get("region_id") == REGION_ID and
@@ -70,7 +91,16 @@ SCORE_MAP = {"-1": 0, "0": 0, "0-1": 1, "1": 1, "1-2": 2, "2": 2, "2-3": 3, "3":
 def max_score(pollen_obj, day_key):
     return max((SCORE_MAP.get(str(p.get(day_key, "-1")), 0) for p in pollen_obj.values()), default=0)
 
-def erstelle_zusammenfassung(region_data, today):
+def uv_kategorie(uv):
+    if uv is None:  return ""
+    if uv <= 2:     return "niedrig"
+    if uv <= 5:     return "mäßig"
+    if uv <= 7:     return "hoch"
+    if uv <= 10:    return "sehr hoch"
+    return "extrem"
+
+
+def erstelle_zusammenfassung(region_data, today, wetter=None):
     """Gibt (text, aktiv) zurück – text ist HTML-formatiert für Telegram."""
     pollen_obj = region_data.get("Pollen", {})
     aktiv = []
@@ -115,6 +145,17 @@ def erstelle_zusammenfassung(region_data, today):
         lines += ["", f"<b>Morgen · {tomorrow.strftime('%d.%m.')}</b>"]
         lines += morgen_zeilen
 
+    # Wetter
+    if wetter:
+        regen = f"  🌧 {wetter['rain']} mm" if wetter['rain'] > 0 else ""
+        uv_kat = uv_kategorie(wetter['uv'])
+        lines += [
+            "",
+            f"<b>Wetter heute</b>",
+            f"🌡 {wetter['temp']}°C  💨 {wetter['wind']} km/h{regen}",
+            f"☀️ UV {wetter['uv']} – {uv_kat}",
+        ]
+
     # Tip
     if sc_heute >= 2:
         lines += ["", "💊 Antihistaminikum empfohlen"]
@@ -139,7 +180,10 @@ def main():
         print("❌ Region nicht gefunden.", file=sys.stderr)
         sys.exit(1)
 
-    text, aktiv = erstelle_zusammenfassung(region_data, today)
+    print("Lade Wetterdaten...")
+    wetter = lade_wetter()
+
+    text, aktiv = erstelle_zusammenfassung(region_data, today, wetter)
     print(text)
 
     if not aktiv:
