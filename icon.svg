@@ -1,4 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="22" fill="#16a34a"/>
-  <text y="54" font-size="58" x="50" text-anchor="middle" font-family="Apple Color Emoji,Noto Color Emoji,sans-serif">🌿</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <rect width="180" height="180" rx="40" fill="#ffffff"/>
+  <!-- left half leaf -->
+  <path d="M90 28 C90 28 22 52 22 98 C22 136 54 158 90 160 Z" fill="#22c55e"/>
+  <!-- right half leaf -->
+  <path d="M90 28 C90 28 158 52 158 98 C158 136 126 158 90 160 Z" fill="#16a34a"/>
+  <!-- center vein -->
+  <line x1="90" y1="28" x2="90" y2="160" stroke="#15803d" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+  <!-- side veins -->
+  <path d="M90 75 Q68 65 52 70" stroke="#15803d" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.4"/>
+  <path d="M90 100 Q112 90 128 95" stroke="#15803d" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.4"/>
+  <path d="M90 125 Q70 116 56 122" stroke="#15803d" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.4"/>
 </svg>
