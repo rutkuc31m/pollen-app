@@ -65,29 +65,68 @@ def format_level(wert):
     return f"{emoji} {text}"
 
 
+SCORE_MAP = {"-1": 0, "0": 0, "0-1": 1, "1": 1, "1-2": 2, "2": 2, "2-3": 3, "3": 3}
+
+def max_score(pollen_obj, day_key):
+    return max((SCORE_MAP.get(str(p.get(day_key, "-1")), 0) for p in pollen_obj.values()), default=0)
+
 def erstelle_zusammenfassung(region_data, today):
-    """Gibt (text, aktiv) zurück – text ist die Benachrichtigungsnachricht."""
+    """Gibt (text, aktiv) zurück – text ist HTML-formatiert für Telegram."""
     pollen_obj = region_data.get("Pollen", {})
     aktiv = []
-    zeilen = []
+    heute_zeilen = []
+    morgen_zeilen = []
 
     for key in POLLEN_TYPES:
         if key not in pollen_obj:
             continue
-        heute_val = pollen_obj[key].get("today", "-1")
+        name = POLLEN_NAMEN.get(key, key)
+        heute_val  = pollen_obj[key].get("today",    "-1")
+        morgen_val = pollen_obj[key].get("tomorrow", "-1")
+
         if heute_val not in ("-1", "0"):
-            name = POLLEN_NAMEN.get(key, key)
             aktiv.append(name)
-            zeilen.append(f"  {format_level(heute_val)}  {name}")
+            heute_zeilen.append(f"{format_level(heute_val)}  <b>{name}</b>")
+
+        if morgen_val not in ("-1", "0"):
+            morgen_zeilen.append(f"{format_level(morgen_val)}  {name}")
 
     region_name = region_data.get("partregion_name") or region_data.get("region_name", "")
-    text = f"🌿 Pollenflug {today.strftime('%d.%m.%Y')}\n📍 {region_name}\n\n"
-    if aktiv:
-        text += "\n".join(zeilen)
-    else:
-        text += "✅ Keine nennenswerte Belastung heute."
+    tomorrow    = today + timedelta(days=1)
 
-    return text, aktiv
+    # Trend arrow
+    sc_heute  = max_score(pollen_obj, "today")
+    sc_morgen = max_score(pollen_obj, "tomorrow")
+    trend = " ↑" if sc_morgen > sc_heute else (" ↓" if sc_morgen < sc_heute else "")
+
+    lines = [
+        f"🌿 <b>Pollenflug · {today.strftime('%d.%m.%Y')}</b>",
+        f"📍 {region_name}",
+        "",
+    ]
+
+    if aktiv:
+        lines.append(f"<b>Heute{trend}</b>")
+        lines += heute_zeilen
+    else:
+        lines.append("✅ <b>Keine nennenswerte Belastung heute.</b>")
+
+    if morgen_zeilen:
+        lines += ["", f"<b>Morgen · {tomorrow.strftime('%d.%m.')}</b>"]
+        lines += morgen_zeilen
+
+    # Tip
+    if sc_heute >= 2:
+        lines += ["", "💊 Antihistaminikum empfohlen"]
+    if sc_heute >= 3:
+        lines.append("🪟 Fenster geschlossen halten")
+
+    lines += [
+        "",
+        f'🔗 <a href="https://rutkuc31m.github.io/pollen-app">Forecast öffnen</a>',
+    ]
+
+    return "\n".join(lines), aktiv
 
 
 def main():
@@ -116,7 +155,7 @@ def sende_telegram(text):
     if not token or not chat_id:
         print("⚠️  TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID nicht gesetzt – übersprungen.")
         return
-    payload = json.dumps({"chat_id": chat_id, "text": text}).encode()
+    payload = json.dumps({"chat_id": chat_id, "text": text, "parse_mode": "HTML"}).encode()
     req = Request(
         f"https://api.telegram.org/bot{token}/sendMessage",
         data=payload,
