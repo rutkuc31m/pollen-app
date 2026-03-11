@@ -1,401 +1,545 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#2e7d32">
-  <title>🌿 Pollenflug</title>
+  <meta name="theme-color" content="#ffffff">
+  <title>Pollenflug</title>
   <style>
+    /* ── TOKENS ──────────────────────────────────────────────────── */
     :root {
-      --green:  #2e7d32; --green-bg:  #e8f5e9;
-      --yellow: #f9a825; --yellow-bg: #fff9c4;
-      --orange: #e65100; --orange-bg: #ffe0b2;
-      --red:    #c62828; --red-bg:    #ffcdd2;
-      --gray:   #9e9e9e; --gray-bg:   #f5f5f5;
-      --radius: 14px;
-      --shadow: 0 2px 12px rgba(0,0,0,.08);
-      --bg: #f0f7f0;
-      --card: #fff;
-      --text: #1a1a1a;
-      --muted: #666;
-      --border: #eee;
+      --bg:        #f4f4f5;
+      --surface:   #ffffff;
+      --surface2:  #f9f9fa;
+      --border:    #e4e4e7;
+      --text:      #09090b;
+      --text2:     #71717a;
+      --accent:    #16a34a;
+      --accent-bg: #f0fdf4;
+      --radius:    12px;
+      --shadow:    0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
     }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0f1a0f; --card: #1a2e1a; --text: #e8f5e9;
-        --muted: #aaa; --border: #2a3e2a; --gray-bg: #2a2a2a;
-        --green-bg: #1b3a1b; --yellow-bg: #3a3000; --orange-bg: #3a1e00; --red-bg: #3a1010;
-      }
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    /* HEADER */
-    header { background: var(--green); color: #fff; padding: 16px 20px 12px; position: sticky; top: 0; z-index: 100; }
-    .header-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .header-top h1 { font-size: 1.2rem; font-weight: 700; flex: 1; }
-    .offline-badge { background: #ff6f00; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; display: none; }
-    .offline-badge.visible { display: inline-block; }
+    [data-theme="dark"] {
+      --bg:        #09090b;
+      --surface:   #18181b;
+      --surface2:  #27272a;
+      --border:    #3f3f46;
+      --text:      #fafafa;
+      --text2:     #a1a1aa;
+      --accent:    #4ade80;
+      --accent-bg: #052e16;
+      --shadow:    0 1px 3px rgba(0,0,0,.4);
+    }
+
+    /* ── RESET ───────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background .2s, color .2s;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    /* ── HEADER ──────────────────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .logo { font-size: 1.1rem; font-weight: 700; flex: 1; letter-spacing: -.3px; }
+    .logo span { color: var(--accent); }
+
+    .theme-btn {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+    .theme-btn:hover { background: var(--border); }
+
+    .region-wrap {
+      max-width: 680px;
+      margin: 8px auto 0;
+    }
     select#region-select {
-      width: 100%; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
-      color: #fff; border-radius: 8px; padding: 8px 12px; font-size: 0.88rem; outline: none;
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
     }
-    select#region-select option { background: #1a3a1a; color: #fff; }
+    select#region-select:focus { border-color: var(--accent); }
 
-    /* UPDATE INFO */
-    .update-bar { text-align: center; font-size: 0.75rem; color: var(--muted); padding: 8px 16px; }
+    /* ── LAYOUT ──────────────────────────────────────────────────── */
+    .page { max-width: 680px; margin: 0 auto; padding: 16px 16px 80px; }
 
-    /* CONTENT */
-    .content { max-width: 680px; margin: 0 auto; padding: 12px 14px 80px; }
-
-    /* AMPEL */
-    .ampel-card { border-radius: var(--radius); padding: 20px; margin-bottom: 14px; text-align: center; background: var(--card); box-shadow: var(--shadow); }
-    .ampel-indicator { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
-    .ampel-card h2 { font-size: 1.3rem; margin-bottom: 4px; }
-    .ampel-card .triggers { font-size: 0.85rem; color: var(--muted); margin-top: 6px; }
-    .bg-green  { background: var(--green-bg);  color: var(--green); }
-    .bg-yellow { background: var(--yellow-bg); color: var(--yellow); }
-    .bg-orange { background: var(--orange-bg); color: var(--orange); }
-    .bg-red    { background: var(--red-bg);    color: var(--red); }
-    .bg-gray   { background: var(--gray-bg);   color: var(--gray); }
-
-    /* 3-DAY TABS */
-    .day-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
-    .day-tab { flex: 1; border-radius: var(--radius); padding: 12px 8px; text-align: center; cursor: pointer; background: var(--card); box-shadow: var(--shadow); border: 2px solid transparent; transition: border-color .15s; }
-    .day-tab.active { border-color: var(--green); }
-    .day-tab .tab-day { font-size: 0.8rem; color: var(--muted); }
-    .day-tab .tab-date { font-size: 0.75rem; color: var(--muted); }
-    .day-tab .tab-dot { width: 12px; height: 12px; border-radius: 50%; margin: 6px auto 4px; }
-    .day-tab .tab-label { font-size: 0.7rem; font-weight: 600; }
-
-    /* FILTER */
-    .section { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 14px; overflow: hidden; }
-    .section-header { padding: 14px 16px 10px; display: flex; justify-content: space-between; align-items: center; }
-    .section-header h3 { font-size: 0.95rem; font-weight: 600; }
-    .section-header button { font-size: 0.75rem; color: var(--green); background: none; border: none; cursor: pointer; }
-    .filter-grid { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 16px 14px; }
-    .filter-chip {
-      padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; cursor: pointer;
-      background: var(--gray-bg); color: var(--muted); border: 2px solid transparent;
-      transition: all .15s; user-select: none;
+    /* ── CARD ────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+      overflow: hidden;
     }
-    .filter-chip.active { background: var(--green-bg); color: var(--green); border-color: var(--green); }
+    .card-header {
+      padding: 14px 16px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title { font-size: 0.88rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; }
+    .card-action { font-size: 0.8rem; color: var(--accent); background: none; border: none; cursor: pointer; }
 
-    /* POLLEN TABLE */
-    .pollen-table { width: 100%; border-collapse: collapse; }
-    .pollen-table th { padding: 10px 12px; text-align: center; font-size: 0.78rem; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--border); background: var(--bg); }
-    .pollen-table th:first-child { text-align: left; }
-    .pollen-table td { padding: 10px 12px; text-align: center; font-size: 0.88rem; border-bottom: 1px solid var(--border); }
-    .pollen-table td:first-child { text-align: left; }
-    .pollen-table tr:last-child td { border-bottom: none; }
-    .pollen-table tr.dimmed td { opacity: .4; }
-    .pollen-name { font-weight: 500; font-size: 0.88rem; }
-    .saison-badge { font-size: 0.68rem; display: block; margin-top: 2px; }
-    .saison-aktiv { color: var(--green); }
-    .saison-inaktiv { color: var(--muted); }
-    .level-cell { border-radius: 6px; font-size: 0.82rem; padding: 4px 2px; }
-    .lv-0   { } .lv-low { background: var(--yellow-bg); }
-    .lv-mid { background: var(--orange-bg); } .lv-high { background: var(--red-bg); }
-    .selected-col { font-weight: 600; }
+    /* ── UPDATE BAR ──────────────────────────────────────────────── */
+    .update-bar {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text2);
+      padding: 8px 16px 4px;
+      max-width: 680px;
+      margin: 0 auto;
+    }
 
-    /* SYMPTOME */
-    .symptom-date { font-size: 0.8rem; color: var(--muted); padding: 4px 16px 10px; }
-    .symptom-row { padding: 10px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
-    .symptom-row:last-of-type { border-bottom: none; }
-    .symptom-label { font-size: 0.85rem; width: 80px; flex-shrink: 0; }
-    .symptom-btns { display: flex; gap: 5px; flex: 1; }
-    .symptom-btn { flex: 1; padding: 7px 4px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 0.8rem; cursor: pointer; transition: all .15s; }
-    .symptom-btn.sel { background: var(--green); color: #fff; border-color: var(--green); font-weight: 700; }
-    .symptom-save { margin: 12px 16px; width: calc(100% - 32px); padding: 10px; background: var(--green); color: #fff; border: none; border-radius: 10px; font-size: 0.9rem; cursor: pointer; font-weight: 600; }
-    .symptom-save:disabled { opacity: .5; cursor: default; }
-    .symptom-history { padding: 10px 16px 14px; }
-    .history-title { font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; }
-    .history-row { display: flex; gap: 6px; align-items: center; margin-bottom: 5px; font-size: 0.78rem; }
-    .history-date { width: 52px; color: var(--muted); flex-shrink: 0; }
-    .history-dots { display: flex; gap: 4px; }
-    .history-dot { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: #fff; }
+    /* ── AMPEL ───────────────────────────────────────────────────── */
+    .ampel-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+      padding: 24px 16px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .ampel-icon {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+    .ampel-text h2 { font-size: 1.15rem; font-weight: 700; }
+    .ampel-text .sub { font-size: 0.82rem; color: var(--text2); margin-top: 3px; }
+    .ampel-text .triggers { font-size: 0.8rem; margin-top: 5px; }
 
-    /* SAISON KALENDER */
-    .saison-grid { padding: 12px 16px 16px; }
-    .saison-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.82rem; }
-    .saison-name { width: 70px; font-weight: 500; flex-shrink: 0; }
-    .saison-bar-wrap { flex: 1; display: flex; gap: 2px; }
-    .saison-month { flex: 1; height: 10px; border-radius: 3px; background: var(--border); }
-    .saison-month.aktiv { background: var(--green); }
-    .saison-month.jetzt { background: var(--yellow); outline: 2px solid var(--orange); outline-offset: 1px; }
-    .month-labels { display: flex; gap: 2px; padding: 0 0 6px 80px; }
-    .month-label { flex: 1; text-align: center; font-size: 0.6rem; color: var(--muted); }
+    .clr-green  { background: #dcfce7; color: #15803d; }
+    .clr-yellow { background: #fef9c3; color: #a16207; }
+    .clr-orange { background: #ffedd5; color: #c2410c; }
+    .clr-red    { background: #fee2e2; color: #b91c1c; }
+    [data-theme="dark"] .clr-green  { background: #052e16; color: #4ade80; }
+    [data-theme="dark"] .clr-yellow { background: #1c1400; color: #fde047; }
+    [data-theme="dark"] .clr-orange { background: #1c0a00; color: #fb923c; }
+    [data-theme="dark"] .clr-red    { background: #1c0000; color: #f87171; }
 
-    /* LEGENDE */
+    /* ── DAY TABS ────────────────────────────────────────────────── */
+    .day-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+    .day-tab {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      box-shadow: var(--shadow);
+    }
+    .day-tab:hover { background: var(--surface2); }
+    .day-tab.active { border-color: var(--accent); }
+    .day-tab .tab-name { font-size: 0.78rem; font-weight: 600; color: var(--text); }
+    .day-tab .tab-date { font-size: 0.7rem; color: var(--text2); margin-top: 1px; }
+    .day-tab .tab-pip {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      margin: 7px auto 2px;
+    }
+
+    /* ── FILTER CHIPS ────────────────────────────────────────────── */
+    .chip-wrap { display: flex; flex-wrap: wrap; gap: 7px; padding: 12px 16px 14px; }
+    .chip {
+      padding: 5px 13px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text2);
+      transition: all .12s;
+      user-select: none;
+    }
+    .chip.on { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); font-weight: 500; }
+
+    /* ── TABLE ───────────────────────────────────────────────────── */
+    .ptable { width: 100%; border-collapse: collapse; }
+    .ptable th {
+      padding: 9px 12px;
+      font-size: 0.75rem;
+      color: var(--text2);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .3px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+      text-align: center;
+    }
+    .ptable th:first-child { text-align: left; }
+    .ptable td {
+      padding: 9px 12px;
+      font-size: 0.85rem;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      vertical-align: middle;
+    }
+    .ptable td:first-child { text-align: left; }
+    .ptable tr:last-child td { border-bottom: none; }
+    .ptable tr.dimmed { opacity: .35; }
+    .pname { font-weight: 500; font-size: 0.86rem; }
+    .psaison { font-size: 0.7rem; color: var(--text2); display: block; margin-top: 1px; }
+    .psaison.aktiv { color: var(--accent); }
+    .lv-cell { border-radius: 6px; padding: 3px 6px; font-size: 0.78rem; display: inline-block; white-space: nowrap; }
+    .lv-0    { color: var(--text2); }
+    .lv-low  { background: #fef9c3; color: #a16207; }
+    .lv-mid  { background: #ffedd5; color: #c2410c; }
+    .lv-high { background: #fee2e2; color: #b91c1c; }
+    [data-theme="dark"] .lv-low  { background: #1c1400; color: #fde047; }
+    [data-theme="dark"] .lv-mid  { background: #1c0a00; color: #fb923c; }
+    [data-theme="dark"] .lv-high { background: #1c0000; color: #f87171; }
+    .col-active { font-weight: 600; }
+
+    /* ── SYMPTOM TRACKER ─────────────────────────────────────────── */
+    .sym-date { font-size: 0.78rem; color: var(--text2); padding: 10px 16px 6px; }
+    .sym-row {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sym-label { font-size: 0.84rem; width: 72px; flex-shrink: 0; color: var(--text2); }
+    .sym-btns { display: flex; gap: 5px; flex: 1; }
+    .sym-btn {
+      flex: 1;
+      padding: 6px 2px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all .12s;
+    }
+    .sym-btn.on { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+    [data-theme="dark"] .sym-btn.on { color: #000; }
+    .sym-save {
+      margin: 12px 16px;
+      width: calc(100% - 32px);
+      padding: 10px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    [data-theme="dark"] .sym-save { color: #000; }
+    .sym-save:hover { opacity: .85; }
+    .sym-history { padding: 10px 16px 14px; }
+    .sym-hist-title { font-size: 0.75rem; color: var(--text2); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; }
+    .sym-hist-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 0.78rem; }
+    .sym-hist-date { width: 46px; color: var(--text2); flex-shrink: 0; }
+    .sym-dot { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; }
+
+    /* ── SEASON CALENDAR ─────────────────────────────────────────── */
+    .season-wrap { padding: 12px 16px 16px; }
+    .month-head { display: flex; gap: 2px; padding-left: 72px; margin-bottom: 6px; }
+    .month-lbl { flex: 1; text-align: center; font-size: 0.6rem; color: var(--text2); }
+    .season-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .season-name { width: 66px; font-size: 0.8rem; flex-shrink: 0; }
+    .season-bar { flex: 1; display: flex; gap: 2px; }
+    .s-month { flex: 1; height: 9px; border-radius: 3px; background: var(--border); }
+    .s-month.on { background: var(--accent); opacity: .6; }
+    .s-month.now { background: var(--accent); opacity: 1; outline: 2px solid var(--accent); outline-offset: 1px; }
+
+    /* ── LEGEND ──────────────────────────────────────────────────── */
     .legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 16px 16px; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; }
-    .legend-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
-    /* LOADING / ERROR */
-    .centered { text-align: center; padding: 48px 24px; color: var(--muted); font-size: 0.95rem; }
-    .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 14px; }
+    /* ── OFFLINE BADGE ───────────────────────────────────────────── */
+    .offline-badge {
+      font-size: 0.7rem;
+      background: #f97316;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 20px;
+      display: none;
+    }
+    .offline-badge.show { display: inline-block; }
+
+    /* ── LOADER ──────────────────────────────────────────────────── */
+    .loader { text-align: center; padding: 60px 24px; color: var(--text2); }
+    .spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 12px; }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="header-top">
-    <h1>🌿 Pollenflug</h1>
+  <div class="header-row">
+    <div class="logo">🌿 <span>Pollen</span>flug</div>
     <span class="offline-badge" id="offline-badge">Offline</span>
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Dark/Light Mode">🌙</button>
   </div>
-  <select id="region-select"><option>Lade Regionen…</option></select>
+  <div class="region-wrap">
+    <select id="region-select"><option>Lade…</option></select>
+  </div>
 </header>
 
-<div class="update-bar" id="update-bar">Lade Daten…</div>
+<div class="update-bar" id="update-bar"></div>
 
-<div class="content" id="content">
-  <div class="centered"><div class="spinner"></div>Lade DWD-Daten…</div>
+<div class="page" id="page">
+  <div class="loader"><div class="spinner"></div>Lade DWD-Daten…</div>
 </div>
 
 <script>
-// ── Konstanten ──────────────────────────────────────────────────────────────
-
-const DATA_URL = "./data.json";
-const LS_REGION   = "pollen_region";   // "30-32"
-const LS_FILTER   = "pollen_filter";   // ["Birke","Erle",...]
-const LS_SYMPTOMS = "pollen_symptoms"; // {"2026-03-11":{niesen:3,...}}
-const LS_CACHE    = "pollen_cache";
-const LS_CACHE_TS = "pollen_cache_ts";
+// ── Config ─────────────────────────────────────────────────────────────────
+const DATA_URL    = "./data.json";
+const LS_REGION   = "p_region";
+const LS_FILTER   = "p_filter";
+const LS_SYMPTOMS = "p_symptoms";
+const LS_CACHE    = "p_cache";
+const LS_THEME    = "p_theme";
 
 const POLLEN = [
-  { key: "Hasel",    name: "Hasel",    monate: [1,2,3],       saison: "Jan–Mär" },
-  { key: "Erle",     name: "Erle",     monate: [2,3,4],       saison: "Feb–Apr" },
-  { key: "Esche",    name: "Esche",    monate: [3,4,5],       saison: "Mär–Mai" },
-  { key: "Birke",    name: "Birke",    monate: [3,4,5],       saison: "Mär–Mai" },
-  { key: "Graeser",  name: "Gräser",   monate: [5,6,7,8],     saison: "Mai–Aug" },
-  { key: "Roggen",   name: "Roggen",   monate: [5,6,7],       saison: "Mai–Jul" },
-  { key: "Beifuss",  name: "Beifuß",   monate: [7,8,9],       saison: "Jul–Sep" },
-  { key: "Ambrosia", name: "Ambrosia", monate: [8,9,10],      saison: "Aug–Okt" },
+  { key:"Hasel",    name:"Hasel",    mo:[1,2,3],     s:"Jan–Mär" },
+  { key:"Erle",     name:"Erle",     mo:[2,3,4],     s:"Feb–Apr" },
+  { key:"Esche",    name:"Esche",    mo:[3,4,5],     s:"Mär–Mai" },
+  { key:"Birke",    name:"Birke",    mo:[3,4,5],     s:"Mär–Mai" },
+  { key:"Graeser",  name:"Gräser",   mo:[5,6,7,8],   s:"Mai–Aug" },
+  { key:"Roggen",   name:"Roggen",   mo:[5,6,7],     s:"Mai–Jul" },
+  { key:"Beifuss",  name:"Beifuß",   mo:[7,8,9],     s:"Jul–Sep" },
+  { key:"Ambrosia", name:"Ambrosia", mo:[8,9,10],    s:"Aug–Okt" },
 ];
 
 const LEVELS = {
-  "-1": { cls: "lv-0",    score: 0, emoji: "⬜", label: "–",              color: "#bbb"   },
-  "0":  { cls: "lv-0",    score: 0, emoji: "🟢", label: "keine",          color: "#66bb6a" },
-  "0-1":{ cls: "lv-low",  score: 1, emoji: "🟡", label: "keine–gering",   color: "#fdd835" },
-  "1":  { cls: "lv-low",  score: 1, emoji: "🟡", label: "gering",         color: "#fdd835" },
-  "1-2":{ cls: "lv-mid",  score: 2, emoji: "🟠", label: "gering–mittel",  color: "#fb8c00" },
-  "2":  { cls: "lv-mid",  score: 2, emoji: "🟠", label: "mittel",         color: "#fb8c00" },
-  "2-3":{ cls: "lv-high", score: 3, emoji: "🔴", label: "mittel–hoch",    color: "#e53935" },
-  "3":  { cls: "lv-high", score: 3, emoji: "🔴", label: "hoch",           color: "#e53935" },
+  "-1": { cls:"lv-0",    sc:0, icon:"—",  label:"–",             color:"#71717a" },
+  "0":  { cls:"lv-0",    sc:0, icon:"",   label:"keine",         color:"#22c55e" },
+  "0-1":{ cls:"lv-low",  sc:1, icon:"",   label:"keine–gering",  color:"#eab308" },
+  "1":  { cls:"lv-low",  sc:1, icon:"",   label:"gering",        color:"#eab308" },
+  "1-2":{ cls:"lv-mid",  sc:2, icon:"",   label:"gering–mittel", color:"#f97316" },
+  "2":  { cls:"lv-mid",  sc:2, icon:"",   label:"mittel",        color:"#f97316" },
+  "2-3":{ cls:"lv-high", sc:3, icon:"",   label:"mittel–hoch",   color:"#ef4444" },
+  "3":  { cls:"lv-high", sc:3, icon:"",   label:"hoch",          color:"#ef4444" },
 };
+const DAYS      = ["today","tomorrow","dayafter_to"];
+const DAY_NAMES = ["Heute","Morgen","Übermorgen"];
+const MONTHS    = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
 
-const MONTHS_SHORT = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
-const DAYS = ["today", "tomorrow", "dayafter_to"];
-const DAY_LABELS = ["Heute", "Morgen", "Übermorgen"];
+// ── State ───────────────────────────────────────────────────────────────────
+let data        = null;
+let regionKey   = localStorage.getItem(LS_REGION) || "30-32";
+let filter      = JSON.parse(localStorage.getItem(LS_FILTER) || "null") || POLLEN.map(p=>p.key);
+let activeDay   = 0;
+let symptoms    = JSON.parse(localStorage.getItem(LS_SYMPTOMS) || "{}");
+let draft       = {niesen:0, augen:0, atmung:0};
 
-// ── State ────────────────────────────────────────────────────────────────────
-
-let allData = null;
-let activeRegionKey = localStorage.getItem(LS_REGION) || "30-32";
-let activeFilter = JSON.parse(localStorage.getItem(LS_FILTER) || "null") || POLLEN.map(p => p.key);
-let activeDay = 0; // 0=Heute, 1=Morgen, 2=Übermorgen
-let symptoms = JSON.parse(localStorage.getItem(LS_SYMPTOMS) || "{}");
-let symptomDraft = { niesen: 0, augen: 0, atmung: 0 };
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function todayISO() {
-  return new Date().toISOString().slice(0, 10);
+// ── Theme ───────────────────────────────────────────────────────────────────
+function applyTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+  document.getElementById("theme-btn").textContent = t === "dark" ? "☀️" : "🌙";
+  document.querySelector('meta[name="theme-color"]').content = t === "dark" ? "#18181b" : "#ffffff";
 }
-
-function dateOffset(n) {
-  const d = new Date();
-  d.setDate(d.getDate() + n);
-  return d.toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit" });
+function toggleTheme() {
+  const t = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  localStorage.setItem(LS_THEME, t);
+  applyTheme(t);
 }
+// Init theme: saved → system fallback
+const savedTheme = localStorage.getItem(LS_THEME) ||
+  (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+applyTheme(savedTheme);
 
-function levelOf(val) {
-  return LEVELS[String(val)] ?? { cls: "lv-0", score: 0, emoji: "❓", label: String(val), color: "#bbb" };
+// ── Helpers ─────────────────────────────────────────────────────────────────
+const todayISO = () => new Date().toISOString().slice(0,10);
+function dateStr(offset) {
+  const d = new Date(); d.setDate(d.getDate()+offset);
+  return d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"});
 }
+function lv(val) { return LEVELS[String(val)] ?? {cls:"lv-0",sc:0,icon:"?",label:String(val),color:"#71717a"}; }
+function rk(r) { return `${r.region_id}-${r.partregion_id}`; }
+function findRegion() { return data.regions.find(r=>rk(r)===regionKey) ?? data.regions[0]; }
 
-function computeAmpel(pollenObj) {
-  let maxScore = 0;
-  const triggers = [];
+function ampelFor(pollenObj) {
+  let max=0; const hits=[];
   for (const p of POLLEN) {
-    if (!activeFilter.includes(p.key)) continue;
+    if (!filter.includes(p.key)) continue;
     const val = pollenObj?.[p.key]?.[DAYS[activeDay]] ?? "-1";
-    const lv = levelOf(val);
-    if (lv.score > 0) triggers.push(p.name);
-    if (lv.score > maxScore) maxScore = lv.score;
+    const l = lv(val);
+    if (l.sc > 0) hits.push(p.name);
+    if (l.sc > max) max = l.sc;
   }
-  if (maxScore === 0) return { cls: "bg-green",  emoji: "✅", label: "Keine Belastung", triggers };
-  if (maxScore === 1) return { cls: "bg-yellow", emoji: "🟡", label: "Geringe Belastung", triggers };
-  if (maxScore === 2) return { cls: "bg-orange", emoji: "🟠", label: "Mittlere Belastung", triggers };
-  return                    { cls: "bg-red",    emoji: "🔴", label: "Hohe Belastung", triggers };
+  const map = [
+    {cls:"clr-green",  icon:"✓", label:"Keine Belastung"},
+    {cls:"clr-yellow", icon:"!", label:"Geringe Belastung"},
+    {cls:"clr-orange", icon:"!", label:"Mittlere Belastung"},
+    {cls:"clr-red",    icon:"‼", label:"Hohe Belastung"},
+  ];
+  return {...map[max], hits};
 }
 
-function dotClass(score) {
-  if (score === 0) return "bg-green";
-  if (score === 1) return "bg-yellow";
-  if (score === 2) return "bg-orange";
-  return "bg-red";
+function pipColor(sc) {
+  return ["#22c55e","#eab308","#f97316","#ef4444"][sc];
 }
 
-function symptomColor(v) {
-  if (!v) return "#ccc";
-  if (v <= 1) return "#66bb6a";
-  if (v <= 2) return "#fdd835";
-  if (v <= 3) return "#fb8c00";
-  return "#e53935";
+function symColor(v) {
+  if (!v) return "#3f3f46";
+  return ["#3f3f46","#22c55e","#eab308","#f97316","#ef4444","#b91c1c"][v] ?? "#b91c1c";
 }
 
-// ── Region helpers ────────────────────────────────────────────────────────────
-
-function regionKey(r) { return `${r.region_id}-${r.partregion_id}`; }
-
-function findRegion(key) {
-  return allData.regions.find(r => regionKey(r) === key) ?? allData.regions[0];
-}
-
-function buildRegionOptions() {
-  const sel = document.getElementById("region-select");
-  // Group by region_name
-  const groups = {};
-  for (const r of allData.regions) {
-    if (!groups[r.region_name]) groups[r.region_name] = [];
-    groups[r.region_name].push(r);
-  }
-  sel.innerHTML = "";
-  for (const [name, list] of Object.entries(groups)) {
-    const grp = document.createElement("optgroup");
-    grp.label = name;
-    for (const r of list) {
-      const opt = document.createElement("option");
-      opt.value = regionKey(r);
-      opt.textContent = r.partregion_name || r.region_name;
-      if (regionKey(r) === activeRegionKey) opt.selected = true;
-      grp.appendChild(opt);
-    }
-    sel.appendChild(grp);
-  }
-}
-
-// ── Render ────────────────────────────────────────────────────────────────────
-
+// ── Render ───────────────────────────────────────────────────────────────────
 function render() {
-  const region = findRegion(activeRegionKey);
-  const pollen = region.pollen;
-  const month  = new Date().getMonth() + 1; // 1-12
+  const region = findRegion();
+  const pol    = region.pollen;
+  const month  = new Date().getMonth()+1;
+  const amp    = ampelFor(pol);
 
-  const ampel = computeAmpel(pollen);
-
-  // Day tab max scores
   const dayScores = DAYS.map(day => {
-    let max = 0;
+    let m=0;
     for (const p of POLLEN) {
-      if (!activeFilter.includes(p.key)) continue;
-      const v = levelOf(pollen?.[p.key]?.[day] ?? "-1").score;
-      if (v > max) max = v;
+      if (!filter.includes(p.key)) continue;
+      const s = lv(pol?.[p.key]?.[day]??"-1").sc;
+      if (s>m) m=s;
     }
-    return max;
+    return m;
   });
 
-  const todayEntry = symptoms[todayISO()] ?? null;
-  if (todayEntry) {
-    symptomDraft = { niesen: todayEntry.niesen, augen: todayEntry.augen, atmung: todayEntry.atmung };
-  }
+  // Pre-fill draft from saved entry
+  const todaySym = symptoms[todayISO()];
+  if (todaySym) draft = {niesen:todaySym.niesen, augen:todaySym.augen, atmung:todaySym.atmung};
 
-  document.getElementById("content").innerHTML = `
+  document.getElementById("page").innerHTML = `
 
     <!-- AMPEL -->
     <div class="ampel-card">
-      <div class="ampel-indicator ${ampel.cls}">${ampel.emoji}</div>
-      <h2>${ampel.label}</h2>
-      <div class="tab-date">${DAY_LABELS[activeDay]} · ${dateOffset(activeDay)}</div>
-      ${ampel.triggers.length ? `<div class="triggers">Aktiv: ${ampel.triggers.join(", ")}</div>` : ""}
+      <div class="ampel-icon ${amp.cls}" style="font-size:1.5rem;font-weight:700">${amp.icon}</div>
+      <div class="ampel-text">
+        <h2>${amp.label}</h2>
+        <div class="sub">${DAY_NAMES[activeDay]} · ${dateStr(activeDay)}</div>
+        ${amp.hits.length ? `<div class="triggers" style="color:var(--text2)">Aktiv: ${amp.hits.join(", ")}</div>` : ""}
+      </div>
     </div>
 
-    <!-- 3-DAY TABS -->
+    <!-- DAY TABS -->
     <div class="day-tabs">
-      ${DAY_LABELS.map((label, i) => `
-        <div class="day-tab ${i === activeDay ? "active" : ""}" onclick="setDay(${i})">
-          <div class="tab-day">${label}</div>
-          <div class="tab-date">${dateOffset(i)}</div>
-          <div class="tab-dot ${dotClass(dayScores[i])}" style="background:${['#66bb6a','#fdd835','#fb8c00','#e53935'][dayScores[i]]}"></div>
+      ${DAY_NAMES.map((n,i)=>`
+        <div class="day-tab${i===activeDay?" active":""}" onclick="setDay(${i})">
+          <div class="tab-name">${n}</div>
+          <div class="tab-date">${dateStr(i)}</div>
+          <div class="tab-pip" style="background:${pipColor(dayScores[i])}"></div>
         </div>`).join("")}
     </div>
 
     <!-- MEINE POLLEN -->
-    <div class="section">
-      <div class="section-header">
-        <h3>🎯 Meine Pollen</h3>
-        <button onclick="resetFilter()">Alle</button>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Meine Pollen</span>
+        <button class="card-action" onclick="resetFilter()">Alle</button>
       </div>
-      <div class="filter-grid">
-        ${POLLEN.map(p => `
-          <div class="filter-chip ${activeFilter.includes(p.key) ? "active" : ""}"
-               onclick="toggleFilter('${p.key}')">${p.name}</div>`).join("")}
+      <div class="chip-wrap">
+        ${POLLEN.map(p=>`
+          <div class="chip${filter.includes(p.key)?" on":""}" onclick="toggleFilter('${p.key}')">${p.name}</div>`).join("")}
       </div>
     </div>
 
-    <!-- POLLENÜBERSICHT -->
-    <div class="section">
-      <div class="section-header"><h3>📊 Pollenübersicht</h3></div>
-      <table class="pollen-table">
+    <!-- TABELLE -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Übersicht</span></div>
+      <table class="ptable">
         <thead>
           <tr>
             <th>Pollen</th>
-            ${DAY_LABELS.map((l, i) => `<th class="${i === activeDay ? "selected-col" : ""}">${l}<br><span style="font-weight:400;font-size:.7rem">${dateOffset(i)}</span></th>`).join("")}
+            ${DAY_NAMES.map((n,i)=>`<th class="${i===activeDay?"col-active":""}">${n}<br><span style="text-transform:none;font-size:.68rem;font-weight:400">${dateStr(i)}</span></th>`).join("")}
             <th>Saison</th>
           </tr>
         </thead>
         <tbody>
-          ${POLLEN.map(p => {
-            const inFilter  = activeFilter.includes(p.key);
-            const inSeason  = p.monate.includes(month);
-            const vals = DAYS.map(d => pollen?.[p.key]?.[d] ?? "-1");
-            const lvls = vals.map(levelOf);
-            return `<tr class="${!inFilter ? "dimmed" : ""}">
+          ${POLLEN.map(p=>{
+            const vals = DAYS.map(d=>pol?.[p.key]?.[d]??"-1");
+            const lvls = vals.map(lv);
+            const inSeason = p.mo.includes(month);
+            return `<tr class="${!filter.includes(p.key)?"dimmed":""}">
               <td>
-                <div class="pollen-name">${p.name}</div>
-                <span class="saison-badge ${inSeason ? "saison-aktiv" : "saison-inaktiv"}">
-                  ${inSeason ? "🌱" : "💤"} ${p.saison}
-                </span>
+                <div class="pname">${p.name}</div>
+                <span class="psaison${inSeason?" aktiv":""}">${inSeason?"🌱":"💤"} ${p.s}</span>
               </td>
-              ${lvls.map((lv, i) => `
-                <td class="level-cell ${lv.cls} ${i === activeDay ? "selected-col" : ""}">
-                  ${lv.emoji} <span style="font-size:.78rem">${lv.label}</span>
+              ${lvls.map((l,i)=>`
+                <td class="${i===activeDay?"col-active":""}">
+                  <span class="lv-cell ${l.cls}">${l.label}</span>
                 </td>`).join("")}
-              <td style="font-size:.75rem;color:var(--muted)">${p.saison}</td>
+              <td style="font-size:.74rem;color:var(--text2)">${p.s}</td>
             </tr>`;
           }).join("")}
         </tbody>
       </table>
     </div>
 
-    <!-- SYMPTOM-TRACKER -->
-    <div class="section">
-      <div class="section-header"><h3>🤧 Wie geht's dir heute?</h3></div>
-      <div class="symptom-date">${new Date().toLocaleDateString("de-DE", {weekday:"long",day:"2-digit",month:"long"})}</div>
-      ${renderSymptomRow("niesen", "Niesen")}
-      ${renderSymptomRow("augen",  "Augen")}
-      ${renderSymptomRow("atmung", "Atmung")}
-      <button class="symptom-save" onclick="saveSymptoms()">Speichern</button>
-      ${renderSymptomHistory()}
+    <!-- SYMPTOME -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Wie geht's dir heute?</span></div>
+      <div class="sym-date">${new Date().toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long",year:"numeric"})}</div>
+      ${["niesen","augen","atmung"].map(k=>`
+        <div class="sym-row">
+          <div class="sym-label">${k.charAt(0).toUpperCase()+k.slice(1)}</div>
+          <div class="sym-btns">
+            ${[0,1,2,3,4,5].map(v=>`
+              <button class="sym-btn${draft[k]===v?" on":""}" onclick="setSym('${k}',${v})">${v===0?"–":v}</button>`).join("")}
+          </div>
+        </div>`).join("")}
+      <button class="sym-save" onclick="saveSym()">Speichern</button>
+      ${renderHistory()}
     </div>
 
     <!-- SAISONKALENDER -->
-    <div class="section">
-      <div class="section-header"><h3>📅 Saisonkalender</h3></div>
-      <div class="saison-grid">
-        <div class="month-labels">
-          ${MONTHS_SHORT.map(m => `<div class="month-label">${m}</div>`).join("")}
-        </div>
-        ${POLLEN.map(p => `
-          <div class="saison-item">
-            <div class="saison-name">${p.name}</div>
-            <div class="saison-bar-wrap">
-              ${MONTHS_SHORT.map((_, mi) => {
-                const m = mi + 1;
-                const isJetzt = m === month;
-                const isAktiv = p.monate.includes(m);
-                return `<div class="saison-month ${isAktiv ? (isJetzt ? "jetzt" : "aktiv") : ""}"></div>`;
+    <div class="card">
+      <div class="card-header"><span class="card-title">Saisonkalender</span></div>
+      <div class="season-wrap">
+        <div class="month-head">${MONTHS.map(m=>`<div class="month-lbl">${m}</div>`).join("")}</div>
+        ${POLLEN.map(p=>`
+          <div class="season-row">
+            <div class="season-name">${p.name}</div>
+            <div class="season-bar">
+              ${MONTHS.map((_,mi)=>{
+                const m=mi+1, on=p.mo.includes(m), now=(m===month&&on);
+                return `<div class="s-month${now?" now":on?" on":""}"></div>`;
               }).join("")}
             </div>
           </div>`).join("")}
@@ -403,133 +547,120 @@ function render() {
     </div>
 
     <!-- LEGENDE -->
-    <div class="section">
-      <div class="section-header"><h3>📖 Legende</h3></div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Legende</span></div>
       <div class="legend-grid">
-        <div class="legend-item"><div class="legend-dot" style="background:#66bb6a"></div>Keine Belastung</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#fdd835"></div>Gering</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#fb8c00"></div>Mittel</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#e53935"></div>Hoch</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div>Keine Belastung</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#eab308"></div>Gering</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f97316"></div>Mittel</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>Hoch</div>
       </div>
     </div>
   `;
 }
 
-function renderSymptomRow(key, label) {
-  const current = symptomDraft[key] ?? 0;
-  return `
-    <div class="symptom-row">
-      <div class="symptom-label">${label}</div>
-      <div class="symptom-btns">
-        ${[0,1,2,3,4,5].map(v => `
-          <button class="symptom-btn ${current === v ? "sel" : ""}"
-                  onclick="setSymptom('${key}', ${v})">${v === 0 ? "–" : v}</button>`).join("")}
-      </div>
-    </div>`;
-}
-
-function renderSymptomHistory() {
-  const entries = Object.entries(symptoms).sort((a,b) => b[0].localeCompare(a[0])).slice(0, 7);
+function renderHistory() {
+  const entries = Object.entries(symptoms).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,7);
   if (!entries.length) return "";
   return `
-    <div class="symptom-history">
-      <div class="history-title">Letzte Einträge</div>
-      ${entries.map(([date, s]) => `
-        <div class="history-row">
-          <div class="history-date">${new Date(date + "T12:00:00").toLocaleDateString("de-DE", {day:"2-digit",month:"2-digit"})}</div>
-          <div class="history-dots">
-            ${["niesen","augen","atmung"].map(k => `
-              <div class="history-dot" style="background:${symptomColor(s[k])}" title="${k}: ${s[k]}">${s[k]||"–"}</div>`).join("")}
-          </div>
-          <div style="font-size:.75rem;color:var(--muted);margin-left:4px">N · A · At</div>
+    <div class="sym-history">
+      <div class="sym-hist-title">Letzte Tage</div>
+      ${entries.map(([d,s])=>`
+        <div class="sym-hist-row">
+          <div class="sym-hist-date">${new Date(d+"T12:00:00").toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})}</div>
+          ${["niesen","augen","atmung"].map(k=>`
+            <div class="sym-dot" style="background:${symColor(s[k])};color:#fff">${s[k]||"–"}</div>`).join("")}
+          <span style="font-size:.72rem;color:var(--text2)">N A At</span>
         </div>`).join("")}
     </div>`;
 }
 
-// ── Event handlers ─────────────────────────────────────────────────────────────
-
-function setDay(i) {
-  activeDay = i;
-  render();
-}
+// ── Interactions ─────────────────────────────────────────────────────────────
+function setDay(i) { activeDay=i; render(); }
 
 function toggleFilter(key) {
-  if (activeFilter.includes(key)) {
-    activeFilter = activeFilter.filter(k => k !== key);
-  } else {
-    activeFilter.push(key);
-  }
-  localStorage.setItem(LS_FILTER, JSON.stringify(activeFilter));
+  filter = filter.includes(key) ? filter.filter(k=>k!==key) : [...filter, key];
+  localStorage.setItem(LS_FILTER, JSON.stringify(filter));
   render();
 }
-
 function resetFilter() {
-  activeFilter = POLLEN.map(p => p.key);
-  localStorage.setItem(LS_FILTER, JSON.stringify(activeFilter));
+  filter = POLLEN.map(p=>p.key);
+  localStorage.setItem(LS_FILTER, JSON.stringify(filter));
   render();
 }
 
-function setSymptom(key, val) {
-  symptomDraft[key] = val;
-  const rows = document.querySelectorAll(".symptom-row");
-  rows.forEach(row => {
-    const label = row.querySelector(".symptom-label");
-    if (!label) return;
-    const labels = { niesen: "Niesen", augen: "Augen", atmung: "Atmung" };
-    if (labels[key] && label.textContent === labels[key]) {
-      row.querySelectorAll(".symptom-btn").forEach((btn, i) => {
-        btn.classList.toggle("sel", i === val);
-      });
+function setSym(key, val) {
+  draft[key] = val;
+  document.querySelectorAll(`.sym-row`).forEach(row => {
+    const lbl = row.querySelector(".sym-label");
+    if (!lbl) return;
+    const map = {niesen:"Niesen",augen:"Augen",atmung:"Atmung"};
+    if (map[key] === lbl.textContent) {
+      row.querySelectorAll(".sym-btn").forEach((b,i) => b.classList.toggle("on", i===val));
     }
   });
 }
-
-function saveSymptoms() {
-  symptoms[todayISO()] = { ...symptomDraft };
+function saveSym() {
+  symptoms[todayISO()] = {...draft};
   localStorage.setItem(LS_SYMPTOMS, JSON.stringify(symptoms));
   render();
 }
 
 document.getElementById("region-select").addEventListener("change", e => {
-  activeRegionKey = e.target.value;
-  localStorage.setItem(LS_REGION, activeRegionKey);
+  regionKey = e.target.value;
+  localStorage.setItem(LS_REGION, regionKey);
   render();
 });
 
-// ── Data loading ────────────────────────────────────────────────────────────
-
-async function loadData() {
-  // Versuche frische Daten
+// ── Load data ─────────────────────────────────────────────────────────────────
+async function load() {
   try {
-    const resp = await fetch(DATA_URL + "?t=" + Date.now());
-    if (!resp.ok) throw new Error(resp.status);
-    allData = await resp.json();
-    localStorage.setItem(LS_CACHE, JSON.stringify(allData));
-    localStorage.setItem(LS_CACHE_TS, new Date().toISOString());
+    const res = await fetch(DATA_URL + "?v=" + Date.now());
+    if (!res.ok) throw new Error();
+    data = await res.json();
+    localStorage.setItem(LS_CACHE, JSON.stringify(data));
   } catch {
-    // Fallback: Cache
-    const cached = localStorage.getItem(LS_CACHE);
-    if (cached) {
-      allData = JSON.parse(cached);
-      document.getElementById("offline-badge").classList.add("visible");
+    const c = localStorage.getItem(LS_CACHE);
+    if (c) {
+      data = JSON.parse(c);
+      document.getElementById("offline-badge").classList.add("show");
     } else {
-      document.getElementById("content").innerHTML =
-        `<div class="centered">❌ Keine Daten verfügbar.<br><small>Bitte Internetverbindung prüfen.</small></div>`;
+      document.getElementById("page").innerHTML =
+        `<div class="loader">❌ Keine Daten verfügbar.<br><small>Bitte Verbindung prüfen.</small></div>`;
       return;
     }
   }
 
-  // Update-Bar
-  const lu = allData.last_update || "";
-  const nu = allData.next_update || "";
   document.getElementById("update-bar").textContent =
-    `Stand: ${lu}${nu ? " · Nächstes Update: " + nu : ""}`;
+    [data.last_update && `Stand: ${data.last_update}`,
+     data.next_update && `Nächstes Update: ${data.next_update}`]
+    .filter(Boolean).join(" · ");
 
-  buildRegionOptions();
+  // Region-Dropdown
+  const sel = document.getElementById("region-select");
+  const groups = {};
+  for (const r of data.regions) {
+    if (!groups[r.region_name]) groups[r.region_name] = [];
+    groups[r.region_name].push(r);
+  }
+  sel.innerHTML = "";
+  for (const [name, list] of Object.entries(groups)) {
+    const g = document.createElement("optgroup");
+    g.label = name;
+    for (const r of list) {
+      const o = document.createElement("option");
+      o.value = rk(r);
+      o.textContent = r.partregion_name || r.region_name;
+      if (rk(r) === regionKey) o.selected = true;
+      g.appendChild(o);
+    }
+    sel.appendChild(g);
+  }
+
   render();
 }
 
-loadData();
+load();
 </script>
 </body>
 </html>
