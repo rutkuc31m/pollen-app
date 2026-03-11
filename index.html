@@ -1016,7 +1016,7 @@ function render() {
       <div class="card" style="margin-bottom:12px">
         <div class="card-head">
           <span class="card-title">${t("weather_title")}</span>
-          <span style="font-size:.72rem;color:var(--text3)">${fetchedStr ? `Stand ${fetchedStr} · ` : ""}Open-Meteo</span>
+          <span style="font-size:.72rem;color:var(--text3)">${fetchedStr ? `${t("dwd_stand")} ${fetchedStr} · ` : ""}Open-Meteo</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:12px 14px 6px;text-align:center">
           ${[["🌡",t("temp"),`${w.temp}°C`],["💨",t("wind"),`${d.wind} km/h`],["💧",t("humidity"),`${w.humidity}%`],["🌧",t("rain"),`${d.rain} mm`],["☀️",t("uv"),`<span class="${uvCls}">${uvLabel}</span>`]].map(([ic,lb,val])=>`
