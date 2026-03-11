@@ -215,8 +215,7 @@
     }
     .ptable td:first-child { text-align: left; }
     .ptable tr:last-child td { border-bottom: none; }
-    .ptable tr.dim { opacity: .3; }
-    .ptable tr.dim td { pointer-events: none; }
+    .ptable tr.dim { opacity: .35; }
     .pname  { font-weight: 500; font-size: .86rem; }
     .picon  { font-size: 1rem; margin-right: 5px; }
     .ps     { font-size: .68rem; display: block; margin-top: 1px; }
@@ -437,7 +436,7 @@ let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
 let draft     = {niesen:0,augen:0,atmung:0,muedigkeit:0};
 let symSaved  = !!symptoms[new Date().toISOString().slice(0,10)];
-let openSections = new Set();
+let openSections = new Set(['pollen']);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME
@@ -630,23 +629,6 @@ function render() {
       ${[0,1,2].map(i=>`<div class="swipe-dot${i===activeDay?" active":""}"></div>`).join("")}
     </div>
 
-    <!-- MY ALLERGIES -->
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">Meine Allergien</span>
-        <button class="card-action" onclick="resetFilter()">Alle</button>
-      </div>
-      <div class="allergy-grid">
-        ${POLLEN.map(p=>{
-          const on = filter.includes(p.key);
-          return `<div class="allergy-chip ${on?"on":""}"
-                       onclick="toggleFilter('${p.key}')">
-            ${p.icon} ${p.name}
-          </div>`;
-        }).join("")}
-      </div>
-    </div>
-
     <!-- POLLEN TABLE -->
     <div class="card">
       <div class="card-head collapsible" onclick="toggleSection('pollen')">
@@ -654,6 +636,7 @@ function render() {
         <span class="collapse-arrow">▼</span>
       </div>
       <div class="collapsible-body" id="pollen-body">
+      <div style="font-size:.71rem;color:var(--text3);padding:7px 14px 4px">Zeile antippen = für dein Risiko ein/ausschließen</div>
       <table class="ptable">
         <thead>
           <tr>
@@ -663,10 +646,11 @@ function render() {
         </thead>
         <tbody>
           ${POLLEN.map(p=>{
+            const on = filter.includes(p.key);
             const inSeason = p.mo.includes(month);
             const vals = DAYS.map(d=>pol?.[p.key]?.[d]??"-1");
             const lvls = vals.map(lv);
-            return `<tr class="${!filter.includes(p.key)?"dim":""}">
+            return `<tr class="${!on?"dim":""}" onclick="toggleFilter('${p.key}')" style="cursor:pointer">
               <td>
                 <span class="picon">${p.icon}</span><span class="pname">${p.name}</span>
                 <span class="ps ${inSeason?"on":"off"}">${inSeason?"🌱 "+p.s:"💤 "+p.s}</span>
@@ -675,10 +659,14 @@ function render() {
                 <td class="${i===activeDay?"col-hi":""}">
                   <span class="badge ${l.cls}">${l.label}</span>
                 </td>`).join("")}
+              <td style="width:24px;text-align:center;font-size:.8rem;color:${on?"var(--accent)":"var(--text3)"}">${on?"✓":"○"}</td>
             </tr>`;
           }).join("")}
         </tbody>
       </table>
+      <div style="padding:8px 14px 10px;text-align:right">
+        <button class="card-action" onclick="event.stopPropagation();resetFilter()" style="font-size:.78rem">Alle auswählen</button>
+      </div>
       </div>
     </div>
 
