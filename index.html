@@ -105,8 +105,14 @@
       display: flex; justify-content: space-between; align-items: center;
       border-bottom: 1px solid var(--border);
     }
+    .card-head.collapsible { cursor: pointer; user-select: none; border-bottom: none; }
+    .card-head.collapsible.open { border-bottom: 1px solid var(--border); }
     .card-title { font-size: .78rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; }
     .card-action { font-size: .78rem; color: var(--accent); background: none; border: none; cursor: pointer; padding: 0; }
+    .collapse-arrow { font-size: .75rem; color: var(--text3); transition: transform .2s; }
+    .card-head.collapsible.open .collapse-arrow { transform: rotate(180deg); }
+    .collapsible-body { display: none; }
+    .collapsible-body.open { display: block; }
 
     /* ── HERO (personal risk) ────────────────────────── */
     .hero {
@@ -520,7 +526,11 @@ function render() {
 
     <!-- SYMPTOM TRACKER -->
     <div class="card">
-      <div class="card-head"><span class="card-title">Wie geht's dir heute?</span></div>
+      <div class="card-head collapsible" onclick="toggleSection('sym')">
+        <span class="card-title">Wie geht's dir heute?</span>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="collapsible-body" id="sym-body">
       <div class="sym-date">${new Date().toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long"})}</div>
       ${[["niesen","🤧","Niesen"],["augen","👁","Augen"],["atmung","💨","Atmung"]].map(([k,ic,lb])=>`
         <div class="sym-row">
@@ -533,11 +543,16 @@ function render() {
         </div>`).join("")}
       <button class="sym-save" onclick="saveSym()">Speichern</button>
       ${renderSymHistory()}
+      </div>
     </div>
 
     <!-- SEASON CALENDAR -->
     <div class="card">
-      <div class="card-head"><span class="card-title">Saisonkalender</span></div>
+      <div class="card-head collapsible" onclick="toggleSection('season')">
+        <span class="card-title">Saisonkalender</span>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="collapsible-body" id="season-body">
       <div class="season-wrap">
         <div class="season-mhead">${MONTHS.map(m=>`<div class="season-ml">${m}</div>`).join("")}</div>
         ${POLLEN.map(p=>`
@@ -551,16 +566,22 @@ function render() {
             </div>
           </div>`).join("")}
       </div>
+      </div>
     </div>
 
     <!-- LEGEND -->
     <div class="card">
-      <div class="card-head"><span class="card-title">Legende</span></div>
+      <div class="card-head collapsible" onclick="toggleSection('legend')">
+        <span class="card-title">Legende</span>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="collapsible-body" id="legend-body">
       <div class="legend">
         <div class="li"><div class="ld" style="background:#22c55e"></div>Keine Belastung</div>
         <div class="li"><div class="ld" style="background:#eab308"></div>Gering</div>
         <div class="li"><div class="ld" style="background:#f97316"></div>Mittel</div>
         <div class="li"><div class="ld" style="background:#ef4444"></div>Hoch</div>
+      </div>
       </div>
     </div>
   `;
@@ -651,6 +672,14 @@ function saveSym() {
   } else {
     render();
   }
+}
+
+function toggleSection(id) {
+  const body = document.getElementById(id+"-body");
+  const head = body?.previousElementSibling;
+  if (!body) return;
+  const open = body.classList.toggle("open");
+  head?.classList.toggle("open", open);
 }
 
 document.getElementById("region-sel").addEventListener("change", e => {
