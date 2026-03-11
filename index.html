@@ -216,6 +216,7 @@
     .ptable td:first-child { text-align: left; }
     .ptable tr:last-child td { border-bottom: none; }
     .ptable tr.dim { opacity: .35; }
+    .ptable tr.active-row td:first-child { border-left: 3px solid var(--accent); }
     .pname  { font-weight: 500; font-size: .86rem; }
     .picon  { font-size: 1rem; margin-right: 5px; }
     .ps     { font-size: .68rem; display: block; margin-top: 1px; }
@@ -642,7 +643,6 @@ function render() {
           <tr>
             <th>Pollen</th>
             ${DAY_NAMES.map((n,i)=>`<th class="${i===activeDay?"col-hi":""}">${n}<br><span style="text-transform:none;font-size:.65rem;font-weight:400;letter-spacing:0">${dStr(i)}</span></th>`).join("")}
-            <th style="width:28px"></th>
           </tr>
         </thead>
         <tbody>
@@ -651,7 +651,7 @@ function render() {
             const inSeason = p.mo.includes(month);
             const vals = DAYS.map(d=>pol?.[p.key]?.[d]??"-1");
             const lvls = vals.map(lv);
-            return `<tr class="${!on?"dim":""}" onclick="toggleFilter('${p.key}')" style="cursor:pointer">
+            return `<tr class="${!on?"dim":"active-row"}" onclick="toggleFilter('${p.key}')" style="cursor:pointer">
               <td>
                 <span class="picon">${p.icon}</span><span class="pname">${p.name}</span>
                 <span class="ps ${inSeason?"on":"off"}">${inSeason?"🌱 "+p.s:"💤 "+p.s}</span>
@@ -660,7 +660,6 @@ function render() {
                 <td class="${i===activeDay?"col-hi":""}">
                   <span class="badge ${l.cls}">${l.label}</span>
                 </td>`).join("")}
-              <td style="text-align:center;font-size:.85rem;color:${on?"var(--accent)":"var(--text3)"}">${on?"✓":"○"}</td>
             </tr>`;
           }).join("")}
         </tbody>
