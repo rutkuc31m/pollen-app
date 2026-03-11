@@ -2,8 +2,8 @@ name: Täglicher Pollenflug-Alert
 
 on:
   schedule:
-    # 10:15 UTC = 11:15 CET / 12:15 CEST (nach DWD-Update um ~11:00)
-    - cron: "15 10 * * *"
+    # 11:00 UTC = 12:00 CET / 13:00 CEST (1h Puffer nach DWD-Update um ~11:00)
+    - cron: "0 11 * * *"
   workflow_dispatch:
 
 jobs:
