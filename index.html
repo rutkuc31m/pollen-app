@@ -465,7 +465,7 @@ function personalRisk(pol, dayIdx) {
   for (const p of POLLEN) {
     if (!filter.includes(p.key)) continue;
     const l = lv(pol?.[p.key]?.[DAYS[dayIdx]]??"-1");
-    if (l.sc>0) drivers.push(p);
+    if (l.sc>0) drivers.push({...p, pillCls:["risk-none","risk-low","risk-mid","risk-high"][l.sc]});
     if (l.sc>max) max=l.sc;
   }
   return { ...RISK[max], max, drivers };
@@ -535,7 +535,7 @@ function render() {
         <div class="hero-loc">${reg.region_name}${reg.partregion_name?` · ${reg.partregion_name}`:""} · ${DAY_NAMES[activeDay]}</div>
         ${risk.drivers.length ? `
           <div class="hero-drivers">
-            ${risk.drivers.map(p=>`<span class="driver-pill ${risk.cls}">${p.icon} ${p.name}</span>`).join("")}
+            ${risk.drivers.map(p=>`<span class="driver-pill ${p.pillCls}">${p.icon} ${p.name}</span>`).join("")}
           </div>` : `<div style="font-size:.8rem;color:var(--text2);margin-top:5px">Keine Belastung für deine Allergene.</div>`}
       </div>
     </div>`;
