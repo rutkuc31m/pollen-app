@@ -642,7 +642,15 @@ function setSym(key, val) {
 function saveSym() {
   symptoms[todayISO()] = {...draft};
   localStorage.setItem(LS.syms, JSON.stringify(symptoms));
-  render();
+  const btn = document.querySelector(".sym-save");
+  if (btn) {
+    btn.textContent = "✓ Gespeichert";
+    btn.style.background = "#16a34a";
+    btn.disabled = true;
+    setTimeout(() => render(), 1200);
+  } else {
+    render();
+  }
 }
 
 document.getElementById("region-sel").addEventListener("change", e => {
