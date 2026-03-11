@@ -493,7 +493,11 @@ function render() {
 
     <!-- POLLEN TABLE -->
     <div class="card">
-      <div class="card-head"><span class="card-title">Alle Pollen · ${DAY_NAMES[activeDay]}</span></div>
+      <div class="card-head collapsible" onclick="toggleSection('pollen')">
+        <span class="card-title">Alle Pollen · ${DAY_NAMES[activeDay]}</span>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="collapsible-body" id="pollen-body">
       <table class="ptable">
         <thead>
           <tr>
@@ -519,6 +523,7 @@ function render() {
           }).join("")}
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- HISTORY -->
