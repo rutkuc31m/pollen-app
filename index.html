@@ -348,12 +348,62 @@
     .corr-track { flex: 1; background: var(--border); border-radius: 4px; height: 7px; overflow: hidden; }
     .corr-fill { height: 100%; border-radius: 4px; background: var(--accent); }
     .corr-lbl { font-size: .7rem; color: var(--text3); width: 28px; text-align: right; flex-shrink: 0; }
+
+    /* ── DRAWER ──────────────────────────────────────── */
+    #drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45); z-index: 200;
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s;
+    }
+    #drawer-overlay.show { opacity: 1; pointer-events: all; }
+    #drawer {
+      position: fixed; top: 0; left: 0; height: 100%;
+      width: min(300px, 85vw);
+      background: var(--card); z-index: 201;
+      transform: translateX(-100%);
+      transition: transform .28s ease;
+      overflow-y: auto;
+      box-shadow: 4px 0 24px rgba(0,0,0,.18);
+    }
+    #drawer.open { transform: translateX(0); }
+    #drawer-head {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+      font-weight: 600; font-size: .95rem;
+      position: sticky; top: 0; background: var(--card); z-index: 1;
+    }
+    #drawer-head button {
+      background: none; border: none; font-size: 1.2rem;
+      cursor: pointer; color: var(--text2); padding: 2px 6px;
+    }
+    .dsec-head {
+      padding: 12px 16px; cursor: pointer; user-select: none;
+      display: flex; justify-content: space-between; align-items: center;
+      border-top: 1px solid var(--border);
+      font-size: .78rem; font-weight: 600;
+      color: var(--text2); text-transform: uppercase; letter-spacing: .5px;
+    }
+    .dsec-arrow { font-size: .75rem; color: var(--text3); transition: transform .2s; }
+    .dsec-head.open .dsec-arrow { transform: rotate(180deg); }
+    .dsec-body { display: none; }
+    .dsec-body.open { display: block; }
   </style>
 </head>
 <body>
 
+<div id="drawer-overlay" onclick="closeDrawer()"></div>
+<div id="drawer">
+  <div id="drawer-head">
+    <span>Menü</span>
+    <button onclick="closeDrawer()">✕</button>
+  </div>
+  <div id="drawer-content"></div>
+</div>
+
 <div class="topbar">
   <div class="topbar-inner">
+    <button class="icon-btn" onclick="openDrawer()" aria-label="Menü">☰</button>
     <div class="logo">🌿 <em>Pollen</em>flug</div>
     <span class="offline-pill" id="offline-pill">Offline</span>
     <button class="icon-btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
@@ -673,84 +723,9 @@ function render() {
     <!-- HISTORY -->
     ${renderHistory()}
 
-    <!-- SYMPTOM TRACKER -->
-    <div class="card">
-      <div class="card-head collapsible" onclick="toggleSection('sym')">
-        <span class="card-title">Wie geht's dir heute?</span>
-        <span class="collapse-arrow">▼</span>
-      </div>
-      <div class="collapsible-body" id="sym-body">
-      <div class="sym-date">${new Date().toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long"})}</div>
-      ${[["niesen","🤧","Niesen"],["augen","👁","Augen"],["atmung","💨","Atmung"],["muedigkeit","😴","Müdigkeit"]].map(([k,ic,lb])=>`
-        <div class="sym-row">
-          <div class="sym-icon">${ic}</div>
-          <div class="sym-label">${lb}</div>
-          <div class="sym-scale">
-            ${[0,1,2,3,4,5].map(v=>`
-              <button class="sym-btn${draft[k]===v?" on":""}" onclick="setSym('${k}',${v})">${v===0?"–":v}</button>`).join("")}
-          </div>
-        </div>`).join("")}
-      ${symSaved ? "" : `<button class="sym-save" onclick="saveSym()">Speichern</button>`}
-      ${renderSymHistory()}
-      ${renderCorrelation()}
-      </div>
-    </div>
-
-    <!-- SEASON CALENDAR -->
-    <div class="card">
-      <div class="card-head collapsible" onclick="toggleSection('season')">
-        <span class="card-title">Saisonkalender</span>
-        <span class="collapse-arrow">▼</span>
-      </div>
-      <div class="collapsible-body" id="season-body">
-      <div class="season-wrap">
-        <div class="season-mhead">${MONTHS.map(m=>`<div class="season-ml">${m}</div>`).join("")}</div>
-        ${POLLEN.map(p=>`
-          <div class="season-row">
-            <div class="season-name">${p.icon} ${p.name}</div>
-            <div class="season-bar">
-              ${MONTHS.map((_,mi)=>{
-                const m=mi+1,on=p.mo.includes(m),now=(m===month&&on);
-                return `<div class="sm${now?" now":on?" on":""}"></div>`;
-              }).join("")}
-            </div>
-          </div>`).join("")}
-      </div>
-      </div>
-    </div>
-
-    <!-- LEGEND -->
-    <div class="card">
-      <div class="card-head collapsible" onclick="toggleSection('legend')">
-        <span class="card-title">Legende</span>
-        <span class="collapse-arrow">▼</span>
-      </div>
-      <div class="collapsible-body" id="legend-body">
-      <div class="legend">
-        <div class="li"><div class="ld" style="background:#22c55e"></div>Keine Belastung</div>
-        <div class="li"><div class="ld" style="background:#eab308"></div>Gering</div>
-        <div class="li"><div class="ld" style="background:#f97316"></div>Mittel</div>
-        <div class="li"><div class="ld" style="background:#ef4444"></div>Hoch</div>
-      </div>
-      <div style="padding:8px 14px 12px;border-top:1px solid var(--border);font-size:.79rem;color:var(--text2);line-height:1.55">
-        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:6px">Wie wird dein Risiko berechnet?</div>
-        Das <strong>persönliche Risiko</strong> in der Übersichts-Karte oben entspricht dem <strong>höchsten Einzelwert</strong> unter deinen ausgewählten Pollen (Haken ✓ in der Tabelle).<br><br>
-        Beispiel: Hasel = gering, Erle = hoch → dein Risiko = <strong>hoch</strong>.<br>
-        Pollen ohne Haken werden <strong>nicht</strong> berücksichtigt.
-      </div>
-      <div style="padding:10px 14px 14px;border-top:1px solid var(--border)">
-        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:8px">UV-Index Skala (WHO, 0–11+)</div>
-        ${[["0–2","niedrig","#22c55e"],["3–5","mäßig","#eab308"],["6–7","hoch","#f97316"],["8–10","sehr hoch","#ef4444"],["11+","extrem","#b91c1c"]].map(([range,cat,col])=>`
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:.8rem">
-          <div style="width:10px;height:10px;border-radius:50%;background:${col};flex-shrink:0"></div>
-          <span style="width:36px;color:var(--text3);flex-shrink:0">${range}</span>
-          <span>${cat}</span>
-        </div>`).join("")}
-      </div>
-      </div>
-    </div>
   `;
   _open.forEach(id => toggleSection(id));
+  refreshDrawer();
 }
 
 function renderHistory() {
@@ -831,7 +806,7 @@ function setSym(key, val) {
     const changed = !saved || Object.keys(draft).some(k => draft[k] !== (saved[k] || 0));
     if (changed) {
       symSaved = false;
-      const body = document.getElementById("sym-body");
+      const body = document.getElementById("dsym-body");
       if (body && !body.querySelector(".sym-save")) {
         const btn = document.createElement("button");
         btn.className = "sym-save";
@@ -848,7 +823,6 @@ function saveSym() {
   symptoms[todayISO()] = {...draft};
   localStorage.setItem(LS.syms, JSON.stringify(symptoms));
   symSaved = true;
-  openSections.add('sym');
   render();
 }
 
@@ -990,6 +964,108 @@ function renderCorrelation() {
     </div>`;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// DRAWER
+// ─────────────────────────────────────────────────────────────────────────────
+function openDrawer() {
+  document.getElementById("drawer").classList.add("open");
+  document.getElementById("drawer-overlay").classList.add("show");
+}
+function closeDrawer() {
+  document.getElementById("drawer").classList.remove("open");
+  document.getElementById("drawer-overlay").classList.remove("show");
+}
+
+function refreshDrawer() {
+  const el = document.getElementById("drawer-content");
+  if (!el) return;
+  const month = new Date().getMonth()+1;
+
+  // Symptom tracker
+  const ts = symptoms[todayISO()];
+  if (ts) draft = {niesen:ts.niesen, augen:ts.augen, atmung:ts.atmung, muedigkeit:ts.muedigkeit||0};
+
+  el.innerHTML = `
+    <!-- SYMPTOM TRACKER -->
+    <div class="dsec-head" onclick="toggleDrawerSec('dsym')" id="dsym-head">
+      <span>Wie geht's dir heute?</span>
+      <span class="dsec-arrow">▼</span>
+    </div>
+    <div class="dsec-body open" id="dsym-body">
+      <div class="sym-date">${new Date().toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long"})}</div>
+      ${[["niesen","🤧","Niesen"],["augen","👁","Augen"],["atmung","💨","Atmung"],["muedigkeit","😴","Müdigkeit"]].map(([k,ic,lb])=>`
+        <div class="sym-row">
+          <div class="sym-icon">${ic}</div>
+          <div class="sym-label">${lb}</div>
+          <div class="sym-scale">
+            ${[0,1,2,3,4,5].map(v=>`
+              <button class="sym-btn${draft[k]===v?" on":""}" onclick="setSym('${k}',${v})">${v===0?"–":v}</button>`).join("")}
+          </div>
+        </div>`).join("")}
+      ${symSaved ? "" : `<button class="sym-save" onclick="saveSym()">Speichern</button>`}
+      ${renderSymHistory()}
+      ${renderCorrelation()}
+    </div>
+
+    <!-- SEASON CALENDAR -->
+    <div class="dsec-head" onclick="toggleDrawerSec('dseason')" id="dseason-head">
+      <span>Saisonkalender</span>
+      <span class="dsec-arrow">▼</span>
+    </div>
+    <div class="dsec-body" id="dseason-body">
+      <div class="season-wrap">
+        <div class="season-mhead">${MONTHS.map(m=>`<div class="season-ml">${m}</div>`).join("")}</div>
+        ${POLLEN.map(p=>`
+          <div class="season-row">
+            <div class="season-name">${p.icon} ${p.name}</div>
+            <div class="season-bar">
+              ${MONTHS.map((_,mi)=>{
+                const m=mi+1,on=p.mo.includes(m),now=(m===month&&on);
+                return `<div class="sm${now?" now":on?" on":""}"></div>`;
+              }).join("")}
+            </div>
+          </div>`).join("")}
+      </div>
+    </div>
+
+    <!-- LEGEND -->
+    <div class="dsec-head" onclick="toggleDrawerSec('dlegend')" id="dlegend-head">
+      <span>Legende</span>
+      <span class="dsec-arrow">▼</span>
+    </div>
+    <div class="dsec-body" id="dlegend-body">
+      <div class="legend">
+        <div class="li"><div class="ld" style="background:#22c55e"></div>Keine Belastung</div>
+        <div class="li"><div class="ld" style="background:#eab308"></div>Gering</div>
+        <div class="li"><div class="ld" style="background:#f97316"></div>Mittel</div>
+        <div class="li"><div class="ld" style="background:#ef4444"></div>Hoch</div>
+      </div>
+      <div style="padding:8px 14px 12px;border-top:1px solid var(--border);font-size:.79rem;color:var(--text2);line-height:1.55">
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:6px">Wie wird dein Risiko berechnet?</div>
+        Das <strong>persönliche Risiko</strong> oben entspricht dem <strong>höchsten Einzelwert</strong> deiner ausgewählten Pollen (grüner Rand in der Tabelle).<br><br>
+        Beispiel: Hasel = gering, Erle = hoch → Risiko = <strong>hoch</strong>.
+      </div>
+      <div style="padding:10px 14px 14px;border-top:1px solid var(--border)">
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:8px">UV-Index Skala (WHO, 0–11+)</div>
+        ${[["0–2","niedrig","#22c55e"],["3–5","mäßig","#eab308"],["6–7","hoch","#f97316"],["8–10","sehr hoch","#ef4444"],["11+","extrem","#b91c1c"]].map(([range,cat,col])=>`
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:.8rem">
+          <div style="width:10px;height:10px;border-radius:50%;background:${col};flex-shrink:0"></div>
+          <span style="width:36px;color:var(--text3);flex-shrink:0">${range}</span>
+          <span>${cat}</span>
+        </div>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function toggleDrawerSec(id) {
+  const body = document.getElementById(id+"-body");
+  const head = document.getElementById(id+"-head");
+  if (!body) return;
+  const open = body.classList.toggle("open");
+  head?.classList.toggle("open", open);
+}
+
 // LOAD
 // ─────────────────────────────────────────────────────────────────────────────
 async function load() {
@@ -1107,6 +1183,16 @@ document.addEventListener("touchend", e => {
     if (dx < 0 && activeDay < 2) setDay(activeDay + 1); // links → nächster Tag
     if (dx > 0 && activeDay > 0) setDay(activeDay - 1); // rechts → vorheriger Tag
   }
+}, { passive: true });
+
+// ── SWIPE TO CLOSE DRAWER ────────────────────────────────────────────────────
+let dswipe_startX = 0;
+document.getElementById("drawer").addEventListener("touchstart", e => {
+  dswipe_startX = e.touches[0].clientX;
+}, { passive: true });
+document.getElementById("drawer").addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].clientX - dswipe_startX;
+  if (dx < -50) closeDrawer();
 }, { passive: true });
 </script>
 </body>
