@@ -3,643 +3,679 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#ffffff" id="theme-meta">
   <title>Pollenflug</title>
   <style>
-    /* ── TOKENS ──────────────────────────────────────────────────── */
+    /* ── TOKENS ─────────────────────────────────────── */
     :root {
-      --bg:        #f4f4f5;
-      --surface:   #ffffff;
-      --surface2:  #f9f9fa;
-      --border:    #e4e4e7;
-      --text:      #09090b;
-      --text2:     #71717a;
-      --accent:    #16a34a;
-      --accent-bg: #f0fdf4;
-      --radius:    12px;
-      --shadow:    0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+      --bg:      #f6f6f7;
+      --card:    #ffffff;
+      --card2:   #f9f9fa;
+      --border:  #e4e4e7;
+      --text:    #09090b;
+      --text2:   #71717a;
+      --text3:   #a1a1aa;
+      --accent:  #16a34a;
+      --r:       13px;
+      --sh:      0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
     }
-
     [data-theme="dark"] {
-      --bg:        #09090b;
-      --surface:   #18181b;
-      --surface2:  #27272a;
-      --border:    #3f3f46;
-      --text:      #fafafa;
-      --text2:     #a1a1aa;
-      --accent:    #4ade80;
-      --accent-bg: #052e16;
-      --shadow:    0 1px 3px rgba(0,0,0,.4);
+      --bg:     #0a0a0b;
+      --card:   #18181b;
+      --card2:  #27272a;
+      --border: #3f3f46;
+      --text:   #fafafa;
+      --text2:  #a1a1aa;
+      --text3:  #71717a;
+      --accent: #4ade80;
+      --sh:     0 1px 3px rgba(0,0,0,.5);
     }
 
-    /* ── RESET ───────────────────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ── BASE ────────────────────────────────────────── */
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
       background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
       transition: background .2s, color .2s;
-      font-size: 15px;
-      line-height: 1.5;
+      min-height: 100vh;
     }
+    button, select { font-family: inherit; }
 
-    /* ── HEADER ──────────────────────────────────────────────────── */
-    header {
-      background: var(--surface);
+    /* ── HEADER ──────────────────────────────────────── */
+    .topbar {
+      background: var(--card);
       border-bottom: 1px solid var(--border);
-      padding: 12px 16px;
-      position: sticky;
-      top: 0;
-      z-index: 50;
+      position: sticky; top: 0; z-index: 99;
+      padding: 0 16px;
     }
-    .header-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      max-width: 680px;
-      margin: 0 auto;
+    .topbar-inner {
+      max-width: 640px; margin: 0 auto;
+      height: 52px;
+      display: flex; align-items: center; gap: 10px;
     }
-    .logo { font-size: 1.1rem; font-weight: 700; flex: 1; letter-spacing: -.3px; }
-    .logo span { color: var(--accent); }
-
-    .theme-btn {
-      width: 36px; height: 36px;
-      border-radius: 8px;
+    .logo { font-weight: 700; font-size: 1rem; flex: 1; letter-spacing: -.2px; }
+    .logo em { color: var(--accent); font-style: normal; }
+    .icon-btn {
+      width: 34px; height: 34px; border-radius: 8px;
       border: 1px solid var(--border);
-      background: var(--surface2);
-      color: var(--text);
-      cursor: pointer;
-      font-size: 1rem;
+      background: var(--card2); color: var(--text);
+      cursor: pointer; font-size: .95rem;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-      transition: background .15s;
     }
-    .theme-btn:hover { background: var(--border); }
+    .icon-btn:hover { background: var(--border); }
+    .offline-pill {
+      font-size: .7rem; background: #f97316; color: #fff;
+      padding: 2px 9px; border-radius: 20px; display: none;
+    }
+    .offline-pill.show { display: inline-block; }
 
-    .region-wrap {
-      max-width: 680px;
-      margin: 8px auto 0;
+    /* region bar */
+    .regionbar {
+      border-top: 1px solid var(--border);
+      padding: 8px 16px;
     }
-    select#region-select {
+    .regionbar-inner { max-width: 640px; margin: 0 auto; }
+    .regionbar select {
       width: 100%;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 0.85rem;
-      outline: none;
-      cursor: pointer;
+      background: var(--card2); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px;
+      padding: 7px 12px; font-size: .84rem; outline: none; cursor: pointer;
     }
-    select#region-select:focus { border-color: var(--accent); }
+    .regionbar select:focus { border-color: var(--accent); }
 
-    /* ── LAYOUT ──────────────────────────────────────────────────── */
-    .page { max-width: 680px; margin: 0 auto; padding: 16px 16px 80px; }
+    /* ── PAGE ────────────────────────────────────────── */
+    .page { max-width: 640px; margin: 0 auto; padding: 14px 14px 80px; }
 
-    /* ── CARD ────────────────────────────────────────────────────── */
+    /* ── UPDATE LINE ─────────────────────────────────── */
+    .update-line {
+      font-size: .73rem; color: var(--text3);
+      text-align: center; padding: 6px 0 10px;
+    }
+
+    /* ── CARD ────────────────────────────────────────── */
     .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      margin-bottom: 12px;
-      overflow: hidden;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r); box-shadow: var(--sh);
+      margin-bottom: 12px; overflow: hidden;
     }
-    .card-header {
-      padding: 14px 16px 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .card-head {
+      padding: 13px 16px 11px;
+      display: flex; justify-content: space-between; align-items: center;
       border-bottom: 1px solid var(--border);
     }
-    .card-title { font-size: 0.88rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; }
-    .card-action { font-size: 0.8rem; color: var(--accent); background: none; border: none; cursor: pointer; }
+    .card-title { font-size: .78rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; }
+    .card-action { font-size: .78rem; color: var(--accent); background: none; border: none; cursor: pointer; padding: 0; }
 
-    /* ── UPDATE BAR ──────────────────────────────────────────────── */
-    .update-bar {
-      text-align: center;
-      font-size: 0.75rem;
-      color: var(--text2);
-      padding: 8px 16px 4px;
-      max-width: 680px;
-      margin: 0 auto;
+    /* ── HERO (personal risk) ────────────────────────── */
+    .hero {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r); box-shadow: var(--sh);
+      margin-bottom: 12px; padding: 22px 18px;
+      display: flex; align-items: center; gap: 16px;
     }
-
-    /* ── AMPEL ───────────────────────────────────────────────────── */
-    .ampel-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      margin-bottom: 12px;
-      padding: 24px 16px;
-      display: flex;
-      align-items: center;
-      gap: 18px;
-    }
-    .ampel-icon {
-      width: 60px; height: 60px;
-      border-radius: 50%;
+    .hero-badge {
+      width: 64px; height: 64px; border-radius: 16px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.6rem;
-      flex-shrink: 0;
+      font-size: 1.7rem; flex-shrink: 0; font-weight: 800;
     }
-    .ampel-text h2 { font-size: 1.15rem; font-weight: 700; }
-    .ampel-text .sub { font-size: 0.82rem; color: var(--text2); margin-top: 3px; }
-    .ampel-text .triggers { font-size: 0.8rem; margin-top: 5px; }
-
-    .clr-green  { background: #dcfce7; color: #15803d; }
-    .clr-yellow { background: #fef9c3; color: #a16207; }
-    .clr-orange { background: #ffedd5; color: #c2410c; }
-    .clr-red    { background: #fee2e2; color: #b91c1c; }
-    [data-theme="dark"] .clr-green  { background: #052e16; color: #4ade80; }
-    [data-theme="dark"] .clr-yellow { background: #1c1400; color: #fde047; }
-    [data-theme="dark"] .clr-orange { background: #1c0a00; color: #fb923c; }
-    [data-theme="dark"] .clr-red    { background: #1c0000; color: #f87171; }
-
-    /* ── DAY TABS ────────────────────────────────────────────────── */
-    .day-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
-    .day-tab {
-      flex: 1;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 10px 6px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color .15s, background .15s;
-      box-shadow: var(--shadow);
-    }
-    .day-tab:hover { background: var(--surface2); }
-    .day-tab.active { border-color: var(--accent); }
-    .day-tab .tab-name { font-size: 0.78rem; font-weight: 600; color: var(--text); }
-    .day-tab .tab-date { font-size: 0.7rem; color: var(--text2); margin-top: 1px; }
-    .day-tab .tab-pip {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      margin: 7px auto 2px;
+    .hero-body { flex: 1; min-width: 0; }
+    .hero-risk { font-size: 1.25rem; font-weight: 700; line-height: 1.2; }
+    .hero-loc  { font-size: .8rem; color: var(--text2); margin-top: 2px; }
+    .hero-drivers { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+    .driver-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: .78rem; font-weight: 500;
     }
 
-    /* ── FILTER CHIPS ────────────────────────────────────────────── */
-    .chip-wrap { display: flex; flex-wrap: wrap; gap: 7px; padding: 12px 16px 14px; }
-    .chip {
-      padding: 5px 13px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      border: 1px solid var(--border);
-      background: var(--surface2);
-      color: var(--text2);
-      transition: all .12s;
-      user-select: none;
+    /* colour tokens per level */
+    .risk-none   { --rc:#16a34a; --rb:#dcfce7; }
+    .risk-low    { --rc:#a16207; --rb:#fef9c3; }
+    .risk-mid    { --rc:#c2410c; --rb:#ffedd5; }
+    .risk-high   { --rc:#b91c1c; --rb:#fee2e2; }
+    [data-theme="dark"] .risk-none  { --rc:#4ade80; --rb:#052e16; }
+    [data-theme="dark"] .risk-low   { --rc:#fde047; --rb:#1c1400; }
+    [data-theme="dark"] .risk-mid   { --rc:#fb923c; --rb:#1c0a00; }
+    [data-theme="dark"] .risk-high  { --rc:#f87171; --rb:#1c0000; }
+    .risk-none,.risk-low,.risk-mid,.risk-high {
+      color: var(--rc); background: var(--rb);
     }
-    .chip.on { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); font-weight: 500; }
 
-    /* ── TABLE ───────────────────────────────────────────────────── */
+    /* ── 3-DAY STRIP ─────────────────────────────────── */
+    .days-strip { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 12px; }
+    .day-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r); box-shadow: var(--sh);
+      padding: 12px 10px; text-align: center; cursor: pointer;
+      transition: border-color .15s;
+    }
+    .day-card.active { border-color: var(--accent); }
+    .day-card .dc-label { font-size: .78rem; font-weight: 600; color: var(--text); }
+    .day-card .dc-date  { font-size: .68rem; color: var(--text3); margin-top: 1px; }
+    .day-card .dc-ring  {
+      width: 36px; height: 36px; border-radius: 50%;
+      margin: 9px auto 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .72rem; font-weight: 700;
+    }
+    .day-card .dc-sub { font-size: .68rem; color: var(--text2); }
+
+    /* ── ALLERGEN SELECTOR ───────────────────────────── */
+    .allergy-grid { display: flex; flex-wrap: wrap; gap: 7px; padding: 12px 14px 14px; }
+    .allergy-chip {
+      padding: 7px 13px; border-radius: 10px;
+      font-size: .82rem; cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: var(--card2); color: var(--text2);
+      display: flex; align-items: center; gap: 6px;
+      transition: all .12s; user-select: none;
+    }
+    .allergy-chip.on {
+      background: var(--rb,#dcfce7);
+      color: var(--rc,#16a34a);
+      border-color: var(--rc,#16a34a);
+      font-weight: 500;
+    }
+
+    /* ── POLLEN TABLE ────────────────────────────────── */
     .ptable { width: 100%; border-collapse: collapse; }
     .ptable th {
-      padding: 9px 12px;
-      font-size: 0.75rem;
-      color: var(--text2);
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: .3px;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface2);
-      text-align: center;
+      padding: 9px 11px; font-size: .73rem; font-weight: 500;
+      color: var(--text2); border-bottom: 1px solid var(--border);
+      background: var(--card2); text-align: center;
+      text-transform: uppercase; letter-spacing: .3px;
     }
     .ptable th:first-child { text-align: left; }
     .ptable td {
-      padding: 9px 12px;
-      font-size: 0.85rem;
-      border-bottom: 1px solid var(--border);
-      text-align: center;
+      padding: 9px 11px; font-size: .84rem;
+      border-bottom: 1px solid var(--border); text-align: center;
       vertical-align: middle;
     }
     .ptable td:first-child { text-align: left; }
     .ptable tr:last-child td { border-bottom: none; }
-    .ptable tr.dimmed { opacity: .35; }
-    .pname { font-weight: 500; font-size: 0.86rem; }
-    .psaison { font-size: 0.7rem; color: var(--text2); display: block; margin-top: 1px; }
-    .psaison.aktiv { color: var(--accent); }
-    .lv-cell { border-radius: 6px; padding: 3px 6px; font-size: 0.78rem; display: inline-block; white-space: nowrap; }
-    .lv-0    { color: var(--text2); }
-    .lv-low  { background: #fef9c3; color: #a16207; }
-    .lv-mid  { background: #ffedd5; color: #c2410c; }
-    .lv-high { background: #fee2e2; color: #b91c1c; }
-    [data-theme="dark"] .lv-low  { background: #1c1400; color: #fde047; }
-    [data-theme="dark"] .lv-mid  { background: #1c0a00; color: #fb923c; }
-    [data-theme="dark"] .lv-high { background: #1c0000; color: #f87171; }
-    .col-active { font-weight: 600; }
-
-    /* ── SYMPTOM TRACKER ─────────────────────────────────────────── */
-    .sym-date { font-size: 0.78rem; color: var(--text2); padding: 10px 16px 6px; }
-    .sym-row {
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border-bottom: 1px solid var(--border);
+    .ptable tr.dim { opacity: .3; }
+    .ptable tr.dim td { pointer-events: none; }
+    .pname  { font-weight: 500; font-size: .86rem; }
+    .picon  { font-size: 1rem; margin-right: 5px; }
+    .ps     { font-size: .68rem; display: block; margin-top: 1px; }
+    .ps.on  { color: var(--accent); }
+    .ps.off { color: var(--text3); }
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      font-size: .76rem; font-weight: 500;
     }
-    .sym-label { font-size: 0.84rem; width: 72px; flex-shrink: 0; color: var(--text2); }
-    .sym-btns { display: flex; gap: 5px; flex: 1; }
+    .b-none { color: var(--text3); }
+    .b-low  { background:#fef9c3; color:#a16207; }
+    .b-mid  { background:#ffedd5; color:#c2410c; }
+    .b-high { background:#fee2e2; color:#b91c1c; }
+    [data-theme="dark"] .b-low  { background:#1c1400; color:#fde047; }
+    [data-theme="dark"] .b-mid  { background:#1c0a00; color:#fb923c; }
+    [data-theme="dark"] .b-high { background:#1c0000; color:#f87171; }
+    .col-hi { font-weight: 600; }
+
+    /* ── HISTORY CHART ───────────────────────────────── */
+    .history-wrap { padding: 12px 14px 14px; }
+    .hist-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .hist-name { width: 60px; font-size: .78rem; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hist-bars { display: flex; gap: 3px; flex: 1; align-items: flex-end; height: 28px; }
+    .hist-bar  {
+      flex: 1; border-radius: 3px 3px 0 0;
+      min-height: 4px;
+      position: relative;
+    }
+    .hist-bar[data-v="0"]  { background: var(--border); height: 4px; }
+    .hist-bar[data-v="1"]  { background: #eab308; height: 40%; }
+    .hist-bar[data-v="2"]  { background: #f97316; height: 70%; }
+    .hist-bar[data-v="3"]  { background: #ef4444; height: 100%; }
+    .hist-bar[data-v="-1"] { background: var(--border); height: 4px; opacity:.4; }
+    .hist-dates { display: flex; gap: 3px; padding-left: 68px; margin-bottom: 2px; }
+    .hist-dt { flex: 1; font-size: .62rem; color: var(--text3); text-align: center; }
+
+    /* ── SYMPTOM TRACKER ─────────────────────────────── */
+    .sym-date { font-size: .76rem; color: var(--text2); padding: 8px 14px 4px; }
+    .sym-row  {
+      padding: 10px 14px; display: flex; align-items: center; gap: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .sym-icon  { font-size: 1.1rem; width: 24px; text-align: center; flex-shrink: 0; }
+    .sym-label { font-size: .84rem; width: 70px; flex-shrink: 0; }
+    .sym-scale { display: flex; gap: 4px; flex: 1; }
     .sym-btn {
-      flex: 1;
-      padding: 6px 2px;
-      border-radius: 7px;
-      border: 1px solid var(--border);
-      background: var(--surface2);
-      color: var(--text);
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all .12s;
+      flex: 1; padding: 6px 2px; border-radius: 7px;
+      border: 1px solid var(--border); background: var(--card2);
+      color: var(--text); font-size: .78rem; cursor: pointer;
+      transition: all .1s;
     }
     .sym-btn.on { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
     [data-theme="dark"] .sym-btn.on { color: #000; }
     .sym-save {
-      margin: 12px 16px;
-      width: calc(100% - 32px);
-      padding: 10px;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 9px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity .15s;
+      display: block; margin: 10px 14px;
+      width: calc(100% - 28px); padding: 10px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 9px;
+      font-size: .9rem; font-weight: 600; cursor: pointer;
     }
     [data-theme="dark"] .sym-save { color: #000; }
     .sym-save:hover { opacity: .85; }
-    .sym-history { padding: 10px 16px 14px; }
-    .sym-hist-title { font-size: 0.75rem; color: var(--text2); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; }
-    .sym-hist-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 0.78rem; }
-    .sym-hist-date { width: 46px; color: var(--text2); flex-shrink: 0; }
-    .sym-dot { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; }
+    .sym-hist { padding: 8px 14px 12px; border-top: 1px solid var(--border); }
+    .sym-hist-title { font-size: .72rem; text-transform: uppercase; letter-spacing: .4px; color: var(--text3); margin-bottom: 7px; }
+    .sym-hist-row { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; font-size: .76rem; }
+    .sym-hist-date { width: 42px; color: var(--text3); flex-shrink: 0; }
+    .sym-dot { width: 19px; height: 19px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .65rem; font-weight: 700; }
 
-    /* ── SEASON CALENDAR ─────────────────────────────────────────── */
-    .season-wrap { padding: 12px 16px 16px; }
-    .month-head { display: flex; gap: 2px; padding-left: 72px; margin-bottom: 6px; }
-    .month-lbl { flex: 1; text-align: center; font-size: 0.6rem; color: var(--text2); }
+    /* ── SEASON CAL ──────────────────────────────────── */
+    .season-wrap { padding: 10px 14px 14px; }
+    .season-mhead { display: flex; gap: 2px; margin-left: 66px; margin-bottom: 5px; }
+    .season-ml { flex: 1; text-align: center; font-size: .58rem; color: var(--text3); }
     .season-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
-    .season-name { width: 66px; font-size: 0.8rem; flex-shrink: 0; }
+    .season-name { width: 60px; font-size: .78rem; flex-shrink: 0; }
     .season-bar { flex: 1; display: flex; gap: 2px; }
-    .s-month { flex: 1; height: 9px; border-radius: 3px; background: var(--border); }
-    .s-month.on { background: var(--accent); opacity: .6; }
-    .s-month.now { background: var(--accent); opacity: 1; outline: 2px solid var(--accent); outline-offset: 1px; }
+    .sm { flex: 1; height: 8px; border-radius: 3px; background: var(--border); }
+    .sm.on  { background: var(--accent); opacity: .5; }
+    .sm.now { background: var(--accent); opacity: 1; outline: 2px solid var(--accent); outline-offset: 1px; }
 
-    /* ── LEGEND ──────────────────────────────────────────────────── */
-    .legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 16px 16px; }
-    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; }
-    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    /* ── LEGEND ──────────────────────────────────────── */
+    .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: 10px 14px 14px; }
+    .li { display: flex; align-items: center; gap: 8px; font-size: .81rem; }
+    .ld { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
-    /* ── OFFLINE BADGE ───────────────────────────────────────────── */
-    .offline-badge {
-      font-size: 0.7rem;
-      background: #f97316;
-      color: #fff;
-      padding: 2px 8px;
-      border-radius: 20px;
-      display: none;
-    }
-    .offline-badge.show { display: inline-block; }
-
-    /* ── LOADER ──────────────────────────────────────────────────── */
-    .loader { text-align: center; padding: 60px 24px; color: var(--text2); }
-    .spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 12px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── LOADER / ERROR ──────────────────────────────── */
+    .center { text-align: center; padding: 60px 20px; color: var(--text2); }
+    .spin { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: sp .7s linear infinite; margin: 0 auto 12px; }
+    @keyframes sp { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
-<header>
-  <div class="header-row">
-    <div class="logo">🌿 <span>Pollen</span>flug</div>
-    <span class="offline-badge" id="offline-badge">Offline</span>
-    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Dark/Light Mode">🌙</button>
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">🌿 <em>Pollen</em>flug</div>
+    <span class="offline-pill" id="offline-pill">Offline</span>
+    <button class="icon-btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
   </div>
-  <div class="region-wrap">
-    <select id="region-select"><option>Lade…</option></select>
+  <div class="regionbar">
+    <div class="regionbar-inner">
+      <select id="region-sel"><option>Lade Regionen…</option></select>
+    </div>
   </div>
-</header>
-
-<div class="update-bar" id="update-bar"></div>
+</div>
 
 <div class="page" id="page">
-  <div class="loader"><div class="spinner"></div>Lade DWD-Daten…</div>
+  <div class="center"><div class="spin"></div>Lade DWD-Daten…</div>
 </div>
 
 <script>
-// ── Config ─────────────────────────────────────────────────────────────────
-const DATA_URL    = "./data.json";
-const LS_REGION   = "p_region";
-const LS_FILTER   = "p_filter";
-const LS_SYMPTOMS = "p_symptoms";
-const LS_CACHE    = "p_cache";
-const LS_THEME    = "p_theme";
-
+// ─────────────────────────────────────────────────────────────────────────────
+// CONSTANTS
+// ─────────────────────────────────────────────────────────────────────────────
 const POLLEN = [
-  { key:"Hasel",    name:"Hasel",    mo:[1,2,3],     s:"Jan–Mär" },
-  { key:"Erle",     name:"Erle",     mo:[2,3,4],     s:"Feb–Apr" },
-  { key:"Esche",    name:"Esche",    mo:[3,4,5],     s:"Mär–Mai" },
-  { key:"Birke",    name:"Birke",    mo:[3,4,5],     s:"Mär–Mai" },
-  { key:"Graeser",  name:"Gräser",   mo:[5,6,7,8],   s:"Mai–Aug" },
-  { key:"Roggen",   name:"Roggen",   mo:[5,6,7],     s:"Mai–Jul" },
-  { key:"Beifuss",  name:"Beifuß",   mo:[7,8,9],     s:"Jul–Sep" },
-  { key:"Ambrosia", name:"Ambrosia", mo:[8,9,10],    s:"Aug–Okt" },
+  { key:"Hasel",    name:"Hasel",    icon:"🌰", mo:[1,2,3],    s:"Jan–Mär" },
+  { key:"Erle",     name:"Erle",     icon:"🌲", mo:[2,3,4],    s:"Feb–Apr" },
+  { key:"Esche",    name:"Esche",    icon:"🌳", mo:[3,4,5],    s:"Mär–Mai" },
+  { key:"Birke",    name:"Birke",    icon:"🍃", mo:[3,4,5],    s:"Mär–Mai" },
+  { key:"Graeser",  name:"Gräser",   icon:"🌾", mo:[5,6,7,8],  s:"Mai–Aug" },
+  { key:"Roggen",   name:"Roggen",   icon:"🌿", mo:[5,6,7],    s:"Mai–Jul" },
+  { key:"Beifuss",  name:"Beifuß",   icon:"🌱", mo:[7,8,9],    s:"Jul–Sep" },
+  { key:"Ambrosia", name:"Ambrosia", icon:"🌻", mo:[8,9,10],   s:"Aug–Okt" },
 ];
 
-const LEVELS = {
-  "-1": { cls:"lv-0",    sc:0, icon:"—",  label:"–",             color:"#71717a" },
-  "0":  { cls:"lv-0",    sc:0, icon:"",   label:"keine",         color:"#22c55e" },
-  "0-1":{ cls:"lv-low",  sc:1, icon:"",   label:"keine–gering",  color:"#eab308" },
-  "1":  { cls:"lv-low",  sc:1, icon:"",   label:"gering",        color:"#eab308" },
-  "1-2":{ cls:"lv-mid",  sc:2, icon:"",   label:"gering–mittel", color:"#f97316" },
-  "2":  { cls:"lv-mid",  sc:2, icon:"",   label:"mittel",        color:"#f97316" },
-  "2-3":{ cls:"lv-high", sc:3, icon:"",   label:"mittel–hoch",   color:"#ef4444" },
-  "3":  { cls:"lv-high", sc:3, icon:"",   label:"hoch",          color:"#ef4444" },
+const LV = {
+  "-1":{ cls:"b-none", sc:0, label:"–",            rc:"none" },
+  "0": { cls:"b-none", sc:0, label:"keine",         rc:"none" },
+  "0-1":{ cls:"b-low", sc:1, label:"keine–gering",  rc:"low"  },
+  "1": { cls:"b-low",  sc:1, label:"gering",         rc:"low"  },
+  "1-2":{ cls:"b-mid", sc:2, label:"gering–mittel",  rc:"mid"  },
+  "2": { cls:"b-mid",  sc:2, label:"mittel",          rc:"mid"  },
+  "2-3":{ cls:"b-high",sc:3, label:"mittel–hoch",    rc:"high" },
+  "3": { cls:"b-high", sc:3, label:"hoch",            rc:"high" },
 };
+
+const RISK = [
+  { label:"Keine Belastung",   cls:"risk-none" },
+  { label:"Geringe Belastung", cls:"risk-low"  },
+  { label:"Mittlere Belastung",cls:"risk-mid"  },
+  { label:"Hohe Belastung",    cls:"risk-high" },
+];
+
 const DAYS      = ["today","tomorrow","dayafter_to"];
 const DAY_NAMES = ["Heute","Morgen","Übermorgen"];
 const MONTHS    = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
 
-// ── State ───────────────────────────────────────────────────────────────────
-let data        = null;
-let regionKey   = localStorage.getItem(LS_REGION) || "30-32";
-let filter      = JSON.parse(localStorage.getItem(LS_FILTER) || "null") || POLLEN.map(p=>p.key);
-let activeDay   = 0;
-let symptoms    = JSON.parse(localStorage.getItem(LS_SYMPTOMS) || "{}");
-let draft       = {niesen:0, augen:0, atmung:0};
+const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist" };
 
-// ── Theme ───────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+let db        = null;
+let rKey      = localStorage.getItem(LS.region)  || "30-32";
+let filter    = JSON.parse(localStorage.getItem(LS.filter) || "null") || POLLEN.map(p=>p.key);
+let activeDay = 0;
+let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
+let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
+let draft     = {niesen:0,augen:0,atmung:0};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// THEME
+// ─────────────────────────────────────────────────────────────────────────────
 function applyTheme(t) {
-  document.documentElement.setAttribute("data-theme", t);
-  document.getElementById("theme-btn").textContent = t === "dark" ? "☀️" : "🌙";
-  document.querySelector('meta[name="theme-color"]').content = t === "dark" ? "#18181b" : "#ffffff";
+  document.documentElement.dataset.theme = t;
+  document.getElementById("theme-btn").textContent = t==="dark" ? "☀️" : "🌙";
+  document.getElementById("theme-meta").content = t==="dark" ? "#18181b" : "#ffffff";
 }
 function toggleTheme() {
-  const t = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-  localStorage.setItem(LS_THEME, t);
-  applyTheme(t);
+  const t = document.documentElement.dataset.theme==="dark" ? "light" : "dark";
+  localStorage.setItem(LS.theme,t); applyTheme(t);
 }
-// Init theme: saved → system fallback
-const savedTheme = localStorage.getItem(LS_THEME) ||
-  (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-applyTheme(savedTheme);
+applyTheme(localStorage.getItem(LS.theme) ||
+  (window.matchMedia("(prefers-color-scheme:dark)").matches ? "dark" : "light"));
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
 const todayISO = () => new Date().toISOString().slice(0,10);
-function dateStr(offset) {
-  const d = new Date(); d.setDate(d.getDate()+offset);
+function dStr(n) {
+  const d=new Date(); d.setDate(d.getDate()+n);
   return d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"});
 }
-function lv(val) { return LEVELS[String(val)] ?? {cls:"lv-0",sc:0,icon:"?",label:String(val),color:"#71717a"}; }
-function rk(r) { return `${r.region_id}-${r.partregion_id}`; }
-function findRegion() { return data.regions.find(r=>rk(r)===regionKey) ?? data.regions[0]; }
+function lv(v)  { return LV[String(v)] ?? {cls:"b-none",sc:0,label:String(v),rc:"none"}; }
+function rk(r)  { return `${r.region_id}-${r.partregion_id}`; }
+function region(){ return db.regions.find(r=>rk(r)===rKey) ?? db.regions[0]; }
 
-function ampelFor(pollenObj) {
-  let max=0; const hits=[];
+function personalRisk(pol, dayIdx) {
+  let max=0; const drivers=[];
   for (const p of POLLEN) {
     if (!filter.includes(p.key)) continue;
-    const val = pollenObj?.[p.key]?.[DAYS[activeDay]] ?? "-1";
-    const l = lv(val);
-    if (l.sc > 0) hits.push(p.name);
-    if (l.sc > max) max = l.sc;
+    const l = lv(pol?.[p.key]?.[DAYS[dayIdx]]??"-1");
+    if (l.sc>0) drivers.push(p);
+    if (l.sc>max) max=l.sc;
   }
-  const map = [
-    {cls:"clr-green",  icon:"✓", label:"Keine Belastung"},
-    {cls:"clr-yellow", icon:"!", label:"Geringe Belastung"},
-    {cls:"clr-orange", icon:"!", label:"Mittlere Belastung"},
-    {cls:"clr-red",    icon:"‼", label:"Hohe Belastung"},
-  ];
-  return {...map[max], hits};
+  return { ...RISK[max], max, drivers };
 }
 
-function pipColor(sc) {
-  return ["#22c55e","#eab308","#f97316","#ef4444"][sc];
+// ─────────────────────────────────────────────────────────────────────────────
+// HISTORY: store today's data in localStorage
+// ─────────────────────────────────────────────────────────────────────────────
+function storeHistoryDay(pol) {
+  const today = todayISO();
+  if (history[today]) return; // already stored today
+  const entry = {};
+  for (const p of POLLEN) {
+    entry[p.key] = pol?.[p.key]?.today ?? "-1";
+  }
+  history[today] = entry;
+  // keep only last 14 days
+  const keys = Object.keys(history).sort().slice(-14);
+  const trimmed = {};
+  keys.forEach(k => trimmed[k] = history[k]);
+  history = trimmed;
+  localStorage.setItem(LS.hist, JSON.stringify(history));
 }
 
-function symColor(v) {
-  if (!v) return "#3f3f46";
-  return ["#3f3f46","#22c55e","#eab308","#f97316","#ef4444","#b91c1c"][v] ?? "#b91c1c";
-}
-
-// ── Render ───────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────────────────────────────────────
 function render() {
-  const region = findRegion();
-  const pol    = region.pollen;
-  const month  = new Date().getMonth()+1;
-  const amp    = ampelFor(pol);
+  const reg   = region();
+  const pol   = reg.pollen;
+  const month = new Date().getMonth()+1;
+  const risk  = personalRisk(pol, activeDay);
 
-  const dayScores = DAYS.map(day => {
-    let m=0;
-    for (const p of POLLEN) {
-      if (!filter.includes(p.key)) continue;
-      const s = lv(pol?.[p.key]?.[day]??"-1").sc;
-      if (s>m) m=s;
-    }
-    return m;
-  });
+  // pre-fill draft from today's saved entry
+  const ts = symptoms[todayISO()];
+  if (ts) draft = {niesen:ts.niesen, augen:ts.augen, atmung:ts.atmung};
 
-  // Pre-fill draft from saved entry
-  const todaySym = symptoms[todayISO()];
-  if (todaySym) draft = {niesen:todaySym.niesen, augen:todaySym.augen, atmung:todaySym.atmung};
+  const dayScores = DAYS.map((_,i) => personalRisk(pol,i).max);
 
   document.getElementById("page").innerHTML = `
 
-    <!-- AMPEL -->
-    <div class="ampel-card">
-      <div class="ampel-icon ${amp.cls}" style="font-size:1.5rem;font-weight:700">${amp.icon}</div>
-      <div class="ampel-text">
-        <h2>${amp.label}</h2>
-        <div class="sub">${DAY_NAMES[activeDay]} · ${dateStr(activeDay)}</div>
-        ${amp.hits.length ? `<div class="triggers" style="color:var(--text2)">Aktiv: ${amp.hits.join(", ")}</div>` : ""}
+    <!-- UPDATE LINE -->
+    <div style="font-size:.72rem;color:var(--text3);text-align:center;padding:4px 0 10px">
+      ${[db.last_update&&`Stand: ${db.last_update}`, db.next_update&&`Nächstes Update: ${db.next_update}`].filter(Boolean).join(" · ")}
+    </div>
+
+    <!-- HERO: personal risk -->
+    <div class="hero">
+      <div class="hero-badge ${risk.cls}" style="font-size:1.4rem">
+        ${["✓","!","!!","‼"][risk.max]}
+      </div>
+      <div class="hero-body">
+        <div class="hero-risk ${risk.cls}">${risk.label}</div>
+        <div class="hero-loc">${reg.region_name}${reg.partregion_name?` · ${reg.partregion_name}`:""} · ${DAY_NAMES[activeDay]}</div>
+        ${risk.drivers.length ? `
+          <div class="hero-drivers">
+            ${risk.drivers.map(p=>`<span class="driver-pill ${risk.cls}">${p.icon} ${p.name}</span>`).join("")}
+          </div>` : `<div style="font-size:.8rem;color:var(--text2);margin-top:5px">Keine Belastung für deine Allergene.</div>`}
       </div>
     </div>
 
-    <!-- DAY TABS -->
-    <div class="day-tabs">
-      ${DAY_NAMES.map((n,i)=>`
-        <div class="day-tab${i===activeDay?" active":""}" onclick="setDay(${i})">
-          <div class="tab-name">${n}</div>
-          <div class="tab-date">${dateStr(i)}</div>
-          <div class="tab-pip" style="background:${pipColor(dayScores[i])}"></div>
-        </div>`).join("")}
+    <!-- 3-DAY STRIP -->
+    <div class="days-strip">
+      ${DAY_NAMES.map((n,i)=>{
+        const sc = dayScores[i];
+        const cl = ["risk-none","risk-low","risk-mid","risk-high"][sc];
+        const ri = RISK[sc];
+        return `<div class="day-card${i===activeDay?" active":""}" onclick="setDay(${i})">
+          <div class="dc-label">${n}</div>
+          <div class="dc-date">${dStr(i)}</div>
+          <div class="dc-ring ${cl}" style="font-size:.8rem;font-weight:700">
+            ${["✓","!","!!","‼"][sc]}
+          </div>
+          <div class="dc-sub">${ri.label}</div>
+        </div>`;
+      }).join("")}
     </div>
 
-    <!-- MEINE POLLEN -->
+    <!-- MY ALLERGIES -->
     <div class="card">
-      <div class="card-header">
-        <span class="card-title">Meine Pollen</span>
+      <div class="card-head">
+        <span class="card-title">Meine Allergien</span>
         <button class="card-action" onclick="resetFilter()">Alle</button>
       </div>
-      <div class="chip-wrap">
-        ${POLLEN.map(p=>`
-          <div class="chip${filter.includes(p.key)?" on":""}" onclick="toggleFilter('${p.key}')">${p.name}</div>`).join("")}
+      <div class="allergy-grid">
+        ${POLLEN.map(p=>{
+          const on = filter.includes(p.key);
+          return `<div class="allergy-chip risk-${on?"low":"none"} ${on?"on":""}"
+                       style="${on?"":"--rc:var(--text3);--rb:var(--card2)"}"
+                       onclick="toggleFilter('${p.key}')">
+            ${p.icon} ${p.name}
+          </div>`;
+        }).join("")}
       </div>
     </div>
 
-    <!-- TABELLE -->
+    <!-- POLLEN TABLE -->
     <div class="card">
-      <div class="card-header"><span class="card-title">Übersicht</span></div>
+      <div class="card-head"><span class="card-title">Alle Pollen · ${DAY_NAMES[activeDay]}</span></div>
       <table class="ptable">
         <thead>
           <tr>
             <th>Pollen</th>
-            ${DAY_NAMES.map((n,i)=>`<th class="${i===activeDay?"col-active":""}">${n}<br><span style="text-transform:none;font-size:.68rem;font-weight:400">${dateStr(i)}</span></th>`).join("")}
-            <th>Saison</th>
+            ${DAY_NAMES.map((n,i)=>`<th class="${i===activeDay?"col-hi":""}">${n}<br><span style="text-transform:none;font-size:.65rem;font-weight:400;letter-spacing:0">${dStr(i)}</span></th>`).join("")}
           </tr>
         </thead>
         <tbody>
           ${POLLEN.map(p=>{
+            const inSeason = p.mo.includes(month);
             const vals = DAYS.map(d=>pol?.[p.key]?.[d]??"-1");
             const lvls = vals.map(lv);
-            const inSeason = p.mo.includes(month);
-            return `<tr class="${!filter.includes(p.key)?"dimmed":""}">
+            return `<tr class="${!filter.includes(p.key)?"dim":""}">
               <td>
-                <div class="pname">${p.name}</div>
-                <span class="psaison${inSeason?" aktiv":""}">${inSeason?"🌱":"💤"} ${p.s}</span>
+                <span class="picon">${p.icon}</span><span class="pname">${p.name}</span>
+                <span class="ps ${inSeason?"on":"off"}">${inSeason?"🌱 "+p.s:"💤 "+p.s}</span>
               </td>
               ${lvls.map((l,i)=>`
-                <td class="${i===activeDay?"col-active":""}">
-                  <span class="lv-cell ${l.cls}">${l.label}</span>
+                <td class="${i===activeDay?"col-hi":""}">
+                  <span class="badge ${l.cls}">${l.label}</span>
                 </td>`).join("")}
-              <td style="font-size:.74rem;color:var(--text2)">${p.s}</td>
             </tr>`;
           }).join("")}
         </tbody>
       </table>
     </div>
 
-    <!-- SYMPTOME -->
+    <!-- HISTORY -->
+    ${renderHistory()}
+
+    <!-- SYMPTOM TRACKER -->
     <div class="card">
-      <div class="card-header"><span class="card-title">Wie geht's dir heute?</span></div>
-      <div class="sym-date">${new Date().toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long",year:"numeric"})}</div>
-      ${["niesen","augen","atmung"].map(k=>`
+      <div class="card-head"><span class="card-title">Wie geht's dir heute?</span></div>
+      <div class="sym-date">${new Date().toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long"})}</div>
+      ${[["niesen","🤧","Niesen"],["augen","👁","Augen"],["atmung","💨","Atmung"]].map(([k,ic,lb])=>`
         <div class="sym-row">
-          <div class="sym-label">${k.charAt(0).toUpperCase()+k.slice(1)}</div>
-          <div class="sym-btns">
+          <div class="sym-icon">${ic}</div>
+          <div class="sym-label">${lb}</div>
+          <div class="sym-scale">
             ${[0,1,2,3,4,5].map(v=>`
               <button class="sym-btn${draft[k]===v?" on":""}" onclick="setSym('${k}',${v})">${v===0?"–":v}</button>`).join("")}
           </div>
         </div>`).join("")}
       <button class="sym-save" onclick="saveSym()">Speichern</button>
-      ${renderHistory()}
+      ${renderSymHistory()}
     </div>
 
-    <!-- SAISONKALENDER -->
+    <!-- SEASON CALENDAR -->
     <div class="card">
-      <div class="card-header"><span class="card-title">Saisonkalender</span></div>
+      <div class="card-head"><span class="card-title">Saisonkalender</span></div>
       <div class="season-wrap">
-        <div class="month-head">${MONTHS.map(m=>`<div class="month-lbl">${m}</div>`).join("")}</div>
+        <div class="season-mhead">${MONTHS.map(m=>`<div class="season-ml">${m}</div>`).join("")}</div>
         ${POLLEN.map(p=>`
           <div class="season-row">
-            <div class="season-name">${p.name}</div>
+            <div class="season-name">${p.icon} ${p.name}</div>
             <div class="season-bar">
               ${MONTHS.map((_,mi)=>{
-                const m=mi+1, on=p.mo.includes(m), now=(m===month&&on);
-                return `<div class="s-month${now?" now":on?" on":""}"></div>`;
+                const m=mi+1,on=p.mo.includes(m),now=(m===month&&on);
+                return `<div class="sm${now?" now":on?" on":""}"></div>`;
               }).join("")}
             </div>
           </div>`).join("")}
       </div>
     </div>
 
-    <!-- LEGENDE -->
+    <!-- LEGEND -->
     <div class="card">
-      <div class="card-header"><span class="card-title">Legende</span></div>
-      <div class="legend-grid">
-        <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div>Keine Belastung</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#eab308"></div>Gering</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#f97316"></div>Mittel</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>Hoch</div>
+      <div class="card-head"><span class="card-title">Legende</span></div>
+      <div class="legend">
+        <div class="li"><div class="ld" style="background:#22c55e"></div>Keine Belastung</div>
+        <div class="li"><div class="ld" style="background:#eab308"></div>Gering</div>
+        <div class="li"><div class="ld" style="background:#f97316"></div>Mittel</div>
+        <div class="li"><div class="ld" style="background:#ef4444"></div>Hoch</div>
       </div>
     </div>
   `;
 }
 
 function renderHistory() {
-  const entries = Object.entries(symptoms).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,7);
-  if (!entries.length) return "";
+  const filteredPollen = POLLEN.filter(p=>filter.includes(p.key));
+  const days = Object.keys(history).sort().slice(-7);
+  if (days.length < 2 || !filteredPollen.length) return "";
+
+  const dateLabels = days.map(d => {
+    const dt = new Date(d+"T12:00:00");
+    return dt.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
+  });
+
   return `
-    <div class="sym-history">
-      <div class="sym-hist-title">Letzte Tage</div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">Verlauf – letzte ${days.length} Tage</span></div>
+      <div class="history-wrap">
+        <div class="hist-dates">${dateLabels.map(d=>`<div class="hist-dt">${d}</div>`).join("")}</div>
+        ${filteredPollen.map(p=>`
+          <div class="hist-row">
+            <div class="hist-name">${p.icon} ${p.name}</div>
+            <div class="hist-bars">
+              ${days.map(d=>{
+                const v = history[d]?.[p.key] ?? "-1";
+                const sc = lv(v).sc;
+                return `<div class="hist-bar" data-v="${sc}" title="${d}: ${lv(v).label}"></div>`;
+              }).join("")}
+            </div>
+          </div>`).join("")}
+      </div>
+    </div>`;
+}
+
+function renderSymHistory() {
+  const entries = Object.entries(symptoms).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,5);
+  if (!entries.length) return "";
+  const sc = v => !v?"#3f3f46":["#3f3f46","#22c55e","#eab308","#f97316","#ef4444","#b91c1c"][v]??"#b91c1c";
+  return `
+    <div class="sym-hist">
+      <div class="sym-hist-title">Letzte Einträge</div>
       ${entries.map(([d,s])=>`
         <div class="sym-hist-row">
           <div class="sym-hist-date">${new Date(d+"T12:00:00").toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})}</div>
           ${["niesen","augen","atmung"].map(k=>`
-            <div class="sym-dot" style="background:${symColor(s[k])};color:#fff">${s[k]||"–"}</div>`).join("")}
-          <span style="font-size:.72rem;color:var(--text2)">N A At</span>
+            <div class="sym-dot" style="background:${sc(s[k])};color:#fff">${s[k]||"–"}</div>`).join("")}
+          <span style="font-size:.7rem;color:var(--text3)">N · A · At</span>
         </div>`).join("")}
     </div>`;
 }
 
-// ── Interactions ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// INTERACTIONS
+// ─────────────────────────────────────────────────────────────────────────────
 function setDay(i) { activeDay=i; render(); }
 
 function toggleFilter(key) {
-  filter = filter.includes(key) ? filter.filter(k=>k!==key) : [...filter, key];
-  localStorage.setItem(LS_FILTER, JSON.stringify(filter));
+  filter = filter.includes(key) ? filter.filter(k=>k!==key) : [...filter,key];
+  localStorage.setItem(LS.filter, JSON.stringify(filter));
   render();
 }
 function resetFilter() {
   filter = POLLEN.map(p=>p.key);
-  localStorage.setItem(LS_FILTER, JSON.stringify(filter));
+  localStorage.setItem(LS.filter, JSON.stringify(filter));
   render();
 }
 
 function setSym(key, val) {
   draft[key] = val;
-  document.querySelectorAll(`.sym-row`).forEach(row => {
-    const lbl = row.querySelector(".sym-label");
-    if (!lbl) return;
-    const map = {niesen:"Niesen",augen:"Augen",atmung:"Atmung"};
-    if (map[key] === lbl.textContent) {
-      row.querySelectorAll(".sym-btn").forEach((b,i) => b.classList.toggle("on", i===val));
+  const map = {niesen:"Niesen", augen:"Augen", atmung:"Atmung"};
+  document.querySelectorAll(".sym-row").forEach(row => {
+    const lb = row.querySelector(".sym-label");
+    if (lb?.textContent === map[key]) {
+      row.querySelectorAll(".sym-btn").forEach((b,i) => b.classList.toggle("on",i===val));
     }
   });
 }
 function saveSym() {
   symptoms[todayISO()] = {...draft};
-  localStorage.setItem(LS_SYMPTOMS, JSON.stringify(symptoms));
+  localStorage.setItem(LS.syms, JSON.stringify(symptoms));
   render();
 }
 
-document.getElementById("region-select").addEventListener("change", e => {
-  regionKey = e.target.value;
-  localStorage.setItem(LS_REGION, regionKey);
+document.getElementById("region-sel").addEventListener("change", e => {
+  rKey = e.target.value;
+  localStorage.setItem(LS.region, rKey);
   render();
 });
 
-// ── Load data ─────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// LOAD
+// ─────────────────────────────────────────────────────────────────────────────
 async function load() {
   try {
-    const res = await fetch(DATA_URL + "?v=" + Date.now());
+    const res = await fetch("./data.json?v="+Date.now());
     if (!res.ok) throw new Error();
-    data = await res.json();
-    localStorage.setItem(LS_CACHE, JSON.stringify(data));
+    db = await res.json();
+    localStorage.setItem(LS.cache, JSON.stringify(db));
   } catch {
-    const c = localStorage.getItem(LS_CACHE);
+    const c = localStorage.getItem(LS.cache);
     if (c) {
-      data = JSON.parse(c);
-      document.getElementById("offline-badge").classList.add("show");
+      db = JSON.parse(c);
+      document.getElementById("offline-pill").classList.add("show");
     } else {
       document.getElementById("page").innerHTML =
-        `<div class="loader">❌ Keine Daten verfügbar.<br><small>Bitte Verbindung prüfen.</small></div>`;
+        `<div class="center">❌ Keine Daten verfügbar.<br><small>Bitte Verbindung prüfen.</small></div>`;
       return;
     }
   }
 
-  document.getElementById("update-bar").textContent =
-    [data.last_update && `Stand: ${data.last_update}`,
-     data.next_update && `Nächstes Update: ${data.next_update}`]
-    .filter(Boolean).join(" · ");
-
-  // Region-Dropdown
-  const sel = document.getElementById("region-select");
+  // Region dropdown
+  const sel = document.getElementById("region-sel");
   const groups = {};
-  for (const r of data.regions) {
+  for (const r of db.regions) {
     if (!groups[r.region_name]) groups[r.region_name] = [];
     groups[r.region_name].push(r);
   }
@@ -649,13 +685,16 @@ async function load() {
     g.label = name;
     for (const r of list) {
       const o = document.createElement("option");
-      o.value = rk(r);
-      o.textContent = r.partregion_name || r.region_name;
-      if (rk(r) === regionKey) o.selected = true;
+      o.value = rk(r); o.textContent = r.partregion_name || r.region_name;
+      if (rk(r)===rKey) o.selected = true;
       g.appendChild(o);
     }
     sel.appendChild(g);
   }
+
+  // store today's history
+  const reg = db.regions.find(r=>rk(r)===rKey) ?? db.regions[0];
+  storeHistoryDay(reg.pollen);
 
   render();
 }
