@@ -739,10 +739,10 @@ function render() {
       </div>
       <div style="padding:10px 14px 14px;border-top:1px solid var(--border);margin-top:2px">
         <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:8px">UV-Index Skala (WHO, 0–11+)</div>
-        ${[[0,2,"niedrig","#22c55e"],[3,5,"mäßig","#eab308"],[6,7,"hoch","#f97316"],[8,10,"sehr hoch","#ef4444"],[11,"11+","extrem","#b91c1c"]].map(([from,to,cat,col])=>`
+        ${[["0–2","niedrig","#22c55e"],["3–5","mäßig","#eab308"],["6–7","hoch","#f97316"],["8–10","sehr hoch","#ef4444"],["11+","extrem","#b91c1c"]].map(([range,cat,col])=>`
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:.8rem">
           <div style="width:10px;height:10px;border-radius:50%;background:${col};flex-shrink:0"></div>
-          <span style="width:36px;color:var(--text3);flex-shrink:0">${from}–${to}</span>
+          <span style="width:36px;color:var(--text3);flex-shrink:0">${range}</span>
           <span>${cat}</span>
         </div>`).join("")}
       </div>
