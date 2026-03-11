@@ -459,19 +459,33 @@ function render() {
     </div>
 
     <!-- HERO: personal risk -->
+    ${(() => {
+      const todayScore = personalRisk(pol, 0).max;
+      const tomorrowScore = personalRisk(pol, 1).max;
+      const trend = activeDay === 0
+        ? (tomorrowScore > todayScore ? "↑" : tomorrowScore < todayScore ? "↓" : "→")
+        : "";
+      const trendLabel = activeDay === 0
+        ? (tomorrowScore > todayScore ? "steigt morgen" : tomorrowScore < todayScore ? "sinkt morgen" : "stabil")
+        : "";
+      return `
     <div class="hero">
-      <div class="hero-badge ${risk.cls}" style="font-size:1.4rem">
+      <div class="hero-badge ${risk.cls}" style="font-size:1.6rem;font-weight:800">
         ${["✓","!","!!","‼"][risk.max]}
       </div>
       <div class="hero-body">
-        <div class="hero-risk ${risk.cls}">${risk.label}</div>
+        <div class="hero-risk ${risk.cls}" style="font-size:1.4rem">
+          ${risk.label}${trend ? ` <span style="font-size:1rem;opacity:.8">${trend}</span>` : ""}
+        </div>
+        ${trendLabel ? `<div style="font-size:.76rem;color:var(--text2);margin-top:1px">Tendenz: ${trendLabel}</div>` : ""}
         <div class="hero-loc">${reg.region_name}${reg.partregion_name?` · ${reg.partregion_name}`:""} · ${DAY_NAMES[activeDay]}</div>
         ${risk.drivers.length ? `
           <div class="hero-drivers">
             ${risk.drivers.map(p=>`<span class="driver-pill ${risk.cls}">${p.icon} ${p.name}</span>`).join("")}
           </div>` : `<div style="font-size:.8rem;color:var(--text2);margin-top:5px">Keine Belastung für deine Allergene.</div>`}
       </div>
-    </div>
+    </div>`;
+    })()}
 
     <!-- WEATHER CARD -->
     ${weather ? (() => {
@@ -484,23 +498,13 @@ function render() {
           <span class="card-title">Wetter & Polleneinfluss</span>
           <span style="font-size:.72rem;color:var(--text3)">Open-Meteo · DWD ICON</span>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;padding:12px 14px 4px">
-          <div style="display:flex;align-items:center;gap:7px;padding:5px 0">
-            <span style="font-size:1.1rem">🌡</span>
-            <span style="font-size:.85rem">${w.temp}°C <span style="color:var(--text3);font-size:.75rem">max ${d.tempMax}°C</span></span>
-          </div>
-          <div style="display:flex;align-items:center;gap:7px;padding:5px 0">
-            <span style="font-size:1.1rem">💨</span>
-            <span style="font-size:.85rem">${d.wind} km/h Wind</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:7px;padding:5px 0">
-            <span style="font-size:1.1rem">💧</span>
-            <span style="font-size:.85rem">${w.humidity}% Luftfeuchte</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:7px;padding:5px 0">
-            <span style="font-size:1.1rem">🌧</span>
-            <span style="font-size:.85rem">${d.rain} mm Regen</span>
-          </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:12px 14px 6px;text-align:center">
+          ${[["🌡","Temp",`${w.temp}°C`],["💨","Wind",`${d.wind} km/h`],["💧","Feuchte",`${w.humidity}%`],["🌧","Regen",`${d.rain} mm`]].map(([ic,lb,val])=>`
+          <div style="padding:4px 2px">
+            <div style="font-size:1.2rem">${ic}</div>
+            <div style="font-size:1rem;font-weight:700;margin:2px 0">${val}</div>
+            <div style="font-size:.68rem;color:var(--text3)">${lb}</div>
+          </div>`).join("")}
         </div>
         <div style="margin:4px 14px 12px;padding:9px 12px;border-radius:9px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;gap:10px">
           <span style="font-size:1.3rem">${effect.icon}</span>
@@ -516,14 +520,17 @@ function render() {
         const cl = ["risk-none","risk-low","risk-mid","risk-high"][sc];
         const ri = RISK[sc];
         const wd = weather?.daily?.[i];
-        return `<div class="day-card${i===activeDay?" active":""}" onclick="setDay(${i})">
-          <div class="dc-label">${n}</div>
+        const isToday = i === 0;
+        return `<div class="day-card${i===activeDay?" active":""}"
+                     style="${isToday&&i===activeDay?"background:var(--accent-subtle,var(--card2))":""}"
+                     onclick="setDay(${i})">
+          <div class="dc-label" style="${isToday?"font-weight:700":""}">${n}</div>
           <div class="dc-date">${dStr(i)}</div>
-          <div class="dc-ring ${cl}" style="font-size:.8rem;font-weight:700">
+          <div class="dc-ring ${cl}" style="font-size:.85rem;font-weight:700">
             ${["✓","!","!!","‼"][sc]}
           </div>
-          <div class="dc-sub">${ri.label}</div>
-          ${wd ? `<div style="font-size:.68rem;color:var(--text3);margin-top:4px">${wd.tempMax}° · ${wd.wind}km/h</div>` : ""}
+          <div class="dc-sub" style="font-size:.7rem">${ri.label}</div>
+          ${wd ? `<div style="font-size:.66rem;color:var(--text3);margin-top:3px">${wd.tempMax}° · ${wd.wind}km/h</div>` : ""}
         </div>`;
       }).join("")}
     </div>
@@ -896,6 +903,21 @@ document.addEventListener("touchend", () => {
     ptr_el.style.height = "0";
   }
   ptr_startY = 0; ptr_pulling = false;
+}, { passive: true });
+
+// ── SWIPE ZWISCHEN TAGEN ──────────────────────────────────────────────────────
+let swipe_startX = 0, swipe_startY = 0;
+document.addEventListener("touchstart", e => {
+  swipe_startX = e.touches[0].clientX;
+  swipe_startY = e.touches[0].clientY;
+}, { passive: true });
+document.addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].clientX - swipe_startX;
+  const dy = e.changedTouches[0].clientY - swipe_startY;
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+    if (dx < 0 && activeDay < 2) setDay(activeDay + 1); // links → nächster Tag
+    if (dx > 0 && activeDay > 0) setDay(activeDay - 1); // rechts → vorheriger Tag
+  }
 }, { passive: true });
 </script>
 </body>
