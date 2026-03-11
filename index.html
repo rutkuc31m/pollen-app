@@ -548,7 +548,7 @@ function render() {
       const uvVal = d.uv ?? null;
       const uvCls = uvVal === null ? "" : uvVal >= 8 ? "uv-hi" : uvVal >= 5 ? "uv-mid" : uvVal >= 2 ? "uv-low" : "";
       function uvCat(v) { return v === null ? "" : v <= 2 ? "niedrig" : v <= 5 ? "mäßig" : v <= 7 ? "hoch" : v <= 10 ? "sehr hoch" : "extrem"; }
-      const uvLabel = uvVal === null ? "–" : `${uvVal} <span style="font-size:.65rem;font-weight:400">${uvCat(uvVal)}</span>`;
+      const uvLabel = uvVal === null ? "–" : `${uvVal} <span style="font-size:.65rem;font-weight:400">(${uvCat(uvVal)})</span>`;
       const fetchedStr = weather.fetchedAt
         ? new Date(weather.fetchedAt).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})
         : "";
@@ -590,7 +590,7 @@ function render() {
               <div class="wd-icon">${wkIcon(wd.rain, wd.wind)}</div>
               <div class="wd-temp">${wd.tempMax}°</div>
               <div class="wd-rain">${wd.rain > 0 ? wd.rain+"mm" : "–"}</div>
-              ${uvW !== null ? `<div class="wd-uv ${uvWCls}">UV ${uvW} · ${uvCat(uvW)}</div>` : ""}
+              ${uvW !== null ? `<div class="wd-uv ${uvWCls}">UV ${uvW} (${uvCat(uvW)})</div>` : ""}
             </div>`;
           }).join("")}
         </div>` : ""}
@@ -736,6 +736,15 @@ function render() {
         <div class="li"><div class="ld" style="background:#eab308"></div>Gering</div>
         <div class="li"><div class="ld" style="background:#f97316"></div>Mittel</div>
         <div class="li"><div class="ld" style="background:#ef4444"></div>Hoch</div>
+      </div>
+      <div style="padding:10px 14px 14px;border-top:1px solid var(--border);margin-top:2px">
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:8px">UV-Index Skala (WHO, 0–11+)</div>
+        ${[[0,2,"niedrig","#22c55e"],[3,5,"mäßig","#eab308"],[6,7,"hoch","#f97316"],[8,10,"sehr hoch","#ef4444"],[11,"11+","extrem","#b91c1c"]].map(([from,to,cat,col])=>`
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:.8rem">
+          <div style="width:10px;height:10px;border-radius:50%;background:${col};flex-shrink:0"></div>
+          <span style="width:36px;color:var(--text3);flex-shrink:0">${from}–${to}</span>
+          <span>${cat}</span>
+        </div>`).join("")}
       </div>
       </div>
     </div>
