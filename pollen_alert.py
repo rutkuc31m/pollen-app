@@ -5,10 +5,11 @@ Notification-Kanal: wird ergänzt (Telegram geplant).
 """
 
 import json
+import os
 import sys
 from datetime import date, timedelta
 from urllib.error import URLError
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 
 DWD_URL = "https://opendata.dwd.de/climate_environment/health/alerts/s31fg.json"
 
@@ -106,7 +107,28 @@ def main():
         print("Keine aktiven Pollen – keine Benachrichtigung gesendet.")
         return
 
-    # TODO: Telegram-Benachrichtigung hier einfügen
+    sende_telegram(text)
+
+
+def sende_telegram(text):
+    token   = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+    chat_id = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+    if not token or not chat_id:
+        print("⚠️  TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID nicht gesetzt – übersprungen.")
+        return
+    payload = json.dumps({"chat_id": chat_id, "text": text}).encode()
+    req = Request(
+        f"https://api.telegram.org/bot{token}/sendMessage",
+        data=payload,
+        headers={"Content-Type": "application/json"},
+    )
+    try:
+        with urlopen(req, timeout=10) as resp:
+            if resp.status == 200:
+                print("✅ Telegram-Nachricht gesendet.")
+    except Exception as e:
+        print(f"❌ Telegram-Fehler: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
