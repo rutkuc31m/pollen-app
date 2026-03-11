@@ -547,17 +547,6 @@ function render() {
     </div>`;
     })()}
 
-    <!-- MY ALLERGIES (compact) -->
-    <div class="card" style="margin-bottom:12px">
-      <div style="padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
-        <span style="font-size:.72rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-right:2px">Meine Allergien</span>
-        ${POLLEN.map(p => {
-          const on = filter.includes(p.key);
-          return `<div class="allergy-chip ${on?"on":""}" onclick="toggleFilter('${p.key}')" style="padding:4px 10px;font-size:.78rem">${p.icon} ${p.name}</div>`;
-        }).join("")}
-      </div>
-    </div>
-
     <!-- WEATHER CARD -->
     ${weather ? (() => {
       const w = weather.current;
@@ -663,14 +652,13 @@ function render() {
             const lvls = vals.map(lv);
             return `<tr class="${!on?"dim":""}" onclick="toggleFilter('${p.key}')" style="cursor:pointer">
               <td>
-                <span class="picon">${p.icon}</span><span class="pname">${p.name}</span>
+                <span style="font-size:.75rem;color:${on?"var(--accent)":"var(--text3)"};margin-right:5px">${on?"✓":"○"}</span><span class="picon">${p.icon}</span><span class="pname">${p.name}</span>
                 <span class="ps ${inSeason?"on":"off"}">${inSeason?"🌱 "+p.s:"💤 "+p.s}</span>
               </td>
               ${lvls.map((l,i)=>`
                 <td class="${i===activeDay?"col-hi":""}">
                   <span class="badge ${l.cls}">${l.label}</span>
                 </td>`).join("")}
-              <td style="width:24px;text-align:center;font-size:.8rem;color:${on?"var(--accent)":"var(--text3)"}">${on?"✓":"○"}</td>
             </tr>`;
           }).join("")}
         </tbody>
