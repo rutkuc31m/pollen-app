@@ -1417,27 +1417,6 @@ function refreshDrawer() {
       ${renderCorrelation()}
     </div>
 
-    <!-- SEASON CALENDAR -->
-    <div class="dsec-head" onclick="toggleDrawerSec('dseason')" id="dseason-head">
-      <span>${t("season_title")}</span>
-      <span class="dsec-arrow">▼</span>
-    </div>
-    <div class="dsec-body" id="dseason-body">
-      <div class="season-wrap">
-        <div class="season-mhead">${MONTHS.map(m=>`<div class="season-ml">${m}</div>`).join("")}</div>
-        ${POLLEN.map(p=>`
-          <div class="season-row">
-            <div class="season-name">${p.icon} ${t(p.key)}</div>
-            <div class="season-bar">
-              ${MONTHS.map((_,mi)=>{
-                const m=mi+1,on=p.mo.includes(m),now=(m===month&&on);
-                return `<div class="sm${now?" now":on?" on":""}"></div>`;
-              }).join("")}
-            </div>
-          </div>`).join("")}
-      </div>
-    </div>
-
     <!-- BEST TIME OUTSIDE -->
     <div class="dsec-head" onclick="toggleDrawerSec('dbesttime')" id="dbesttime-head">
       <span>🕐 ${t("besttime_title")}</span>
@@ -1487,6 +1466,27 @@ function refreshDrawer() {
         return sec("💊",t("tips_med"),med) + sec("🌿",t("tips_outdoor"),outdoor) + sec("🏠",t("tips_indoor"),indoor)
           + `<div style="height:6px"></div>`;
       })() : ""}
+    </div>
+
+    <!-- SEASON CALENDAR -->
+    <div class="dsec-head" onclick="toggleDrawerSec('dseason')" id="dseason-head">
+      <span>${t("season_title")}</span>
+      <span class="dsec-arrow">▼</span>
+    </div>
+    <div class="dsec-body" id="dseason-body">
+      <div class="season-wrap">
+        <div class="season-mhead">${MONTHS.map(m=>`<div class="season-ml">${m}</div>`).join("")}</div>
+        ${POLLEN.map(p=>`
+          <div class="season-row">
+            <div class="season-name">${p.icon} ${t(p.key)}</div>
+            <div class="season-bar">
+              ${MONTHS.map((_,mi)=>{
+                const m=mi+1,on=p.mo.includes(m),now=(m===month&&on);
+                return `<div class="sm${now?" now":on?" on":""}"></div>`;
+              }).join("")}
+            </div>
+          </div>`).join("")}
+      </div>
     </div>
 
     <!-- POLLEN NEARBY -->
