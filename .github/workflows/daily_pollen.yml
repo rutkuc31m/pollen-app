@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  send-pollen-alert:
+  update-pollen-data:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -29,8 +29,5 @@ jobs:
           git diff --cached --quiet || git commit -m "Update pollen data $(date +%Y-%m-%d)"
           git push
 
-      - name: Pollenflug-Mail senden
-        env:
-          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+      - name: Pollenflug-Zusammenfassung ausgeben
         run: python pollen_alert.py
