@@ -246,9 +246,9 @@
       position: relative;
     }
     .hist-bar[data-v="0"]  { background: var(--border); height: 4px; }
-    .hist-bar[data-v="1"]  { background: #eab308; height: 40%; }
-    .hist-bar[data-v="2"]  { background: #f97316; height: 70%; }
-    .hist-bar[data-v="3"]  { background: #ef4444; height: 100%; }
+    .hist-bar[data-v="1"]  { background: #65a30d; height: 40%; }
+    .hist-bar[data-v="2"]  { background: #a16207; height: 70%; }
+    .hist-bar[data-v="3"]  { background: #b91c1c; height: 100%; }
     .hist-bar[data-v="-1"] { background: var(--border); height: 4px; opacity:.4; }
     .hist-dates { display: flex; gap: 3px; padding-left: 68px; margin-bottom: 2px; }
     .hist-dt { flex: 1; font-size: .62rem; color: var(--text3); text-align: center; }
@@ -876,7 +876,7 @@ function renderHistory() {
 function renderSymHistory() {
   const entries = Object.entries(symptoms).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,5);
   if (!entries.length) return "";
-  const sc = v => !v?"#3f3f46":["#3f3f46","#22c55e","#eab308","#f97316","#ef4444","#b91c1c"][v]??"#b91c1c";
+  const sc = v => !v?"#3f3f46":["#3f3f46","#65a30d","#65a30d","#a16207","#b91c1c","#b91c1c"][v]??"#b91c1c";
   return `
     <div class="sym-hist">
       <div class="sym-hist-title">${t("saved_entries")}</div>
@@ -1150,10 +1150,10 @@ function refreshDrawer() {
     </div>
     <div class="dsec-body" id="dlegend-body">
       <div class="legend">
-        <div class="li"><div class="ld" style="background:#22c55e"></div>${t("risk0")}</div>
-        <div class="li"><div class="ld" style="background:#eab308"></div>${t("lv_low")}</div>
-        <div class="li"><div class="ld" style="background:#f97316"></div>${t("lv_mid")}</div>
-        <div class="li"><div class="ld" style="background:#ef4444"></div>${t("lv_high")}</div>
+        <div class="li"><div class="ld" style="background:#16a34a"></div>${t("risk0")}</div>
+        <div class="li"><div class="ld" style="background:#65a30d"></div>${t("lv_low")}</div>
+        <div class="li"><div class="ld" style="background:#a16207"></div>${t("lv_mid")}</div>
+        <div class="li"><div class="ld" style="background:#b91c1c"></div>${t("lv_high")}</div>
       </div>
       <div style="padding:8px 14px 12px;border-top:1px solid var(--border);font-size:.79rem;color:var(--text2);line-height:1.55">
         <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:6px">${t("risk_calc_title")}</div>
