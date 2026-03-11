@@ -431,7 +431,7 @@ let activeDay = 0;
 let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
 let draft     = {niesen:0,augen:0,atmung:0,muedigkeit:0};
-let symSaved  = false;
+let symSaved  = !!symptoms[todayISO()];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME
