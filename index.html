@@ -22,6 +22,7 @@
       --text2:   #71717a;
       --text3:   #a1a1aa;
       --accent:  #16a34a;
+      --accent-subtle: #f0fdf4;
       --r:       13px;
       --sh:      0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
     }
@@ -34,6 +35,7 @@
       --text2:  #a1a1aa;
       --text3:  #71717a;
       --accent: #4ade80;
+      --accent-subtle: #052e16;
       --sh:     0 1px 3px rgba(0,0,0,.5);
     }
 
@@ -124,7 +126,7 @@
     .hero {
       background: var(--card); border: 1px solid var(--border);
       border-radius: var(--r); box-shadow: var(--sh);
-      margin-bottom: 12px; padding: 22px 18px;
+      margin-bottom: 12px; padding: 26px 20px;
       display: flex; align-items: center; gap: 16px;
     }
     .hero-badge {
@@ -135,7 +137,7 @@
     }
     .dc-ring { background: transparent !important; }
     .hero-body { flex: 1; min-width: 0; }
-    .hero-risk { font-size: 1.25rem; font-weight: 700; line-height: 1.2; background: transparent !important; }
+    .hero-risk { font-size: 1.42rem; font-weight: 700; line-height: 1.2; background: transparent !important; }
     .hero-loc  { font-size: .8rem; color: var(--text2); margin-top: 2px; }
     .hero-drivers { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
     .driver-pill {
@@ -166,7 +168,8 @@
       padding: 12px 10px; text-align: center; cursor: pointer;
       transition: border-color .15s;
     }
-    .day-card.active { border-color: var(--accent); }
+    .day-card.active { border-color: var(--accent); border-width: 2px; }
+    .day-card.today-card { background: var(--accent-subtle); }
     .day-card .dc-label { font-size: .78rem; font-weight: 600; color: var(--text); }
     .day-card .dc-date  { font-size: .68rem; color: var(--text3); margin-top: 1px; }
     .day-card .dc-ring  {
@@ -180,11 +183,11 @@
     /* ── ALLERGEN SELECTOR ───────────────────────────── */
     .allergy-grid { display: flex; flex-wrap: wrap; gap: 7px; padding: 12px 14px 14px; }
     .allergy-chip {
-      padding: 7px 13px; border-radius: 10px;
-      font-size: .82rem; cursor: pointer;
+      padding: 5px 10px; border-radius: 9px;
+      font-size: .77rem; cursor: pointer;
       border: 1.5px solid var(--border);
       background: var(--card2); color: var(--text2);
-      display: flex; align-items: center; gap: 6px;
+      display: flex; align-items: center; gap: 5px;
       transition: all .12s; user-select: none;
     }
     .allergy-chip.on {
@@ -389,6 +392,51 @@
     .dsec-body { display: none; }
     .dsec-body.open { display: block; }
 
+    /* ── EXPOSURE SCORE BAR ──────────────────────────── */
+    .exp-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 5px; }
+    .exp-bar-fill { height: 100%; border-radius: 3px; background: var(--rc); transition: width .5s ease; }
+
+    /* ── BEST TIME OUTSIDE ───────────────────────────── */
+    .time-windows { display: flex; gap: 7px; flex-wrap: wrap; padding: 12px 14px 6px; }
+    .time-win {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 12px; border-radius: 9px;
+      font-size: .82rem; font-weight: 500;
+    }
+    .time-win.good  { background: #dcfce7; color: #15803d; }
+    .time-win.warn  { background: #fee2e2; color: #b91c1c; }
+    .time-win.none  { background: var(--card2); color: var(--text2); }
+    [data-theme="dark"] .time-win.good { background: #052e16; color: #4ade80; }
+    [data-theme="dark"] .time-win.warn { background: #1c0000; color: #f87171; }
+    .time-note { font-size: .67rem; color: var(--text3); padding: 2px 14px 12px; }
+
+    /* ── TIPS ────────────────────────────────────────── */
+    .tips-group { padding: 10px 14px 6px; }
+    .tips-group + .tips-group { padding-top: 4px; }
+    .tips-group-title { font-size: .67rem; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+    .tip-row { display: flex; align-items: baseline; gap: 7px; font-size: .82rem; padding: 2px 0; }
+    .tip-ok   { color: #15803d; font-weight: 700; flex-shrink: 0; }
+    .tip-no   { color: #b91c1c; font-weight: 700; flex-shrink: 0; }
+    [data-theme="dark"] .tip-ok { color: #4ade80; }
+    [data-theme="dark"] .tip-no { color: #f87171; }
+
+    /* ── NEARBY REGIONS ──────────────────────────────── */
+    .nearby-list { padding: 10px 14px 6px; }
+    .nearby-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 0; border-bottom: 1px solid var(--border);
+      font-size: .82rem;
+    }
+    .nearby-row:last-child { border-bottom: none; }
+    .nearby-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+    .nearby-dist { font-size: .7rem; color: var(--text3); width: 50px; text-align: right; flex-shrink: 0; }
+    .escape-box {
+      margin: 4px 14px 14px; padding: 10px 13px; border-radius: 9px;
+      background: #dcfce7; color: #15803d; font-size: .82rem; line-height: 1.4;
+      border: 1px solid #bbf7d0;
+    }
+    [data-theme="dark"] .escape-box { background: #052e16; color: #4ade80; border-color: #166534; }
+
     /* ── TOAST ───────────────────────────────────────── */
     #toast {
       position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
@@ -496,6 +544,34 @@ const STRINGS = {
     ptr_pull: "↓ Ziehen",
     ptr_release: "↺ Loslassen",
     ptr_loading: "⟳ Aktualisiere…",
+    sym_hints: ["keine","kaum spürbar","leicht","mäßig","stark","sehr stark"],
+    corr_days: "Letzte 90 Tage",
+    // exposure score
+    exposure_title: "Tagesbelastung", of: "von",
+    // best time
+    besttime_title: "Beste Zeit draußen",
+    besttime_good: "Empfohlen", besttime_avoid: "Meiden",
+    besttime_allday: "Ganztägig geeignet",
+    besttime_none: "Heute möglichst drinnen bleiben",
+    besttime_note: "Schätzung · tagesbasierte Wetterdaten",
+    // tips
+    tips_title: "Tipps für heute",
+    tips_med: "Medikamente", tips_outdoor: "Draußen", tips_indoor: "Raumluft",
+    tip_antihistamine: "Antihistaminikum empfohlen",
+    tip_eyedrops: "Augentropfen sinnvoll",
+    tip_nasal_spray: "Nasenspray hilfreich",
+    tip_med_low: "Medikamente heute nicht nötig",
+    tip_windows_closed: "Fenster schließen (Pollen + Wind)",
+    tip_windows_open: "Lüften möglich",
+    tip_shower_after: "Nach Outdoor-Aktivitäten duschen",
+    tip_after_rain_vent: "Nach dem Regen gut lüften",
+    tip_air_purifier: "Luftreiniger empfohlen",
+    tip_no_laundry: "Keine Wäsche draußen trocknen",
+    tip_laundry_ok: "Wäsche draußen trocknen möglich",
+    // nearby
+    nearby_title: "Pollen in der Nähe",
+    escape_hint: "Ausweichoption",
+    km_away: "km",
   },
   en: {
     // days
@@ -552,6 +628,34 @@ const STRINGS = {
     ptr_pull: "↓ Pull to refresh",
     ptr_release: "↺ Release to refresh",
     ptr_loading: "⟳ Refreshing…",
+    sym_hints: ["none","barely noticeable","mild","moderate","severe","very severe"],
+    corr_days: "Last 90 days",
+    // exposure score
+    exposure_title: "Daily exposure", of: "of",
+    // best time
+    besttime_title: "Best time outside",
+    besttime_good: "Recommended", besttime_avoid: "Avoid",
+    besttime_allday: "All day suitable",
+    besttime_none: "Stay indoors if possible today",
+    besttime_note: "Estimate · based on daily weather data",
+    // tips
+    tips_title: "Tips for today",
+    tips_med: "Medication", tips_outdoor: "Outdoors", tips_indoor: "Indoor air",
+    tip_antihistamine: "Antihistamine recommended",
+    tip_eyedrops: "Eye drops useful",
+    tip_nasal_spray: "Nasal spray helpful",
+    tip_med_low: "Medication not necessary today",
+    tip_windows_closed: "Keep windows closed (pollen + wind)",
+    tip_windows_open: "Ventilation possible",
+    tip_shower_after: "Shower after outdoor activities",
+    tip_after_rain_vent: "Good time to ventilate after rain",
+    tip_air_purifier: "Air purifier recommended",
+    tip_no_laundry: "Don't dry laundry outside",
+    tip_laundry_ok: "Drying laundry outside is fine",
+    // nearby
+    nearby_title: "Pollen nearby",
+    escape_hint: "Escape option",
+    km_away: "km",
   }
 };
 
@@ -621,19 +725,19 @@ let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
 let draft     = {niesen:0,augen:0,atmung:0,muedigkeit:0};
 let symSaved  = !!symptoms[new Date().toISOString().slice(0,10)];
-let openSections = new Set(JSON.parse(localStorage.getItem("p_open") || '["pollen"]'));
+let openSections = new Set(JSON.parse(localStorage.getItem("p_open") || '["pollen","besttime","tips"]'));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME
 // ─────────────────────────────────────────────────────────────────────────────
-function applyTheme(t) {
-  document.documentElement.dataset.theme = t;
-  document.getElementById("theme-btn").textContent = t==="dark" ? "☀️" : "🌙";
-  document.getElementById("theme-meta").content = t==="dark" ? "#18181b" : "#ffffff";
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  document.getElementById("theme-btn").textContent = theme==="dark" ? "☀️" : "🌙";
+  document.getElementById("theme-meta").content = theme==="dark" ? "#18181b" : "#ffffff";
 }
 function toggleTheme() {
-  const t = document.documentElement.dataset.theme==="dark" ? "light" : "dark";
-  localStorage.setItem(LS.theme,t); applyTheme(t);
+  const theme = document.documentElement.dataset.theme==="dark" ? "light" : "dark";
+  localStorage.setItem(LS.theme, theme); applyTheme(theme);
 }
 applyTheme(localStorage.getItem(LS.theme) ||
   (window.matchMedia("(prefers-color-scheme:dark)").matches ? "dark" : "light"));
@@ -665,6 +769,154 @@ function personalRisk(pol, dayIdx) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// HAVERSINE DISTANCE (km between two lat/lon points)
+// ─────────────────────────────────────────────────────────────────────────────
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLon = (lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EXPOSURE SCORE 0–100
+// ─────────────────────────────────────────────────────────────────────────────
+function calcExposureScore(pol, dayIdx) {
+  const risk = personalRisk(pol, dayIdx);
+  const wd   = weather?.daily?.[dayIdx];
+  let score  = [0, 25, 50, 70][risk.max];
+  const wind = wd?.wind ?? 0;
+  const rain = wd?.rain ?? 0;
+  const uv   = wd?.uv   ?? 0;
+  score += wind > 30 ? 20 : wind > 20 ? 12 : wind > 10 ? 6 : 0;
+  score -= rain > 5  ? 20 : rain > 2  ? 12 : rain > 0.5 ? 6 : 0;
+  score += uv  > 8  ? 10 : uv  > 5  ?  5 : 0;
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BEST TIME OUTSIDE
+// ─────────────────────────────────────────────────────────────────────────────
+function calcBestTimes(pol, dayIdx) {
+  const wd   = weather?.daily?.[dayIdx];
+  if (!wd) return null;
+  const risk = personalRisk(pol, dayIdx).max;
+  const wind = wd.wind ?? 0, rain = wd.rain ?? 0, uv = wd.uv ?? 0;
+  if (risk === 0) return { good: [t("besttime_allday")], avoid: null };
+  if (risk >= 3 && wind > 25 && rain < 0.5) return { good: [], avoid: null };
+  const good = [];
+  if (wind <= 20) good.push("06:00–09:00");
+  good.push("19:00–22:00");
+  const avoid = (uv > 5 && risk >= 2) ? "11:00–16:00" : null;
+  return { good, avoid };
+}
+
+function renderBestTime(pol, dayIdx) {
+  if (!weather) return "";
+  const bt = calcBestTimes(pol, dayIdx);
+  if (!bt) return "";
+  return `
+    <div class="card">
+      <div class="card-head collapsible" onclick="toggleSection('besttime')">
+        <span class="card-title">🕐 ${t("besttime_title")}</span>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="collapsible-body" id="besttime-body">
+        <div class="time-windows">
+          ${bt.good.length
+            ? bt.good.map(w=>`<div class="time-win good">✓ ${w}</div>`).join("")
+            : `<div class="time-win none">⚠ ${t("besttime_none")}</div>`}
+          ${bt.avoid ? `<div class="time-win warn">⚠ ${t("besttime_avoid")}: ${bt.avoid}</div>` : ""}
+        </div>
+        <div class="time-note">${t("besttime_note")}</div>
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TIPS (medication + outdoor + indoor)
+// ─────────────────────────────────────────────────────────────────────────────
+function renderTips(pol, dayIdx) {
+  const wd   = weather?.daily?.[dayIdx];
+  const risk = personalRisk(pol, dayIdx).max;
+  if (risk === 0 && !wd) return "";
+  const wind = wd?.wind ?? 0, rain = wd?.rain ?? 0;
+  const row = (ok, text) =>
+    `<div class="tip-row"><span class="${ok?"tip-ok":"tip-no"}">${ok?"✓":"✗"}</span><span>${text}</span></div>`;
+  const med = [], outdoor = [], indoor = [];
+  if (risk >= 2)              med.push(row(true,  t("tip_antihistamine")));
+  if (risk >= 3)              med.push(row(true,  t("tip_eyedrops")));
+  if (risk >= 2 && wind > 15) med.push(row(true,  t("tip_nasal_spray")));
+  if (risk <= 1)              med.push(row(false, t("tip_med_low")));
+  if (wind > 20 || risk >= 3) outdoor.push(row(false, t("tip_windows_closed")));
+  else                        outdoor.push(row(true,  t("tip_windows_open")));
+  if (risk >= 1)              outdoor.push(row(true,  t("tip_shower_after")));
+  if (rain > 2)               outdoor.push(row(true,  t("tip_after_rain_vent")));
+  if (risk >= 2)              indoor.push(row(true,  t("tip_air_purifier")));
+  if (wind > 15 || risk >= 2) indoor.push(row(false, t("tip_no_laundry")));
+  else                        indoor.push(row(true,  t("tip_laundry_ok")));
+  const sec = (icon, title, rows) => !rows.length ? "" :
+    `<div class="tips-group"><div class="tips-group-title">${icon} ${title}</div>${rows.join("")}</div>`;
+  return `
+    <div class="card">
+      <div class="card-head collapsible" onclick="toggleSection('tips')">
+        <span class="card-title">${t("tips_title")}</span>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="collapsible-body" id="tips-body">
+        ${sec("💊", t("tips_med"),     med)}
+        ${sec("🌿", t("tips_outdoor"), outdoor)}
+        ${sec("🏠", t("tips_indoor"),  indoor)}
+        <div style="height:8px"></div>
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NEARBY REGIONS + ESCAPE SUGGESTION
+// ─────────────────────────────────────────────────────────────────────────────
+function renderNearbyRegions() {
+  if (!db) return "";
+  const cur = REGION_COORDS[rKey];
+  if (!cur) return "";
+  const bCls = ["b-none","b-low","b-mid","b-high"];
+  const others = db.regions
+    .filter(r => rk(r) !== rKey && REGION_COORDS[rk(r)])
+    .map(r => {
+      const c   = REGION_COORDS[rk(r)];
+      const dist = haversine(cur.lat, cur.lon, c.lat, c.lon);
+      const sc  = personalRisk(r.pollen, 0).max;
+      return { r, dist, sc };
+    })
+    .sort((a,b) => a.dist - b.dist)
+    .slice(0, 6);
+  if (!others.length) return "";
+  const curSc  = personalRisk(db.regions.find(r=>rk(r)===rKey)?.pollen, 0).max;
+  const escape = others.find(o => o.sc < curSc && o.sc <= 1 && o.dist > 30);
+  return `
+    <div class="card">
+      <div class="card-head collapsible" onclick="toggleSection('nearby')">
+        <span class="card-title">${t("nearby_title")}</span>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="collapsible-body" id="nearby-body">
+        <div class="nearby-list">
+          ${others.map(o=>`
+            <div class="nearby-row">
+              <span class="nearby-name">${escapeHtml(o.r.partregion_name||o.r.region_name)}</span>
+              <span class="badge ${bCls[o.sc]}">${RISK[o.sc].label}</span>
+              <span class="nearby-dist">${o.dist} ${t("km_away")}</span>
+            </div>`).join("")}
+        </div>
+        ${escape ? `
+          <div class="escape-box">
+            ✈ ${t("escape_hint")}: <strong>${escapeHtml(escape.r.partregion_name||escape.r.region_name)}</strong>
+            · ${RISK[escape.sc].label} · ${escape.dist} ${t("km_away")}
+          </div>` : ""}
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // HISTORY: store today's data in localStorage
 // ─────────────────────────────────────────────────────────────────────────────
 function storeHistoryDay(pol) {
@@ -675,8 +927,8 @@ function storeHistoryDay(pol) {
     entry[p.key] = pol?.[p.key]?.today ?? "-1";
   }
   history[today] = entry;
-  // keep only last 14 days
-  const keys = Object.keys(history).sort().slice(-14);
+  // keep only last 90 days (needed for symptom correlation)
+  const keys = Object.keys(history).sort().slice(-90);
   const trimmed = {};
   keys.forEach(k => trimmed[k] = history[k]);
   history = trimmed;
@@ -708,7 +960,7 @@ function render() {
 
     <!-- HERO: personal risk -->
     ${(() => {
-      const todayScore = personalRisk(pol, 0).max;
+      const todayScore    = personalRisk(pol, 0).max;
       const tomorrowScore = personalRisk(pol, 1).max;
       const trend = activeDay === 0
         ? (tomorrowScore > todayScore ? "↑" : tomorrowScore < todayScore ? "↓" : "→")
@@ -716,13 +968,14 @@ function render() {
       const trendLabel = activeDay === 0
         ? (tomorrowScore > todayScore ? t("trend_rising") : tomorrowScore < todayScore ? t("trend_falling") : t("trend_stable"))
         : "";
+      const expScore = calcExposureScore(pol, activeDay);
       return `
     <div class="hero">
       <div class="hero-badge ${risk.cls}" style="font-size:1.6rem;font-weight:800">
         ${["✓","!","!!","‼"][risk.max]}
       </div>
       <div class="hero-body">
-        <div class="hero-risk ${risk.cls}" style="font-size:1.4rem">
+        <div class="hero-risk ${risk.cls}" style="font-size:1.42rem">
           ${risk.label}${trend ? ` <span style="font-size:1rem;opacity:.8">${trend}</span>` : ""}
         </div>
         ${trendLabel ? `<div style="font-size:.76rem;color:var(--text2);margin-top:1px">${t("tendency")}: ${trendLabel}</div>` : ""}
@@ -731,6 +984,10 @@ function render() {
           <div class="hero-drivers">
             ${risk.drivers.map(p=>`<span class="driver-pill ${p.pillCls}">${p.icon} ${t(p.key)}</span>`).join("")}
           </div>` : `<div style="font-size:.8rem;color:var(--text2);margin-top:5px">${t("no_load")}</div>`}
+        <div style="margin-top:8px">
+          <div style="font-size:.7rem;color:var(--text2)">${t("exposure_title")}: <strong style="color:var(--rc)">${expScore}</strong> <span style="opacity:.55">${t("of")} 100</span></div>
+          <div class="exp-bar"><div class="exp-bar-fill ${risk.cls}" style="width:${expScore}%"></div></div>
+        </div>
       </div>
     </div>`;
     })()}
@@ -763,10 +1020,10 @@ function render() {
         </div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:12px 14px 6px;text-align:center">
           ${[["🌡",t("temp"),`${w.temp}°C`],["💨",t("wind"),`${d.wind} km/h`],["💧",t("humidity"),`${w.humidity}%`],["🌧",t("rain"),`${d.rain} mm`],["☀️",t("uv"),`<span class="${uvCls}">${uvLabel}</span>`]].map(([ic,lb,val])=>`
-          <div style="padding:4px 1px">
-            <div style="font-size:1.1rem">${ic}</div>
-            <div style="font-size:.95rem;font-weight:700;margin:2px 0">${val}</div>
-            <div style="font-size:.63rem;color:var(--text3)">${lb}</div>
+          <div style="padding:6px 2px">
+            <div style="font-size:1.05rem">${ic}</div>
+            <div style="font-size:1.12rem;font-weight:700;margin:3px 0 2px">${val}</div>
+            <div style="font-size:.57rem;color:var(--text3);letter-spacing:.2px;text-transform:uppercase">${lb}</div>
           </div>`).join("")}
         </div>
         <div style="margin:4px 14px 10px;padding:9px 12px;border-radius:9px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;gap:10px">
@@ -800,8 +1057,7 @@ function render() {
         const ri = RISK[sc];
         const wd = weather?.daily?.[i];
         const isToday = i === 0;
-        return `<div class="day-card${i===activeDay?" active":""}"
-                     style="${isToday&&i===activeDay?"background:var(--accent-subtle,var(--card2))":""}"
+        return `<div class="day-card${i===activeDay?" active":""}${isToday?" today-card":""}"
                      onclick="setDay(${i})">
           <div class="dc-label" style="${isToday?"font-weight:700":""}">${n}</div>
           <div class="dc-date">${dStr(i)}</div>
@@ -857,11 +1113,20 @@ function render() {
       </div>
     </div>
 
+    <!-- BEST TIME OUTSIDE -->
+    ${renderBestTime(pol, activeDay)}
+
+    <!-- TIPS -->
+    ${renderTips(pol, activeDay)}
+
+    <!-- NEARBY REGIONS -->
+    ${renderNearbyRegions()}
+
     <!-- HISTORY -->
     ${renderHistory()}
 
   `;
-  _open.forEach(id => toggleSection(id));
+  _open.forEach(id => toggleSection(id, false));
   refreshDrawer();
 }
 
@@ -964,14 +1229,14 @@ function saveSym() {
   render();
 }
 
-function toggleSection(id) {
+function toggleSection(id, save=true) {
   const body = document.getElementById(id+"-body");
   const head = body?.previousElementSibling;
   if (!body) return;
   const open = body.classList.toggle("open");
   head?.classList.toggle("open", open);
   open ? openSections.add(id) : openSections.delete(id);
-  localStorage.setItem(LS.open, JSON.stringify(Array.from(openSections)));
+  if (save) localStorage.setItem(LS.open, JSON.stringify(Array.from(openSections)));
 }
 
 let regionDebounce = null;
@@ -1067,7 +1332,9 @@ function geoLocate() {
 // SYMPTOM–POLLEN CORRELATION
 // ─────────────────────────────────────────────────────────────────────────────
 function renderCorrelation() {
-  const symEntries = Object.entries(symptoms);
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
+  const cutoffStr = cutoff.toISOString().slice(0,10);
+  const symEntries = Object.entries(symptoms).filter(([d]) => d >= cutoffStr);
   if (symEntries.length < 3) return ""; // need at least 3 days
   const filteredPollen = POLLEN.filter(p => filter.includes(p.key));
   if (!filteredPollen.length) return "";
@@ -1150,7 +1417,7 @@ function refreshDrawer() {
           <div class="sym-label">${lb}</div>
           <div class="sym-scale">
             ${[0,1,2,3,4,5].map(v=>`
-              <button class="sym-btn${draft[k]===v?" on":""}" onclick="setSym('${k}',${v})">${v===0?"–":v}</button>`).join("")}
+              <button class="sym-btn${draft[k]===v?" on":""}" onclick="setSym('${k}',${v})" title="${v}: ${t("sym_hints")[v]}">${v===0?"–":v}</button>`).join("")}
           </div>
         </div>`).join("")}
       ${symSaved ? "" : `<button class="sym-save" onclick="saveSym()">${t("save")}</button>`}
@@ -1229,7 +1496,14 @@ async function load() {
     const c = localStorage.getItem(LS.cache);
     if (c) {
       db = JSON.parse(c);
-      document.getElementById("offline-pill").classList.add("show");
+      const pill = document.getElementById("offline-pill");
+      const tsStr = localStorage.getItem(LS.cache + "_ts");
+      if (tsStr) {
+        const d = new Date(tsStr);
+        const time = d.toLocaleTimeString(lang==="de"?"de-DE":"en-GB",{hour:"2-digit",minute:"2-digit"});
+        pill.textContent = `Offline · ${time}`;
+      }
+      pill.classList.add("show");
     } else {
       document.getElementById("page").innerHTML =
         `<div class="center">${t("no_data")}<br><small>${t("check_conn")}</small></div>`;
@@ -1285,8 +1559,10 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-// ── PULL-TO-REFRESH ──────────────────────────────────────────────────────────
+// ── PULL-TO-REFRESH + SWIPE (unified to prevent gesture conflict) ─────────────
 let ptr_startY = 0, ptr_pulling = false;
+let swipe_startX = 0, swipe_startY = 0;
+let gesture_dir = null; // "v" = vertical PTR, "h" = horizontal swipe, null = undecided
 
 const ptr_el = document.createElement("div");
 ptr_el.id = "ptr";
@@ -1301,13 +1577,22 @@ ptr_el.style.cssText = `
 document.body.prepend(ptr_el);
 
 document.addEventListener("touchstart", e => {
-  if (window.scrollY < 5) ptr_startY = e.touches[0].clientY;
+  const touch = e.touches[0];
+  swipe_startX = touch.clientX;
+  swipe_startY = touch.clientY;
+  ptr_startY = window.scrollY < 5 ? touch.clientY : 0;
+  gesture_dir = null;
 }, { passive: true });
 
 document.addEventListener("touchmove", e => {
   if (!ptr_startY) return;
+  const dx = Math.abs(e.touches[0].clientX - swipe_startX);
   const dy = e.touches[0].clientY - ptr_startY;
-  if (dy > 4 && window.scrollY < 5) {
+  // lock gesture direction once we know it
+  if (gesture_dir === null && (Math.abs(dy) > 5 || dx > 5)) {
+    gesture_dir = Math.abs(dy) > dx ? "v" : "h";
+  }
+  if (gesture_dir === "v" && dy > 4 && window.scrollY < 5) {
     ptr_pulling = true;
     const h = Math.min(dy * 0.75, 52);
     ptr_el.style.height = h + "px";
@@ -1315,32 +1600,25 @@ document.addEventListener("touchmove", e => {
   }
 }, { passive: true });
 
-document.addEventListener("touchend", () => {
-  if (ptr_pulling && parseInt(ptr_el.style.height) >= 28) {
-    ptr_el.style.height = "42px";
-    ptr_el.querySelector("#ptr-icon").textContent = t("ptr_loading");
-    load().finally(() => {
-      ptr_el.style.height = "0";
-    });
-  } else {
-    ptr_el.style.height = "0";
-  }
-  ptr_startY = 0; ptr_pulling = false;
-}, { passive: true });
-
-// ── SWIPE ZWISCHEN TAGEN ──────────────────────────────────────────────────────
-let swipe_startX = 0, swipe_startY = 0;
-document.addEventListener("touchstart", e => {
-  swipe_startX = e.touches[0].clientX;
-  swipe_startY = e.touches[0].clientY;
-}, { passive: true });
 document.addEventListener("touchend", e => {
-  const dx = e.changedTouches[0].clientX - swipe_startX;
-  const dy = e.changedTouches[0].clientY - swipe_startY;
-  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-    if (dx < 0 && activeDay < 2) setDay(activeDay + 1); // links → nächster Tag
-    if (dx > 0 && activeDay > 0) setDay(activeDay - 1); // rechts → vorheriger Tag
+  if (gesture_dir === "v") {
+    if (ptr_pulling && parseInt(ptr_el.style.height) >= 28) {
+      ptr_el.style.height = "42px";
+      ptr_el.querySelector("#ptr-icon").textContent = t("ptr_loading");
+      load().finally(() => { ptr_el.style.height = "0"; });
+    } else {
+      ptr_el.style.height = "0";
+    }
+  } else {
+    // swipe left/right for day navigation
+    const dx = e.changedTouches[0].clientX - swipe_startX;
+    const dy = e.changedTouches[0].clientY - swipe_startY;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx < 0 && activeDay < 2) setDay(activeDay + 1);
+      if (dx > 0 && activeDay > 0) setDay(activeDay - 1);
+    }
   }
+  ptr_startY = 0; ptr_pulling = false; gesture_dir = null;
 }, { passive: true });
 
 // ── SWIPE TO CLOSE DRAWER ────────────────────────────────────────────────────
