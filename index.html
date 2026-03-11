@@ -1251,7 +1251,6 @@ document.addEventListener("visibilitychange", () => {
 
 // ── PULL-TO-REFRESH ──────────────────────────────────────────────────────────
 let ptr_startY = 0, ptr_pulling = false;
-const ptr_threshold = 70;
 
 const ptr_el = document.createElement("div");
 ptr_el.id = "ptr";
@@ -1259,29 +1258,29 @@ ptr_el.innerHTML = `<div id="ptr-icon">↓</div>`;
 ptr_el.style.cssText = `
   position:fixed; top:0; left:0; right:0; z-index:200;
   display:flex; justify-content:center; align-items:center;
-  height:0; overflow:hidden; transition:height .2s;
+  height:0; overflow:hidden; transition:height .15s;
   background:var(--card); border-bottom:1px solid var(--border);
   font-size:.85rem; color:var(--text2);
 `;
 document.body.prepend(ptr_el);
 
 document.addEventListener("touchstart", e => {
-  if (window.scrollY === 0) ptr_startY = e.touches[0].clientY;
+  if (window.scrollY < 5) ptr_startY = e.touches[0].clientY;
 }, { passive: true });
 
 document.addEventListener("touchmove", e => {
   if (!ptr_startY) return;
   const dy = e.touches[0].clientY - ptr_startY;
-  if (dy > 10 && window.scrollY === 0) {
+  if (dy > 4 && window.scrollY < 5) {
     ptr_pulling = true;
-    const h = Math.min(dy * 0.4, 52);
+    const h = Math.min(dy * 0.75, 52);
     ptr_el.style.height = h + "px";
-    ptr_el.querySelector("#ptr-icon").textContent = h >= ptr_threshold * 0.4 ? "↺ Loslassen" : "↓ Ziehen";
+    ptr_el.querySelector("#ptr-icon").textContent = h >= 28 ? "↺ Loslassen" : "↓ Ziehen";
   }
 }, { passive: true });
 
 document.addEventListener("touchend", () => {
-  if (ptr_pulling && parseInt(ptr_el.style.height) >= ptr_threshold * 0.4) {
+  if (ptr_pulling && parseInt(ptr_el.style.height) >= 28) {
     ptr_el.style.height = "42px";
     ptr_el.querySelector("#ptr-icon").textContent = "⟳ Aktualisiere…";
     load().finally(() => {
