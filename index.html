@@ -547,7 +547,8 @@ function render() {
       const d = weather.daily[activeDay] ?? weather.daily[0];
       const uvVal = d.uv ?? null;
       const uvCls = uvVal === null ? "" : uvVal >= 8 ? "uv-hi" : uvVal >= 5 ? "uv-mid" : uvVal >= 2 ? "uv-low" : "";
-      const uvLabel = uvVal === null ? "–" : uvVal;
+      function uvCat(v) { return v === null ? "" : v <= 2 ? "niedrig" : v <= 5 ? "mäßig" : v <= 7 ? "hoch" : v <= 10 ? "sehr hoch" : "extrem"; }
+      const uvLabel = uvVal === null ? "–" : `${uvVal} <span style="font-size:.65rem;font-weight:400">${uvCat(uvVal)}</span>`;
       const fetchedStr = weather.fetchedAt
         ? new Date(weather.fetchedAt).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})
         : "";
@@ -589,7 +590,7 @@ function render() {
               <div class="wd-icon">${wkIcon(wd.rain, wd.wind)}</div>
               <div class="wd-temp">${wd.tempMax}°</div>
               <div class="wd-rain">${wd.rain > 0 ? wd.rain+"mm" : "–"}</div>
-              ${uvW !== null ? `<div class="wd-uv ${uvWCls}">UV ${uvW}</div>` : ""}
+              ${uvW !== null ? `<div class="wd-uv ${uvWCls}">UV ${uvW} · ${uvCat(uvW)}</div>` : ""}
             </div>`;
           }).join("")}
         </div>` : ""}
