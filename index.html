@@ -725,7 +725,7 @@ let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
 let draft     = {niesen:0,augen:0,atmung:0,muedigkeit:0};
 let symSaved  = !!symptoms[new Date().toISOString().slice(0,10)];
-let openSections = new Set(JSON.parse(localStorage.getItem("p_open") || '["pollen","besttime","tips"]'));
+let openSections = new Set(JSON.parse(localStorage.getItem("p_open") || '["pollen"]'));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME
@@ -1113,15 +1113,6 @@ function render() {
       </div>
     </div>
 
-    <!-- BEST TIME OUTSIDE -->
-    ${renderBestTime(pol, activeDay)}
-
-    <!-- TIPS -->
-    ${renderTips(pol, activeDay)}
-
-    <!-- NEARBY REGIONS -->
-    ${renderNearbyRegions()}
-
     <!-- HISTORY -->
     ${renderHistory()}
 
@@ -1398,6 +1389,7 @@ function refreshDrawer() {
   const el = document.getElementById("drawer-content");
   if (!el) return;
   const month = new Date().getMonth()+1;
+  const drawerPol = db ? (db.regions.find(r=>rk(r)===rKey) ?? db.regions[0])?.pollen : null;
 
   // Symptom tracker
   const ts = symptoms[todayISO()];
@@ -1444,6 +1436,90 @@ function refreshDrawer() {
             </div>
           </div>`).join("")}
       </div>
+    </div>
+
+    <!-- BEST TIME OUTSIDE -->
+    <div class="dsec-head" onclick="toggleDrawerSec('dbesttime')" id="dbesttime-head">
+      <span>🕐 ${t("besttime_title")}</span>
+      <span class="dsec-arrow">▼</span>
+    </div>
+    <div class="dsec-body open" id="dbesttime-body">
+      ${drawerPol && weather ? (() => {
+        const bt = calcBestTimes(drawerPol, activeDay);
+        if (!bt) return `<div style="padding:10px 14px;font-size:.82rem;color:var(--text2)">${t("besttime_note")}</div>`;
+        return `
+          <div class="time-windows">
+            ${bt.good.length
+              ? bt.good.map(w=>`<div class="time-win good">✓ ${w}</div>`).join("")
+              : `<div class="time-win none">⚠ ${t("besttime_none")}</div>`}
+            ${bt.avoid ? `<div class="time-win warn">⚠ ${t("besttime_avoid")}: ${bt.avoid}</div>` : ""}
+          </div>
+          <div class="time-note">${t("besttime_note")}</div>`;
+      })() : `<div style="padding:10px 14px;font-size:.82rem;color:var(--text2)">${t("loading")}</div>`}
+    </div>
+
+    <!-- TIPS FOR TODAY -->
+    <div class="dsec-head" onclick="toggleDrawerSec('dtips')" id="dtips-head">
+      <span>${t("tips_title")}</span>
+      <span class="dsec-arrow">▼</span>
+    </div>
+    <div class="dsec-body open" id="dtips-body">
+      ${drawerPol ? (() => {
+        const wd   = weather?.daily?.[activeDay];
+        const risk = personalRisk(drawerPol, activeDay).max;
+        const wind = wd?.wind ?? 0, rain = wd?.rain ?? 0;
+        const row  = (ok, text) =>
+          `<div class="tip-row"><span class="${ok?"tip-ok":"tip-no"}">${ok?"✓":"✗"}</span><span>${text}</span></div>`;
+        const med = [], outdoor = [], indoor = [];
+        if (risk >= 2)              med.push(row(true,  t("tip_antihistamine")));
+        if (risk >= 3)              med.push(row(true,  t("tip_eyedrops")));
+        if (risk >= 2 && wind > 15) med.push(row(true,  t("tip_nasal_spray")));
+        if (risk <= 1)              med.push(row(false, t("tip_med_low")));
+        if (wind > 20 || risk >= 3) outdoor.push(row(false, t("tip_windows_closed")));
+        else                        outdoor.push(row(true,  t("tip_windows_open")));
+        if (risk >= 1)              outdoor.push(row(true,  t("tip_shower_after")));
+        if (rain > 2)               outdoor.push(row(true,  t("tip_after_rain_vent")));
+        if (risk >= 2)              indoor.push(row(true,  t("tip_air_purifier")));
+        if (wind > 15 || risk >= 2) indoor.push(row(false, t("tip_no_laundry")));
+        else                        indoor.push(row(true,  t("tip_laundry_ok")));
+        const sec = (icon, title, rows) => !rows.length ? "" :
+          `<div class="tips-group"><div class="tips-group-title">${icon} ${title}</div>${rows.join("")}</div>`;
+        return sec("💊",t("tips_med"),med) + sec("🌿",t("tips_outdoor"),outdoor) + sec("🏠",t("tips_indoor"),indoor)
+          + `<div style="height:6px"></div>`;
+      })() : ""}
+    </div>
+
+    <!-- POLLEN NEARBY -->
+    <div class="dsec-head" onclick="toggleDrawerSec('dnearby')" id="dnearby-head">
+      <span>${t("nearby_title")}</span>
+      <span class="dsec-arrow">▼</span>
+    </div>
+    <div class="dsec-body" id="dnearby-body">
+      ${db ? (() => {
+        const cur = REGION_COORDS[rKey];
+        if (!cur) return "";
+        const bCls = ["b-none","b-low","b-mid","b-high"];
+        const others = db.regions
+          .filter(r => rk(r) !== rKey && REGION_COORDS[rk(r)])
+          .map(r => {
+            const c = REGION_COORDS[rk(r)];
+            return { r, dist: haversine(cur.lat,cur.lon,c.lat,c.lon), sc: personalRisk(r.pollen,0).max };
+          })
+          .sort((a,b) => a.dist - b.dist).slice(0,6);
+        if (!others.length) return "";
+        const curSc  = personalRisk(drawerPol, 0).max;
+        const escape = others.find(o => o.sc < curSc && o.sc <= 1 && o.dist > 30);
+        return `
+          <div class="nearby-list">
+            ${others.map(o=>`
+              <div class="nearby-row">
+                <span class="nearby-name">${escapeHtml(o.r.partregion_name||o.r.region_name)}</span>
+                <span class="badge ${bCls[o.sc]}">${RISK[o.sc].label}</span>
+                <span class="nearby-dist">${o.dist} ${t("km_away")}</span>
+              </div>`).join("")}
+          </div>
+          ${escape ? `<div class="escape-box">✈ ${t("escape_hint")}: <strong>${escapeHtml(escape.r.partregion_name||escape.r.region_name)}</strong> · ${RISK[escape.sc].label} · ${escape.dist} ${t("km_away")}</div>` : ""}`;
+      })() : ""}
     </div>
 
     <!-- LEGEND -->
