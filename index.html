@@ -437,6 +437,7 @@ let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
 let draft     = {niesen:0,augen:0,atmung:0,muedigkeit:0};
 let symSaved  = !!symptoms[new Date().toISOString().slice(0,10)];
+let openSections = new Set();
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME
@@ -510,6 +511,7 @@ function render() {
 
   const dayScores = DAYS.map((_,i) => personalRisk(pol,i).max);
 
+  const _open = new Set(openSections);
   document.getElementById("page").innerHTML = `
 
     <!-- UPDATE LINE -->
@@ -754,6 +756,7 @@ function render() {
       </div>
     </div>
   `;
+  _open.forEach(id => toggleSection(id));
 }
 
 function renderHistory() {
@@ -851,8 +854,8 @@ function saveSym() {
   symptoms[todayISO()] = {...draft};
   localStorage.setItem(LS.syms, JSON.stringify(symptoms));
   symSaved = true;
+  openSections.add('sym');
   render();
-  toggleSection('sym'); // section offen lassen
 }
 
 function toggleSection(id) {
@@ -861,6 +864,7 @@ function toggleSection(id) {
   if (!body) return;
   const open = body.classList.toggle("open");
   head?.classList.toggle("open", open);
+  open ? openSections.add(id) : openSections.delete(id);
 }
 
 document.getElementById("region-sel").addEventListener("change", e => {
