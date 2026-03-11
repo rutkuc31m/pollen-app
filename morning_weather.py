@@ -90,58 +90,37 @@ def lade_wetter():
 
 
 def erstelle_nachricht(data):
-    c  = data["current"]
-    d  = data["daily"]
-    lines = []
+    c = data["current"]
+    d = data["daily"]
 
-    # Header
     cur_emoji, cur_desc = wmo(c["weather_code"])
-    lines += [
-        f"{cur_emoji} <b>Wetter {CITY}</b>",
+    d_emoji,   d_desc   = wmo(d["weather_code"][0])
+    tmin = round(d["temperature_2m_min"][0])
+    tmax = round(d["temperature_2m_max"][0])
+    fmin = round(d["apparent_temperature_min"][0])
+    fmax = round(d["apparent_temperature_max"][0])
+    rain = d["precipitation_sum"][0]
+    prob = d["precipitation_probability_max"][0]
+    wmax = round(d["wind_speed_10m_max"][0])
+    gust = round(d["wind_gusts_10m_max"][0])
+    wdir = wind_dir(d["wind_direction_10m_dominant"][0])
+    uv   = d["uv_index_max"][0]
+    rise = zeitstr(d["sunrise"][0])
+    sset = zeitstr(d["sunset"][0])
+
+    lines = [
+        f"{d_emoji} <b>Guten Morgen · {CITY}</b>",
+        f"<i>{d_desc}</i>",
         "",
-        f"<b>Jetzt:</b> {round(c['temperature_2m'])}°C  "
-        f"(gefühlt {round(c['apparent_temperature'])}°C)  "
-        f"{cur_desc}",
-        f"💧 Feuchte: {c['relative_humidity_2m']}%  "
-        f"💨 {round(c['wind_speed_10m'])} km/h {wind_dir(c['wind_direction_10m'])}  "
-        f"Böen {round(c['wind_gusts_10m'])} km/h",
+        f"🌡  {tmin}° – {tmax}°C  <i>(gefühlt {fmin}° – {fmax}°)</i>",
+        f"🌧  {'Kein Regen' if rain == 0 and prob <= 20 else f'{prob}% · {rain} mm'}",
+        f"💨  {wmax} km/h {wdir}  ·  Böen {gust} km/h",
+        f"☀️  UV {uv} – {uv_kat(uv)}",
+        f"💧  Feuchte {c['relative_humidity_2m']}%",
+        f"🌅  {rise}   🌇  {sset}",
+        "",
+        '🔗 <a href="https://rutkuc31m.github.io/pollen-app">Pollen-Forecast</a>',
     ]
-    if c["precipitation"] > 0:
-        lines.append(f"🌧 Aktuell: {c['precipitation']} mm")
-
-    # 3-Tages-Forecast
-    for i in range(3):
-        d_emoji, d_desc = wmo(d["weather_code"][i])
-        uv   = d["uv_index_max"][i]
-        rain = d["precipitation_sum"][i]
-        prob = d["precipitation_probability_max"][i]
-        wmax = round(d["wind_speed_10m_max"][i])
-        gust = round(d["wind_gusts_10m_max"][i])
-        wdir = wind_dir(d["wind_direction_10m_dominant"][i])
-        tmax = round(d["temperature_2m_max"][i])
-        tmin = round(d["temperature_2m_min"][i])
-        fmax = round(d["apparent_temperature_max"][i])
-        fmin = round(d["apparent_temperature_min"][i])
-        rise = zeitstr(d["sunrise"][i])
-        sset = zeitstr(d["sunset"][i])
-
-        lines += [
-            "",
-            f"<b>── {DAY_NAMES[i]} ──</b>",
-            f"{d_emoji} {d_desc}",
-            f"🌡 {tmin}° – {tmax}°C  (gefühlt {fmin}° – {fmax}°)",
-        ]
-        if rain > 0 or prob > 20:
-            lines.append(f"🌧 Regen: {prob}%  |  {rain} mm")
-        else:
-            lines.append("🌧 Kein Regen erwartet")
-        lines += [
-            f"💨 Wind: {wmax} km/h {wdir}  |  Böen {gust} km/h",
-            f"☀️ UV {uv} – {uv_kat(uv)}",
-            f"🌅 {rise}  🌇 {sset}",
-        ]
-
-    lines += ["", '🔗 <a href="https://rutkuc31m.github.io/pollen-app">Pollen-Forecast</a>']
     return "\n".join(lines)
 
 
