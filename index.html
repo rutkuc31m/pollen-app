@@ -431,6 +431,7 @@ let activeDay = 0;
 let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
 let draft     = {niesen:0,augen:0,atmung:0,muedigkeit:0};
+let symSaved  = false;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME
@@ -695,7 +696,7 @@ function render() {
               <button class="sym-btn${draft[k]===v?" on":""}" onclick="setSym('${k}',${v})">${v===0?"–":v}</button>`).join("")}
           </div>
         </div>`).join("")}
-      <button class="sym-save" onclick="saveSym()">Speichern</button>
+      ${symSaved ? "" : `<button class="sym-save" onclick="saveSym()">Speichern</button>`}
       ${renderSymHistory()}
       ${renderCorrelation()}
       </div>
@@ -827,15 +828,9 @@ function setSym(key, val) {
 function saveSym() {
   symptoms[todayISO()] = {...draft};
   localStorage.setItem(LS.syms, JSON.stringify(symptoms));
-  const btn = document.querySelector(".sym-save");
-  if (btn) {
-    btn.textContent = "✓ Gespeichert";
-    btn.style.background = "#16a34a";
-    btn.disabled = true;
-    setTimeout(() => render(), 1200);
-  } else {
-    render();
-  }
+  symSaved = true;
+  render();
+  toggleSection('sym'); // section offen lassen
 }
 
 function toggleSection(id) {
