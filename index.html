@@ -388,6 +388,18 @@
     .dsec-head.open .dsec-arrow { transform: rotate(180deg); }
     .dsec-body { display: none; }
     .dsec-body.open { display: block; }
+
+    /* ── TOAST ───────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+      background: #18181b; color: #fafafa;
+      padding: 9px 18px; border-radius: 20px;
+      font-size: .83rem; z-index: 300;
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s;
+      white-space: nowrap;
+    }
+    #toast.show { opacity: 1; }
   </style>
 </head>
 <body>
@@ -400,6 +412,7 @@
   </div>
   <div id="drawer-content"></div>
 </div>
+<div id="toast"></div>
 
 <div class="topbar">
   <div class="topbar-inner">
@@ -480,6 +493,9 @@ const STRINGS = {
     geo_unsupported:"Geolocation wird nicht unterstützt.",
     n_label:"N", a_label:"A", at_label:"At", m_label:"M",
     logo_title:"Pollenflug",
+    ptr_pull: "↓ Ziehen",
+    ptr_release: "↺ Loslassen",
+    ptr_loading: "⟳ Aktualisiere…",
   },
   en: {
     // days
@@ -533,6 +549,9 @@ const STRINGS = {
     geo_unsupported:"Geolocation is not supported.",
     n_label:"Sn", a_label:"Ey", at_label:"Br", m_label:"Fa",
     logo_title:"Pollen",
+    ptr_pull: "↓ Pull to refresh",
+    ptr_release: "↺ Release to refresh",
+    ptr_loading: "⟳ Refreshing…",
   }
 };
 
@@ -572,7 +591,7 @@ const DAYS      = ["today","tomorrow","dayafter_to"];
 const DAY_NAMES = [t("today"), t("tomorrow"), t("dayafter")];
 const MONTHS    = t("months").split(",");
 
-const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist" };
+const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist", open:"p_open" };
 
 // Koordinaten je DWD-Region für Wetter-API
 const REGION_COORDS = {
@@ -602,7 +621,7 @@ let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
 let draft     = {niesen:0,augen:0,atmung:0,muedigkeit:0};
 let symSaved  = !!symptoms[new Date().toISOString().slice(0,10)];
-let openSections = new Set(['pollen']);
+let openSections = new Set(JSON.parse(localStorage.getItem("p_open") || '["pollen"]'));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME
@@ -623,6 +642,9 @@ applyTheme(localStorage.getItem(LS.theme) ||
 // HELPERS
 // ─────────────────────────────────────────────────────────────────────────────
 const todayISO = () => new Date().toISOString().slice(0,10);
+function escapeHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
 function dStr(n) {
   const d=new Date(); d.setDate(d.getDate()+n);
   return d.toLocaleDateString(lang==="de"?"de-DE":"en-GB",{weekday:"short",day:"2-digit",month:"2-digit"});
@@ -681,7 +703,7 @@ function render() {
 
     <!-- UPDATE LINE -->
     <div style="font-size:.72rem;color:var(--text3);text-align:center;padding:4px 0 10px">
-      ${[db.last_update&&`${t("dwd_stand")}: ${db.last_update}`, db.next_update&&`${t("next_update")}: ${db.next_update}`].filter(Boolean).join(" · ")}
+      ${[db.last_update&&`${t("dwd_stand")}: ${escapeHtml(db.last_update)}`, db.next_update&&`${t("next_update")}: ${escapeHtml(db.next_update)}`].filter(Boolean).join(" · ")}
     </div>
 
     <!-- HERO: personal risk -->
@@ -704,7 +726,7 @@ function render() {
           ${risk.label}${trend ? ` <span style="font-size:1rem;opacity:.8">${trend}</span>` : ""}
         </div>
         ${trendLabel ? `<div style="font-size:.76rem;color:var(--text2);margin-top:1px">${t("tendency")}: ${trendLabel}</div>` : ""}
-        <div class="hero-loc">${reg.region_name}${reg.partregion_name?` · ${reg.partregion_name}`:""} · ${DAY_NAMES[activeDay]}</div>
+        <div class="hero-loc">${escapeHtml(reg.region_name)}${reg.partregion_name?` · ${escapeHtml(reg.partregion_name)}`:""} · ${DAY_NAMES[activeDay]}</div>
         ${risk.drivers.length ? `
           <div class="hero-drivers">
             ${risk.drivers.map(p=>`<span class="driver-pill ${p.pillCls}">${p.icon} ${t(p.key)}</span>`).join("")}
@@ -896,6 +918,7 @@ function renderSymHistory() {
 function setDay(i) { activeDay=i; render(); }
 
 function toggleFilter(key) {
+  if (!POLLEN.some(p => p.key === key)) return;
   filter = filter.includes(key) ? filter.filter(k=>k!==key) : [...filter,key];
   localStorage.setItem(LS.filter, JSON.stringify(filter));
   render();
@@ -948,14 +971,20 @@ function toggleSection(id) {
   const open = body.classList.toggle("open");
   head?.classList.toggle("open", open);
   open ? openSections.add(id) : openSections.delete(id);
+  localStorage.setItem(LS.open, JSON.stringify(Array.from(openSections)));
 }
 
+let regionDebounce = null;
 document.getElementById("region-sel").addEventListener("change", e => {
-  rKey = e.target.value;
-  localStorage.setItem(LS.region, rKey);
-  weather = null;
-  render();
-  loadWeather();
+  const val = e.target.value;
+  clearTimeout(regionDebounce);
+  regionDebounce = setTimeout(() => {
+    rKey = val;
+    localStorage.setItem(LS.region, rKey);
+    weather = null;
+    render();
+    loadWeather();
+  }, 300);
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1008,7 +1037,7 @@ function calcPollenEffect(dayIdx) {
 // GEO LOCATE
 // ─────────────────────────────────────────────────────────────────────────────
 function geoLocate() {
-  if (!navigator.geolocation) { alert(t("geo_unsupported")); return; }
+  if (!navigator.geolocation) { showToast(t("geo_unsupported")); return; }
   const btn = document.getElementById("geo-btn");
   btn.disabled = true; btn.textContent = "⏳";
   navigator.geolocation.getCurrentPosition(pos => {
@@ -1029,7 +1058,7 @@ function geoLocate() {
     }
     btn.disabled = false; btn.textContent = "📍";
   }, () => {
-    alert(t("geo_error"));
+    showToast(t("geo_error"));
     btn.disabled = false; btn.textContent = "📍";
   }, { timeout: 8000 });
 }
@@ -1082,6 +1111,13 @@ function renderCorrelation() {
 // ─────────────────────────────────────────────────────────────────────────────
 // DRAWER
 // ─────────────────────────────────────────────────────────────────────────────
+function showToast(msg, duration=3000) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), duration);
+}
+
 function openDrawer() {
   document.getElementById("drawer").classList.add("open");
   document.getElementById("drawer-overlay").classList.add("show");
@@ -1275,14 +1311,14 @@ document.addEventListener("touchmove", e => {
     ptr_pulling = true;
     const h = Math.min(dy * 0.75, 52);
     ptr_el.style.height = h + "px";
-    ptr_el.querySelector("#ptr-icon").textContent = h >= 28 ? "↺ Loslassen" : "↓ Ziehen";
+    ptr_el.querySelector("#ptr-icon").textContent = h >= 28 ? t("ptr_release") : t("ptr_pull");
   }
 }, { passive: true });
 
 document.addEventListener("touchend", () => {
   if (ptr_pulling && parseInt(ptr_el.style.height) >= 28) {
     ptr_el.style.height = "42px";
-    ptr_el.querySelector("#ptr-icon").textContent = "⟳ Aktualisiere…";
+    ptr_el.querySelector("#ptr-icon").textContent = t("ptr_loading");
     load().finally(() => {
       ptr_el.style.height = "0";
     });
