@@ -288,6 +288,14 @@
     [data-theme="dark"] .s25-cell[data-v="2"] { background: #713f12; }
     [data-theme="dark"] .s25-cell[data-v="3"] { background: #7f1d1d; }
     .s25-note { padding: 8px 0 0; font-size: .65rem; color: var(--text3); font-style: italic; }
+    .s25-tip {
+      position: fixed; z-index: 999;
+      background: var(--text); color: var(--card);
+      font-size: .78rem; padding: 4px 9px; border-radius: 6px;
+      pointer-events: none; white-space: nowrap;
+      opacity: 0; transition: opacity .15s;
+    }
+    .s25-tip.show { opacity: 1; }
 
     /* ── SYMPTOM TRACKER ─────────────────────────────── */
     .sym-date { font-size: .76rem; color: var(--text2); padding: 8px 14px 4px; }
@@ -1318,7 +1326,7 @@ function renderSeason2025() {
     const cells = vals.map((v, mi) =>
       `<div class="s25-cell" data-v="${v}" title="${MONTHS[mi]}: ${lvLabels[v] ?? v}"></div>`
     ).join("");
-    return `<div class="s25-name" title="${t(p.key)}"${dimmed}>${p.icon}</div>${cells}`;
+    return `<div class="s25-name" title="${t(p.key)}" onclick="showS25Tip(event,'${t(p.key)}')"${dimmed}>${p.icon}</div>${cells}`;
   }).join("");
 
   return `
@@ -1762,6 +1770,25 @@ function refreshDrawer() {
       </div>
     </div>
   `;
+}
+
+let _s25TipTimer = null;
+function showS25Tip(e, name) {
+  let tip = document.getElementById("s25-tip");
+  if (!tip) {
+    tip = document.createElement("div");
+    tip.id = "s25-tip";
+    tip.className = "s25-tip";
+    document.body.appendChild(tip);
+  }
+  tip.textContent = name;
+  const r = e.currentTarget.getBoundingClientRect();
+  tip.style.left = Math.min(r.left + r.width/2, window.innerWidth - 120) + "px";
+  tip.style.top  = (r.top - 32) + "px";
+  tip.style.transform = "translateX(-50%)";
+  tip.classList.add("show");
+  clearTimeout(_s25TipTimer);
+  _s25TipTimer = setTimeout(() => tip.classList.remove("show"), 1400);
 }
 
 function toggleDrawerSec(id) {
