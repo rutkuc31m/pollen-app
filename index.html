@@ -272,25 +272,22 @@
     .wh-leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 
     /* ── ANNUAL SEASON HEATMAP ───────────────────────── */
-    .s25-wrap { padding: 10px 14px 14px; overflow-x: auto; }
-    .s25-inner { min-width: 560px; }
-    .s25-months { display: flex; padding-left: 58px; margin-bottom: 3px; gap: 0; }
-    .s25-mon { font-size: .6rem; color: var(--text3); flex: 1; white-space: nowrap; }
-    .s25-row { display: flex; align-items: center; gap: 2px; margin-bottom: 2px; }
-    .s25-name { width: 56px; font-size: .7rem; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
-    .s25-cells { display: flex; gap: 2px; }
+    .s25-wrap { padding: 10px 14px 12px; }
+    .s25-grid { display: grid; grid-template-columns: 46px repeat(12, 1fr); gap: 3px; align-items: center; }
+    .s25-name { font-size: .72rem; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 4px; }
+    .s25-mon  { font-size: .6rem; color: var(--text3); text-align: center; font-weight: 600; padding: 0 0 2px; }
     .s25-cell {
-      width: 11px; height: 11px; border-radius: 2px;
+      aspect-ratio: 1; border-radius: 3px;
       background: var(--border);
-      flex-shrink: 0;
+      position: relative;
     }
-    .s25-cell[data-v="1"] { background: color-mix(in srgb,#65a30d 50%,var(--card)); }
-    .s25-cell[data-v="2"] { background: color-mix(in srgb,#a16207 60%,var(--card)); }
-    .s25-cell[data-v="3"] { background: color-mix(in srgb,#b91c1c 70%,var(--card)); }
+    .s25-cell[data-v="1"] { background: color-mix(in srgb,#65a30d 45%,var(--card)); }
+    .s25-cell[data-v="2"] { background: color-mix(in srgb,#a16207 58%,var(--card)); }
+    .s25-cell[data-v="3"] { background: color-mix(in srgb,#b91c1c 68%,var(--card)); }
     [data-theme="dark"] .s25-cell[data-v="1"] { background: #365314; }
     [data-theme="dark"] .s25-cell[data-v="2"] { background: #713f12; }
     [data-theme="dark"] .s25-cell[data-v="3"] { background: #7f1d1d; }
-    .s25-note { padding: 8px 0 0; font-size: .66rem; color: var(--text3); font-style: italic; }
+    .s25-note { padding: 8px 0 0; font-size: .65rem; color: var(--text3); font-style: italic; }
 
     /* ── SYMPTOM TRACKER ─────────────────────────────── */
     .sym-date { font-size: .76rem; color: var(--text2); padding: 8px 14px 4px; }
@@ -1289,19 +1286,18 @@ const SEASON_2025 = {
 const S25_MONTHS = [0,4,8,13,17,21,26,30,35,39,43,48];
 
 function renderSeason2025() {
-  const isDE = lang === "de";
   const MONTHS = t("months").split(",");
+  // Short month labels (first 1-3 chars)
+  const MON_SHORT = MONTHS.map(m => m.slice(0,3));
 
-  // Month label row: 12 labels across 52 columns
-  const monthRow = Array(52).fill("").map((_, wi) => {
-    const idx = S25_MONTHS.indexOf(wi);
-    return idx >= 0 ? `<div class="s25-mon" style="grid-column:${wi+1}">${MONTHS[idx]}</div>` : "";
-  }).filter(Boolean);
-
-  // Build month header using absolute positioning via CSS grid
-  const monthHeader = `<div style="display:grid;grid-template-columns:repeat(52,11px);gap:2px;padding-left:58px;margin-bottom:3px">
-    ${monthRow.join("")}
-  </div>`;
+  // Aggregate weekly data to monthly max
+  // S25_MONTHS = start week index for each month
+  function monthlyMax(key) {
+    return S25_MONTHS.map((startWk, mi) => {
+      const endWk = mi < 11 ? S25_MONTHS[mi + 1] : 52;
+      return Math.max(...SEASON_2025[key].slice(startWk, endWk));
+    });
+  }
 
   const pollen = [
     {key:"Hasel",    icon:"🌰"}, {key:"Erle",    icon:"🌿"},
@@ -1310,50 +1306,31 @@ function renderSeason2025() {
     {key:"Beifuss",  icon:"🌿"}, {key:"Ambrosia",icon:"🌼"},
   ];
 
-  const rows = pollen.map(p => {
-    const weeks = SEASON_2025[p.key];
-    const cells = weeks.map((v, wi) => {
-      const isoDate = isoWeek2025(wi);
-      return `<div class="s25-cell" data-v="${v}" title="${MONTHS[monthOfWeek(wi)]} KW${wi+1}: ${[t("wh_leg_empty"),t("wh_leg_none"),t("wh_leg_low"),t("wh_leg_mid"),t("wh_leg_high")][v+1]??v}"></div>`;
-    }).join("");
-    const dimmed = filter.includes(p.key) ? "" : " style=\"opacity:.35\"";
-    return `<div class="s25-row"${dimmed}>
-      <div class="s25-name">${p.icon} ${t(p.key)}</div>
-      <div class="s25-cells">${cells}</div>
-    </div>`;
-  }).join("");
+  const lvLabels = [t("wh_leg_none"), t("wh_leg_low"), t("wh_leg_mid"), t("wh_leg_high")];
 
-  const legItems = [
-    {v:0, label: t("wh_leg_none")},
-    {v:1, label: t("wh_leg_low")},
-    {v:2, label: t("wh_leg_mid")},
-    {v:3, label: t("wh_leg_high")},
-  ].map(({v, label}) =>
-    `<div class="wh-leg-item"><div class="s25-cell" data-v="${v}" style="width:10px;height:10px"></div><span>${label}</span></div>`
-  ).join("");
+  // Header row: empty name cell + 12 month labels
+  const headerRow = `<div class="s25-name"></div>
+    ${MON_SHORT.map(m => `<div class="s25-mon">${m}</div>`).join("")}`;
+
+  const dataRows = pollen.map(p => {
+    const vals = monthlyMax(p.key);
+    const dimmed = filter.includes(p.key) ? "" : " style=\"opacity:.35\"";
+    const cells = vals.map((v, mi) =>
+      `<div class="s25-cell" data-v="${v}" title="${MONTHS[mi]}: ${lvLabels[v] ?? v}"></div>`
+    ).join("");
+    return `<div class="s25-name"${dimmed}>${p.icon} ${t(p.key)}</div>${cells}`;
+  }).join("");
 
   return `
     <div class="s25-wrap">
-      <div class="s25-inner">
-        ${monthHeader}
-        ${rows}
-        <div class="wh-legend" style="padding-left:58px;margin-top:6px">${legItems}</div>
-        <div class="s25-note">${t("season2025_note")}</div>
+      <div class="s25-grid">
+        ${headerRow}
+        ${dataRows}
       </div>
+      <div class="s25-note">${t("season2025_note")}</div>
     </div>`;
 }
 
-// helper: ISO week index (0-based) → approximate ISO date string for week start
-function isoWeek2025(wi) {
-  const d = new Date("2025-01-01T12:00:00");
-  d.setDate(d.getDate() + wi * 7);
-  return d.toISOString().slice(0, 10);
-}
-function monthOfWeek(wi) {
-  const d = new Date("2025-01-01T12:00:00");
-  d.setDate(d.getDate() + wi * 7);
-  return d.getMonth();
-}
 
 function renderSymHistory() {
   const entries = Object.entries(symptoms).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,5);
