@@ -1797,6 +1797,11 @@ function toggleDrawerSec(id) {
   if (!body) return;
   const open = body.classList.toggle("open");
   head?.classList.toggle("open", open);
+  if (open) {
+    requestAnimationFrame(() => {
+      head.scrollIntoView({behavior:"smooth", block:"start"});
+    });
+  }
 }
 
 // LOAD
