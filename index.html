@@ -771,7 +771,7 @@ let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
 let draft     = {niesen:0,augen:0,atmung:0,muedigkeit:0};
 let symSaved  = !!symptoms[new Date().toISOString().slice(0,10)];
-let openSections = new Set(JSON.parse(localStorage.getItem("p_open") || '["pollen","shist","s2025"]'));
+let openSections = new Set(JSON.parse(localStorage.getItem("p_open") || '["pollen"]'));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME
@@ -1159,12 +1159,6 @@ function render() {
       </div>
     </div>
 
-    <!-- HISTORY -->
-    ${renderHistory()}
-
-    <!-- 2025 SEASON OVERVIEW -->
-    ${renderSeason2025()}
-
   `;
   _open.forEach(id => toggleSection(id, false));
   refreshDrawer();
@@ -1173,15 +1167,7 @@ function render() {
 function renderHistory() {
   const allDays = Object.keys(history).sort();
   if (allDays.length < 1) {
-    return `<div class="card">
-      <div class="card-head collapsible" onclick="toggleSection('shist')">
-        <span class="card-title">📅 ${t("week_history_title")}</span>
-        <span class="collapse-arrow">▼</span>
-      </div>
-      <div class="collapsible-body" id="shist-body">
-        <div style="padding:14px 16px;font-size:.85rem;color:var(--text3)">${t("wh_no_data")}</div>
-      </div>
-    </div>`;
+    return `<div style="padding:12px 14px;font-size:.83rem;color:var(--text3)">${t("wh_no_data")}</div>`;
   }
 
   // Day names Mon–Sun (0=Mon, 6=Sun in our grid)
@@ -1272,24 +1258,12 @@ function renderHistory() {
     </div>`
   ).join("");
 
-  const totalDays = allDays.length;
-  const subtitle = `${totalDays} ${t("days")}`;
-
   return `
-    <div class="card">
-      <div class="card-head collapsible" onclick="toggleSection('shist')">
-        <span class="card-title">📅 ${t("week_history_title")}</span>
-        <span style="font-size:.72rem;color:var(--text3);margin-right:auto;padding-left:6px">${subtitle}</span>
-        <span class="collapse-arrow">▼</span>
-      </div>
-      <div class="collapsible-body" id="shist-body">
-        <div class="week-heatmap">
-          <div class="week-heatmap-inner">
-            <div class="wh-header"><div></div>${headerCells}</div>
-            ${rows}
-            <div class="wh-legend">${legItems}</div>
-          </div>
-        </div>
+    <div class="week-heatmap">
+      <div class="week-heatmap-inner">
+        <div class="wh-header"><div></div>${headerCells}</div>
+        ${rows}
+        <div class="wh-legend">${legItems}</div>
       </div>
     </div>`;
 }
@@ -1359,20 +1333,12 @@ function renderSeason2025() {
   ).join("");
 
   return `
-    <div class="card">
-      <div class="card-head collapsible" onclick="toggleSection('s2025')">
-        <span class="card-title">📊 ${t("season2025_title")}</span>
-        <span class="collapse-arrow">▼</span>
-      </div>
-      <div class="collapsible-body" id="s2025-body">
-        <div class="s25-wrap">
-          <div class="s25-inner">
-            ${monthHeader}
-            ${rows}
-            <div class="wh-legend" style="padding-left:58px;margin-top:6px">${legItems}</div>
-            <div class="s25-note">${t("season2025_note")}</div>
-          </div>
-        </div>
+    <div class="s25-wrap">
+      <div class="s25-inner">
+        ${monthHeader}
+        ${rows}
+        <div class="wh-legend" style="padding-left:58px;margin-top:6px">${legItems}</div>
+        <div class="s25-note">${t("season2025_note")}</div>
       </div>
     </div>`;
 }
@@ -1772,6 +1738,24 @@ function refreshDrawer() {
           </div>
           ${escape ? `<div class="escape-box">✈ ${t("escape_hint")}: <strong>${escapeHtml(escape.r.partregion_name||escape.r.region_name)}</strong> · ${RISK[escape.sc].label} · ${escape.dist} ${t("km_away")}</div>` : ""}`;
       })() : ""}
+    </div>
+
+    <!-- WEEKLY HISTORY -->
+    <div class="dsec-head" onclick="toggleDrawerSec('dshist')" id="dshist-head">
+      <span>📅 ${t("week_history_title")}</span>
+      <span class="dsec-arrow">▼</span>
+    </div>
+    <div class="dsec-body" id="dshist-body">
+      ${renderHistory()}
+    </div>
+
+    <!-- 2025 SEASON REVIEW -->
+    <div class="dsec-head open" onclick="toggleDrawerSec('ds2025')" id="ds2025-head">
+      <span>📊 ${t("season2025_title")}</span>
+      <span class="dsec-arrow">▼</span>
+    </div>
+    <div class="dsec-body open" id="ds2025-body">
+      ${renderSeason2025()}
     </div>
 
     <!-- LEGEND -->
