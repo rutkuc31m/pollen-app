@@ -238,23 +238,38 @@
     [data-theme="dark"] .b-high { color:#f87171; }
     .col-hi { font-weight: 600; }
 
-    /* ── HISTORY CHART ───────────────────────────────── */
-    .history-wrap { padding: 12px 14px 14px; }
-    .hist-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-    .hist-name { width: 60px; font-size: .78rem; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .hist-bars { display: flex; gap: 3px; flex: 1; align-items: flex-end; height: 28px; }
-    .hist-bar  {
-      flex: 1; border-radius: 3px 3px 0 0;
-      min-height: 4px;
-      position: relative;
+    /* ── WEEKLY HISTORY HEATMAP ──────────────────────── */
+    .week-heatmap { padding: 10px 14px 14px; overflow-x: auto; }
+    .week-heatmap-inner { min-width: 280px; }
+    .wh-header { display: grid; grid-template-columns: 52px repeat(7, 1fr); gap: 3px; margin-bottom: 4px; }
+    .wh-dayname { font-size: .65rem; color: var(--text3); text-align: center; font-weight: 600; }
+    .wh-dayname.wh-weekend { color: var(--accent); }
+    .wh-row { display: grid; grid-template-columns: 52px repeat(7, 1fr); gap: 3px; margin-bottom: 3px; align-items: center; }
+    .wh-week-label { font-size: .62rem; color: var(--text3); padding-right: 4px; text-align: right; line-height: 1.2; }
+    .wh-cell {
+      aspect-ratio: 1;
+      border-radius: 4px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-size: .6rem; color: var(--text3);
+      background: var(--border);
+      position: relative; cursor: default;
+      min-height: 28px;
     }
-    .hist-bar[data-v="0"]  { background: var(--border); height: 4px; }
-    .hist-bar[data-v="1"]  { background: #65a30d; height: 40%; }
-    .hist-bar[data-v="2"]  { background: #a16207; height: 70%; }
-    .hist-bar[data-v="3"]  { background: #b91c1c; height: 100%; }
-    .hist-bar[data-v="-1"] { background: var(--border); height: 4px; opacity:.4; }
-    .hist-dates { display: flex; gap: 3px; padding-left: 68px; margin-bottom: 2px; }
-    .hist-dt { flex: 1; font-size: .62rem; color: var(--text3); text-align: center; }
+    .wh-cell.wh-today { outline: 2px solid var(--accent); outline-offset: -1px; }
+    .wh-cell.wh-future { opacity: .3; }
+    .wh-cell[data-sc="0"] { background: color-mix(in srgb, #65a30d 18%, var(--card)); color: #65a30d; }
+    .wh-cell[data-sc="1"] { background: color-mix(in srgb, #65a30d 35%, var(--card)); color: #3f6212; }
+    .wh-cell[data-sc="2"] { background: color-mix(in srgb, #a16207 45%, var(--card)); color: #78350f; }
+    .wh-cell[data-sc="3"] { background: color-mix(in srgb, #b91c1c 55%, var(--card)); color: #7f1d1d; }
+    [data-theme="dark"] .wh-cell[data-sc="0"] { color: #86efac; }
+    [data-theme="dark"] .wh-cell[data-sc="1"] { color: #bef264; }
+    [data-theme="dark"] .wh-cell[data-sc="2"] { color: #fde68a; }
+    [data-theme="dark"] .wh-cell[data-sc="3"] { color: #fca5a5; }
+    .wh-date { font-size: .6rem; line-height: 1; }
+    .wh-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; margin-top: 2px; }
+    .wh-legend { display: flex; gap: 10px; padding: 8px 0 0 52px; flex-wrap: wrap; }
+    .wh-leg-item { display: flex; align-items: center; gap: 4px; font-size: .68rem; color: var(--text3); }
+    .wh-leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 
     /* ── SYMPTOM TRACKER ─────────────────────────────── */
     .sym-date { font-size: .76rem; color: var(--text2); padding: 8px 14px 4px; }
@@ -516,6 +531,9 @@ const STRINGS = {
     all_pollen:"Alle Pollen", select_all:"Alle auswählen",
     tap_hint:"Zeile antippen = für dein Risiko ein/ausschließen",
     history_title:"Verlauf – letzte", days:"Tage",
+    week_history_title:"Wöchentlicher Verlauf",
+    wh_no_data:"Noch keine Verlaufsdaten. Wird täglich aufgebaut.",
+    wh_leg_none:"keine", wh_leg_low:"gering", wh_leg_mid:"mittel", wh_leg_high:"hoch", wh_leg_empty:"leer",
     sym_title:"Wie geht's dir heute?",
     niesen:"Niesen", augen:"Augen", atmung:"Atmung", muedigkeit:"Müdigkeit",
     save:"Speichern", saved_entries:"Letzte Einträge",
@@ -600,6 +618,9 @@ const STRINGS = {
     all_pollen:"All Pollen", select_all:"Select all",
     tap_hint:"Tap a row to include/exclude from your risk",
     history_title:"History – last", days:"days",
+    week_history_title:"Weekly Overview",
+    wh_no_data:"No history yet. Updates daily.",
+    wh_leg_none:"none", wh_leg_low:"low", wh_leg_mid:"moderate", wh_leg_high:"high", wh_leg_empty:"empty",
     sym_title:"How are you today?",
     niesen:"Sneezing", augen:"Eyes", atmung:"Breathing", muedigkeit:"Fatigue",
     save:"Save", saved_entries:"Recent entries",
@@ -725,7 +746,7 @@ let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
 let draft     = {niesen:0,augen:0,atmung:0,muedigkeit:0};
 let symSaved  = !!symptoms[new Date().toISOString().slice(0,10)];
-let openSections = new Set(JSON.parse(localStorage.getItem("p_open") || '["pollen"]'));
+let openSections = new Set(JSON.parse(localStorage.getItem("p_open") || '["pollen","shist"]'));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME
@@ -1122,31 +1143,125 @@ function render() {
 }
 
 function renderHistory() {
-  const filteredPollen = POLLEN.filter(p=>filter.includes(p.key));
-  const days = Object.keys(history).sort().slice(-7);
-  if (days.length < 2 || !filteredPollen.length) return "";
+  const allDays = Object.keys(history).sort();
+  if (allDays.length < 1) {
+    return `<div class="card">
+      <div class="card-head collapsible" onclick="toggleSection('shist')">
+        <span class="card-title">📅 ${t("week_history_title")}</span>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="collapsible-body" id="shist-body">
+        <div style="padding:14px 16px;font-size:.85rem;color:var(--text3)">${t("wh_no_data")}</div>
+      </div>
+    </div>`;
+  }
 
-  const dateLabels = days.map(d => {
-    const dt = new Date(d+"T12:00:00");
-    return dt.toLocaleDateString(lang==="de"?"de-DE":"en-GB",{day:"2-digit",month:"2-digit"});
-  });
+  // Day names Mon–Sun (0=Mon, 6=Sun in our grid)
+  const isDE = lang === "de";
+  const DOW = isDE
+    ? ["Mo","Di","Mi","Do","Fr","Sa","So"]
+    : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+  const todayStr = todayISO();
+
+  // Group dates by ISO week (Mon-based). Week key = date of Monday.
+  function isoWeekMonday(dateStr) {
+    const d = new Date(dateStr + "T12:00:00");
+    const day = (d.getDay() + 6) % 7; // 0=Mon … 6=Sun
+    const mon = new Date(d); mon.setDate(d.getDate() - day);
+    return mon.toISOString().slice(0, 10);
+  }
+
+  // Build a set of all weeks we need (from first day to today)
+  const firstDay = allDays[0];
+  const weekSet = new Set();
+  {
+    const cur = new Date(isoWeekMonday(firstDay) + "T12:00:00");
+    const end = new Date(isoWeekMonday(todayStr) + "T12:00:00");
+    while (cur <= end) {
+      weekSet.add(cur.toISOString().slice(0, 10));
+      cur.setDate(cur.getDate() + 7);
+    }
+  }
+  const weeks = [...weekSet].sort().slice(-13); // max 13 weeks (~3 months)
+
+  // Compute daily risk score from history
+  function dayScore(dateStr) {
+    const h = history[dateStr];
+    if (!h) return -1;
+    let max = -1;
+    for (const p of POLLEN) {
+      if (!filter.includes(p.key)) continue;
+      const sc = lv(h[p.key] ?? "-1").sc;
+      if (sc > max) max = sc;
+    }
+    return max; // -1 = no data, 0 = none, 1 = low, 2 = mid, 3 = high
+  }
+
+  const headerCells = DOW.map((d, i) =>
+    `<div class="wh-dayname${i>=5?" wh-weekend":""}">${d}</div>`
+  ).join("");
+
+  const rows = weeks.map(monStr => {
+    const monDate = new Date(monStr + "T12:00:00");
+    const weekLabel = monDate.toLocaleDateString(isDE?"de-DE":"en-GB",{day:"2-digit",month:"2-digit"});
+
+    const cells = Array.from({length: 7}, (_, i) => {
+      const d = new Date(monDate); d.setDate(monDate.getDate() + i);
+      const dStr2 = d.toISOString().slice(0, 10);
+      const dayNum = d.getDate();
+      const isFuture = dStr2 > todayStr;
+      const isToday = dStr2 === todayStr;
+      const sc = dayScore(dStr2);
+      const hasData = sc >= 0;
+
+      let cls = "wh-cell";
+      if (isToday) cls += " wh-today";
+      if (isFuture) cls += " wh-future";
+
+      const scAttr = hasData && !isFuture ? ` data-sc="${sc}"` : "";
+      const dot = hasData && !isFuture && sc > 0 ? `<div class="wh-dot"></div>` : "";
+      const titleText = isFuture ? dStr2 : (hasData ? `${dStr2}: ${["–","▲","▲▲","▲▲▲"][sc]??sc}` : dStr2);
+
+      return `<div class="${cls}"${scAttr} title="${titleText}">
+        <span class="wh-date">${dayNum}</span>${dot}
+      </div>`;
+    }).join("");
+
+    return `<div class="wh-row"><div class="wh-week-label">${weekLabel}</div>${cells}</div>`;
+  }).join("");
+
+  const legItems = [
+    {bg:"var(--border)",                              label: t("wh_leg_empty")},
+    {bg:"color-mix(in srgb,#65a30d 35%,var(--card))",label: t("wh_leg_none")},
+    {bg:"color-mix(in srgb,#65a30d 35%,var(--card))",label: t("wh_leg_low")},
+    {bg:"color-mix(in srgb,#a16207 45%,var(--card))",label: t("wh_leg_mid")},
+    {bg:"color-mix(in srgb,#b91c1c 55%,var(--card))",label: t("wh_leg_high")},
+  ].map(({bg, label}) =>
+    `<div class="wh-leg-item">
+      <div class="wh-leg-dot" style="background:${bg}"></div>
+      <span>${label}</span>
+    </div>`
+  ).join("");
+
+  const totalDays = allDays.length;
+  const subtitle = `${totalDays} ${t("days")}`;
 
   return `
     <div class="card">
-      <div class="card-head"><span class="card-title">${t("history_title")} ${days.length} ${t("days")}</span></div>
-      <div class="history-wrap">
-        <div class="hist-dates">${dateLabels.map(d=>`<div class="hist-dt">${d}</div>`).join("")}</div>
-        ${filteredPollen.map(p=>`
-          <div class="hist-row">
-            <div class="hist-name">${p.icon} ${t(p.key)}</div>
-            <div class="hist-bars">
-              ${days.map(d=>{
-                const v = history[d]?.[p.key] ?? "-1";
-                const sc = lv(v).sc;
-                return `<div class="hist-bar" data-v="${sc}" title="${d}: ${lv(v).label}"></div>`;
-              }).join("")}
-            </div>
-          </div>`).join("")}
+      <div class="card-head collapsible" onclick="toggleSection('shist')">
+        <span class="card-title">📅 ${t("week_history_title")}</span>
+        <span style="font-size:.72rem;color:var(--text3);margin-right:auto;padding-left:6px">${subtitle}</span>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="collapsible-body" id="shist-body">
+        <div class="week-heatmap">
+          <div class="week-heatmap-inner">
+            <div class="wh-header"><div></div>${headerCells}</div>
+            ${rows}
+            <div class="wh-legend">${legItems}</div>
+          </div>
+        </div>
       </div>
     </div>`;
 }
