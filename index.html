@@ -271,6 +271,27 @@
     .wh-leg-item { display: flex; align-items: center; gap: 4px; font-size: .68rem; color: var(--text3); }
     .wh-leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 
+    /* ── ANNUAL SEASON HEATMAP ───────────────────────── */
+    .s25-wrap { padding: 10px 14px 14px; overflow-x: auto; }
+    .s25-inner { min-width: 560px; }
+    .s25-months { display: flex; padding-left: 58px; margin-bottom: 3px; gap: 0; }
+    .s25-mon { font-size: .6rem; color: var(--text3); flex: 1; white-space: nowrap; }
+    .s25-row { display: flex; align-items: center; gap: 2px; margin-bottom: 2px; }
+    .s25-name { width: 56px; font-size: .7rem; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+    .s25-cells { display: flex; gap: 2px; }
+    .s25-cell {
+      width: 11px; height: 11px; border-radius: 2px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    .s25-cell[data-v="1"] { background: color-mix(in srgb,#65a30d 50%,var(--card)); }
+    .s25-cell[data-v="2"] { background: color-mix(in srgb,#a16207 60%,var(--card)); }
+    .s25-cell[data-v="3"] { background: color-mix(in srgb,#b91c1c 70%,var(--card)); }
+    [data-theme="dark"] .s25-cell[data-v="1"] { background: #365314; }
+    [data-theme="dark"] .s25-cell[data-v="2"] { background: #713f12; }
+    [data-theme="dark"] .s25-cell[data-v="3"] { background: #7f1d1d; }
+    .s25-note { padding: 8px 0 0; font-size: .66rem; color: var(--text3); font-style: italic; }
+
     /* ── SYMPTOM TRACKER ─────────────────────────────── */
     .sym-date { font-size: .76rem; color: var(--text2); padding: 8px 14px 4px; }
     .sym-row  {
@@ -534,6 +555,8 @@ const STRINGS = {
     week_history_title:"Wöchentlicher Verlauf",
     wh_no_data:"Noch keine Verlaufsdaten. Wird täglich aufgebaut.",
     wh_leg_none:"keine", wh_leg_low:"gering", wh_leg_mid:"mittel", wh_leg_high:"hoch", wh_leg_empty:"leer",
+    season2025_title:"Saisonrückblick 2025",
+    season2025_note:"Phänologische Klimanorm · Hannover · Vorbereitung auf 2026",
     sym_title:"Wie geht's dir heute?",
     niesen:"Niesen", augen:"Augen", atmung:"Atmung", muedigkeit:"Müdigkeit",
     save:"Speichern", saved_entries:"Letzte Einträge",
@@ -621,6 +644,8 @@ const STRINGS = {
     week_history_title:"Weekly Overview",
     wh_no_data:"No history yet. Updates daily.",
     wh_leg_none:"none", wh_leg_low:"low", wh_leg_mid:"moderate", wh_leg_high:"high", wh_leg_empty:"empty",
+    season2025_title:"2025 Season Review",
+    season2025_note:"Phenological climate norm · Hannover · Preparation for 2026",
     sym_title:"How are you today?",
     niesen:"Sneezing", augen:"Eyes", atmung:"Breathing", muedigkeit:"Fatigue",
     save:"Save", saved_entries:"Recent entries",
@@ -746,7 +771,7 @@ let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
 let draft     = {niesen:0,augen:0,atmung:0,muedigkeit:0};
 let symSaved  = !!symptoms[new Date().toISOString().slice(0,10)];
-let openSections = new Set(JSON.parse(localStorage.getItem("p_open") || '["pollen","shist"]'));
+let openSections = new Set(JSON.parse(localStorage.getItem("p_open") || '["pollen","shist","s2025"]'));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME
@@ -1137,6 +1162,9 @@ function render() {
     <!-- HISTORY -->
     ${renderHistory()}
 
+    <!-- 2025 SEASON OVERVIEW -->
+    ${renderSeason2025()}
+
   `;
   _open.forEach(id => toggleSection(id, false));
   refreshDrawer();
@@ -1264,6 +1292,101 @@ function renderHistory() {
         </div>
       </div>
     </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2025 SEASON OVERVIEW  (phänologische Klimanorm · Hannover)
+// Week index 0 = ISO week 1 of 2025 (Jan 1–5)
+// Values: 0=keine, 1=gering, 2=mittel, 3=hoch
+// ─────────────────────────────────────────────────────────────────────────────
+const SEASON_2025 = {
+  //          J  J  J  J  F  F  F  F  M  M  M  M  A  A  A  A  M  M  M  M  J  J  J  J  J  J  J  J  A  A  A  A  S  S  S  S  O  O  O  O  N  N  N  N  D  D  D  D  D  D  D  D
+  Hasel:   [1, 2, 3, 3, 3, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  Erle:    [0, 0, 0, 0, 1, 1, 2, 3, 3, 3, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  Esche:   [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  Birke:   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 3, 3, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  Graeser: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 3, 3, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  Roggen:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 3, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  Beifuss: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 3, 3, 3, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  Ambrosia:[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 3, 3, 3, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+};
+
+// Column index where each month label starts (0-based week index, 2025)
+const S25_MONTHS = [0,4,8,13,17,21,26,30,35,39,43,48];
+
+function renderSeason2025() {
+  const isDE = lang === "de";
+  const MONTHS = t("months").split(",");
+
+  // Month label row: 12 labels across 52 columns
+  const monthRow = Array(52).fill("").map((_, wi) => {
+    const idx = S25_MONTHS.indexOf(wi);
+    return idx >= 0 ? `<div class="s25-mon" style="grid-column:${wi+1}">${MONTHS[idx]}</div>` : "";
+  }).filter(Boolean);
+
+  // Build month header using absolute positioning via CSS grid
+  const monthHeader = `<div style="display:grid;grid-template-columns:repeat(52,11px);gap:2px;padding-left:58px;margin-bottom:3px">
+    ${monthRow.join("")}
+  </div>`;
+
+  const pollen = [
+    {key:"Hasel",    icon:"🌰"}, {key:"Erle",    icon:"🌿"},
+    {key:"Esche",    icon:"🌳"}, {key:"Birke",   icon:"🌸"},
+    {key:"Graeser",  icon:"🌾"}, {key:"Roggen",  icon:"🌾"},
+    {key:"Beifuss",  icon:"🌿"}, {key:"Ambrosia",icon:"🌼"},
+  ];
+
+  const rows = pollen.map(p => {
+    const weeks = SEASON_2025[p.key];
+    const cells = weeks.map((v, wi) => {
+      const isoDate = isoWeek2025(wi);
+      return `<div class="s25-cell" data-v="${v}" title="${MONTHS[monthOfWeek(wi)]} KW${wi+1}: ${[t("wh_leg_empty"),t("wh_leg_none"),t("wh_leg_low"),t("wh_leg_mid"),t("wh_leg_high")][v+1]??v}"></div>`;
+    }).join("");
+    const dimmed = filter.includes(p.key) ? "" : " style=\"opacity:.35\"";
+    return `<div class="s25-row"${dimmed}>
+      <div class="s25-name">${p.icon} ${t(p.key)}</div>
+      <div class="s25-cells">${cells}</div>
+    </div>`;
+  }).join("");
+
+  const legItems = [
+    {v:0, label: t("wh_leg_none")},
+    {v:1, label: t("wh_leg_low")},
+    {v:2, label: t("wh_leg_mid")},
+    {v:3, label: t("wh_leg_high")},
+  ].map(({v, label}) =>
+    `<div class="wh-leg-item"><div class="s25-cell" data-v="${v}" style="width:10px;height:10px"></div><span>${label}</span></div>`
+  ).join("");
+
+  return `
+    <div class="card">
+      <div class="card-head collapsible" onclick="toggleSection('s2025')">
+        <span class="card-title">📊 ${t("season2025_title")}</span>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="collapsible-body" id="s2025-body">
+        <div class="s25-wrap">
+          <div class="s25-inner">
+            ${monthHeader}
+            ${rows}
+            <div class="wh-legend" style="padding-left:58px;margin-top:6px">${legItems}</div>
+            <div class="s25-note">${t("season2025_note")}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// helper: ISO week index (0-based) → approximate ISO date string for week start
+function isoWeek2025(wi) {
+  const d = new Date("2025-01-01T12:00:00");
+  d.setDate(d.getDate() + wi * 7);
+  return d.toISOString().slice(0, 10);
+}
+function monthOfWeek(wi) {
+  const d = new Date("2025-01-01T12:00:00");
+  d.setDate(d.getDate() + wi * 7);
+  return d.getMonth();
 }
 
 function renderSymHistory() {
