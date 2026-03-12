@@ -1019,7 +1019,7 @@ function render() {
           <span style="font-size:.72rem;color:var(--text3)">${fetchedStr ? `${t("dwd_stand")} ${fetchedStr} · ` : ""}Open-Meteo</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:12px 14px 6px;text-align:center">
-          ${[["🌡",t("temp"),`${w.temp}°C`],["💨",t("wind"),`${d.wind} km/h`],["💧",t("humidity"),`${w.humidity}%`],["🌧",t("rain"),`${d.rain} mm`],["☀️",t("uv"),`<span class="${uvCls}">${uvLabel}</span>`]].map(([ic,lb,val])=>`
+          ${[[w.code!=null?wmoIcon(w.code):"🌡",t("temp"),`${w.temp}°C`],["💨",t("wind"),`${d.wind} km/h`],["💧",t("humidity"),`${w.humidity}%`],["🌧",t("rain"),`${d.rain} mm`],["☀️",t("uv"),`<span class="${uvCls}">${uvLabel}</span>`]].map(([ic,lb,val])=>`
           <div style="padding:6px 2px">
             <div style="font-size:1.05rem">${ic}</div>
             <div style="font-size:1.12rem;font-weight:700;margin:3px 0 2px">${val}</div>
@@ -1249,7 +1249,7 @@ document.getElementById("region-sel").addEventListener("change", e => {
 async function loadWeather() {
   const coords = REGION_COORDS[rKey] || {lat:52.37,lon:9.73};
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}`
-    + `&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m`
+    + `&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code`
     + `&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,uv_index_max`
     + `&timezone=Europe%2FBerlin&forecast_days=7`;
   try {
@@ -1261,6 +1261,7 @@ async function loadWeather() {
         humidity: data.current.relative_humidity_2m,
         rain:     data.current.precipitation,
         wind:     Math.round(data.current.wind_speed_10m),
+        code:     data.current.weather_code,
       },
       daily: data.daily.time.map((_, i) => ({
         tempMax: Math.round(data.daily.temperature_2m_max[i]),
@@ -1272,6 +1273,19 @@ async function loadWeather() {
     };
   } catch { weather = null; }
   render();
+}
+
+function wmoIcon(code) {
+  if (code === 0)                    return "☀️";
+  if (code <= 2)                     return "🌤";
+  if (code === 3)                    return "☁️";
+  if (code <= 48)                    return "🌫";
+  if (code <= 55)                    return "🌦";
+  if (code <= 65)                    return "🌧";
+  if (code <= 77)                    return "🌨";
+  if (code <= 82)                    return "🌦";
+  if (code <= 86)                    return "❄️";
+  return "⛈";
 }
 
 function calcPollenEffect(dayIdx) {
