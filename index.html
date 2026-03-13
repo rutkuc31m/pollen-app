@@ -2050,11 +2050,16 @@ async function init() {
   // Manual override takes priority over auto-detection
   const manualMode = localStorage.getItem(LS.mode); // "de"|"eu"|"us"|null
 
-  try {
-    const res = await fetch("https://ipwho.is/");
-    geoInfo = await res.json();
-  } catch {
-    geoInfo = { country_code:"DE", latitude:52.37, longitude:9.73, city:"", country:"Germany" };
+  // Only fetch geoInfo once per session; reuse if already set
+  if (!geoInfo) {
+    try {
+      const ctrl = new AbortController();
+      setTimeout(() => ctrl.abort(), 5000); // 5s timeout
+      const res = await fetch("https://ipwho.is/", { signal: ctrl.signal });
+      geoInfo = await res.json();
+    } catch {
+      geoInfo = { country_code:"DE", latitude:52.37, longitude:9.73, city:"", country:"Germany" };
+    }
   }
 
   const autoCC = (geoInfo.country_code || "DE").toUpperCase();
@@ -2071,7 +2076,12 @@ async function init() {
   } else {
     appMode = resolvedMode; // "eu" or "us"
     POLLEN  = appMode === "us" ? POLLEN_US : POLLEN_EU;
-    await loadGlobal();
+    try {
+      await loadGlobal();
+    } catch(e) {
+      document.getElementById("page").innerHTML =
+        `<div class="center">${t("no_data")}<br><small>${t("check_conn")}</small></div>`;
+    }
   }
 }
 
@@ -2081,7 +2091,10 @@ function setDataSource(mode) {
   } else {
     localStorage.setItem(LS.mode, mode);
   }
+  closeDrawer();
   weather = null;
+  document.getElementById("page").innerHTML =
+    `<div class="center"><div class="spin"></div><span>${t("locating")}</span></div>`;
   init();
 }
 
