@@ -624,6 +624,7 @@ const STRINGS = {
     reloc_btn: "Standort aktualisieren",
     datasource_title: "Datenquelle",
     datasource_auto: "Auto",
+    pollen_unavailable: "Pollendaten für diese Region aktuell nicht verfügbar (CAMS Europa-Modell). Wetterdaten werden angezeigt.",
     // EU/US pollen names
     birch:"Birke", alder:"Erle", grass:"Gräser",
     mugwort:"Beifuß", ragweed:"Ambrosia", olive:"Olive", tree:"Bäume",
@@ -725,6 +726,7 @@ const STRINGS = {
     reloc_btn: "Update location",
     datasource_title: "Data source",
     datasource_auto: "Auto",
+    pollen_unavailable: "Pollen data not available for this region (CAMS Europe model). Showing weather data.",
     // EU/US pollen names
     birch:"Birch", alder:"Alder", grass:"Grasses",
     mugwort:"Mugwort", ragweed:"Ragweed", olive:"Olive", tree:"Trees",
@@ -1187,6 +1189,12 @@ function render() {
     <div class="swipe-dots">
       ${[0,1,2].map(i=>`<div class="swipe-dot${i===activeDay?" active":""}"></div>`).join("")}
     </div>
+
+    <!-- POLLEN UNAVAILABLE NOTICE -->
+    ${appMode !== "de" && db?.pollen_available === false ? `
+    <div style="margin-bottom:10px;padding:10px 14px;border-radius:10px;background:color-mix(in srgb,#a16207 12%,var(--card));border:1px solid color-mix(in srgb,#a16207 30%,transparent);font-size:.8rem;color:var(--text2);line-height:1.45">
+      ⚠️ ${t("pollen_unavailable")}
+    </div>` : ""}
 
     <!-- POLLEN TABLE -->
     <div class="card">
@@ -1957,9 +1965,9 @@ async function loadGlobal() {
   const lat = geoInfo.latitude;
   const lon = geoInfo.longitude;
   const vars = OM_VARS[appMode];
+  const locName = [geoInfo.city, geoInfo.country].filter(Boolean).join(", ");
 
   // Regionbar: location name + relocate button
-  const locName = [geoInfo.city, geoInfo.country].filter(Boolean).join(", ");
   document.getElementById("regionbar-inner").innerHTML =
     `<span style="font-size:.84rem;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📍 ${escapeHtml(locName)}</span>
      <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}">🔄</button>`;
@@ -1970,62 +1978,74 @@ async function loadGlobal() {
     + `&forecast_days=3&timezone=auto`;
 
   let raw = null;
+  let pollenAvailable = false;
+
   try {
     const res = await fetch(url);
-    raw = await res.json();
-    localStorage.setItem(LS.cache + "_om", JSON.stringify({raw, ts: Date.now(), lat, lon}));
+    const json = await res.json();
+    // API returns {error:true} when variables unsupported for region
+    if (!json.error && json.hourly) {
+      // Check if any pollen variable has actual (non-null) data
+      pollenAvailable = vars.some(v => json.hourly[v]?.some(x => x !== null && x > 0));
+      raw = json;
+      localStorage.setItem(LS.cache + "_om", JSON.stringify({raw, ts: Date.now(), lat, lon}));
+    }
   } catch {
     const cached = localStorage.getItem(LS.cache + "_om");
     if (cached) {
       const c = JSON.parse(cached);
       raw = c.raw;
+      pollenAvailable = vars.some(v => raw.hourly?.[v]?.some(x => x !== null && x > 0));
       const pill = document.getElementById("offline-pill");
       pill.textContent = t("offline");
       pill.classList.add("show");
-    } else {
-      document.getElementById("page").innerHTML =
-        `<div class="center">${t("no_data")}<br><small>${t("check_conn")}</small></div>`;
-      return;
     }
   }
 
-  // Aggregate hourly → daily max (hours 6–20)
-  const times = raw.hourly.time;
-  const byDate = {};
-  times.forEach((ts, i) => {
-    const date = ts.slice(0, 10);
-    const hour = parseInt(ts.slice(11, 13));
-    if (hour < 6 || hour > 20) return;
-    if (!byDate[date]) byDate[date] = {};
-    for (const v of vars) {
-      const key = OM_KEY[v];
-      const val = raw.hourly[v]?.[i] ?? 0;
-      byDate[date][key] = Math.max(byDate[date][key] ?? 0, val);
-    }
-  });
-
-  const dates = Object.keys(byDate).sort().slice(0, 3);
+  // Build pollen data: real values if available, else all "-1" (no data)
   const dayKeys = ["today", "tomorrow", "dayafter_to"];
   const pollen = {};
-  for (const p of POLLEN) {
-    pollen[p.key] = {};
-    dayKeys.forEach((dk, di) => {
-      const date = dates[di];
-      if (!date) { pollen[p.key][dk] = "-1"; return; }
-      const raw2 = byDate[date]?.[p.key] ?? 0;
-      const [t1, t2] = OM_THR[p.key] ?? [10, 50];
-      pollen[p.key][dk] = raw2 <= 0 ? "0" : raw2 < t1 ? "1" : raw2 < t2 ? "2" : "3";
+  const dates = [];
+
+  if (pollenAvailable && raw?.hourly?.time) {
+    const byDate = {};
+    raw.hourly.time.forEach((ts, i) => {
+      const date = ts.slice(0, 10);
+      const hour = parseInt(ts.slice(11, 13));
+      if (hour < 6 || hour > 20) return;
+      if (!byDate[date]) byDate[date] = {};
+      for (const v of vars) {
+        const key = OM_KEY[v];
+        const val = raw.hourly[v]?.[i] ?? 0;
+        byDate[date][key] = Math.max(byDate[date][key] ?? 0, val);
+      }
     });
+    dates.push(...Object.keys(byDate).sort().slice(0, 3));
+    for (const p of POLLEN) {
+      pollen[p.key] = {};
+      dayKeys.forEach((dk, di) => {
+        const date = dates[di];
+        if (!date) { pollen[p.key][dk] = "-1"; return; }
+        const v = byDate[date]?.[p.key] ?? 0;
+        const [t1, t2] = OM_THR[p.key] ?? [10, 50];
+        pollen[p.key][dk] = v <= 0 ? "0" : v < t1 ? "1" : v < t2 ? "2" : "3";
+      });
+    }
+  } else {
+    // No pollen data for this region — fill with "-1" (unknown)
+    for (const p of POLLEN) {
+      pollen[p.key] = Object.fromEntries(dayKeys.map(dk => [dk, "-1"]));
+    }
   }
 
   db = {
     last_update: dates[0] ?? todayISO(),
     next_update: "",
+    pollen_available: pollenAvailable,
     regions: [{ region_id:0, partregion_id:-1, region_name: locName, partregion_name:"", pollen }],
   };
   rKey = "0--1";
 
-  // Validate filter against current pollen types
   const validKeys = POLLEN.map(p => p.key);
   filter = (JSON.parse(localStorage.getItem(LS.filter + "_" + appMode) || "null") ?? validKeys)
     .filter(k => validKeys.includes(k));
