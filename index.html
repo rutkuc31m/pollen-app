@@ -579,6 +579,8 @@ const STRINGS = {
     wh_leg_none:"keine", wh_leg_low:"gering", wh_leg_mid:"mittel", wh_leg_high:"hoch", wh_leg_empty:"leer",
     season2025_title:"Saisonrückblick 2025",
     season2025_note:"Phänologische Klimanorm · Hannover · Vorbereitung auf 2026",
+    season_typical_note:"Typische Saison · Klimatologische Norm",
+    season_overview_title:"Saisonübersicht",
     sym_title:"Wie geht's dir heute?",
     niesen:"Niesen", augen:"Augen", atmung:"Atmung", muedigkeit:"Müdigkeit",
     save:"Speichern", saved_entries:"Letzte Einträge",
@@ -682,6 +684,8 @@ const STRINGS = {
     wh_leg_none:"none", wh_leg_low:"low", wh_leg_mid:"moderate", wh_leg_high:"high", wh_leg_empty:"empty",
     season2025_title:"2025 Season Review",
     season2025_note:"Phenological climate norm · Hannover · Preparation for 2026",
+    season_typical_note:"Typical season · Climatological norm",
+    season_overview_title:"Season Overview",
     sym_title:"How are you today?",
     niesen:"Sneezing", augen:"Eyes", atmung:"Breathing", muedigkeit:"Fatigue",
     save:"Save", saved_entries:"Recent entries",
@@ -1385,39 +1389,54 @@ const S25_MONTHS = [0,4,8,13,17,21,26,30,35,39,43,48];
 
 function renderSeason2025() {
   const MONTHS = t("months").split(",");
-  // Short month labels (first 1-3 chars)
   const MON_SHORT = MONTHS.map(m => m.slice(0,3));
-
-  // Aggregate weekly data to monthly max
-  // S25_MONTHS = start week index for each month
-  function monthlyMax(key) {
-    return S25_MONTHS.map((startWk, mi) => {
-      const endWk = mi < 11 ? S25_MONTHS[mi + 1] : 52;
-      return Math.max(...SEASON_2025[key].slice(startWk, endWk));
-    });
-  }
-
-  const pollen = [
-    {key:"Hasel",    icon:"🌰"}, {key:"Erle",    icon:"🌿"},
-    {key:"Esche",    icon:"🌳"}, {key:"Birke",   icon:"🌸"},
-    {key:"Graeser",  icon:"🌾"}, {key:"Roggen",  icon:"🌾"},
-    {key:"Beifuss",  icon:"🌿"}, {key:"Ambrosia",icon:"🌼"},
-  ];
-
   const lvLabels = [t("wh_leg_none"), t("wh_leg_low"), t("wh_leg_mid"), t("wh_leg_high")];
 
-  // Header row: empty name cell + 12 month labels
   const headerRow = `<div class="s25-name"></div>
     ${MON_SHORT.map(m => `<div class="s25-mon">${m}</div>`).join("")}`;
 
-  const dataRows = pollen.map(p => {
-    const vals = monthlyMax(p.key);
-    const dimmed = filter.includes(p.key) ? "" : " style=\"opacity:.35\"";
-    const cells = vals.map((v, mi) =>
-      `<div class="s25-cell" data-v="${v}" title="${MONTHS[mi]}: ${lvLabels[v] ?? v}"></div>`
-    ).join("");
-    return `<div class="s25-name" title="${t(p.key)}" onclick="showS25Tip(event,'${t(p.key)}')"${dimmed}>${p.icon}</div>${cells}`;
-  }).join("");
+  let dataRows, note;
+
+  if (appMode === "de") {
+    // DE: real 2025 climate norm data
+    function monthlyMax(key) {
+      return S25_MONTHS.map((startWk, mi) => {
+        const endWk = mi < 11 ? S25_MONTHS[mi + 1] : 52;
+        return Math.max(...SEASON_2025[key].slice(startWk, endWk));
+      });
+    }
+    const pollen = [
+      {key:"Hasel",icon:"🌰"},{key:"Erle",icon:"🌿"},
+      {key:"Esche",icon:"🌳"},{key:"Birke",icon:"🌸"},
+      {key:"Graeser",icon:"🌾"},{key:"Roggen",icon:"🌾"},
+      {key:"Beifuss",icon:"🌿"},{key:"Ambrosia",icon:"🌼"},
+    ];
+    dataRows = pollen.map(p => {
+      const vals = monthlyMax(p.key);
+      const dimmed = filter.includes(p.key) ? "" : " style=\"opacity:.35\"";
+      const cells = vals.map((v,mi) =>
+        `<div class="s25-cell" data-v="${v}" title="${MONTHS[mi]}: ${lvLabels[v]??v}"></div>`).join("");
+      return `<div class="s25-name" title="${t(p.key)}" onclick="showS25Tip(event,'${t(p.key)}')"${dimmed}>${p.icon}</div>${cells}`;
+    }).join("");
+    note = t("season2025_note");
+  } else {
+    // EU/US: typical season from POLLEN[x].mo — no real 2025 data available
+    dataRows = POLLEN.map(p => {
+      const mo = p.mo; // active months (1-based)
+      const vals = Array.from({length:12}, (_,i) => {
+        const m = i+1;
+        if (!mo.includes(m)) return 0;
+        // edges = low, middle months = moderate
+        const isEdge = m === mo[0] || m === mo[mo.length-1];
+        return isEdge ? 1 : 2;
+      });
+      const dimmed = filter.includes(p.key) ? "" : " style=\"opacity:.35\"";
+      const cells = vals.map((v,mi) =>
+        `<div class="s25-cell" data-v="${v}" title="${MONTHS[mi]}: ${lvLabels[v]??v}"></div>`).join("");
+      return `<div class="s25-name" title="${t(p.key)}" onclick="showS25Tip(event,'${t(p.key)}')"${dimmed}>${p.icon}</div>${cells}`;
+    }).join("");
+    note = t("season_typical_note");
+  }
 
   return `
     <div class="s25-wrap">
@@ -1425,7 +1444,7 @@ function renderSeason2025() {
         ${headerRow}
         ${dataRows}
       </div>
-      <div class="s25-note">${t("season2025_note")}</div>
+      <div class="s25-note">${note}</div>
     </div>`;
 }
 
@@ -1708,11 +1727,11 @@ function refreshDrawer() {
     </div>
 
     <!-- BEST TIME OUTSIDE -->
-    <div class="dsec-head" onclick="toggleDrawerSec('dbesttime')" id="dbesttime-head">
+    <div class="dsec-head${db?.pollen_available === false ? ' style="display:none"' : ''}" onclick="toggleDrawerSec('dbesttime')" id="dbesttime-head">
       <span>🕐 ${t("besttime_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
-    <div class="dsec-body open" id="dbesttime-body">
+    <div class="dsec-body open" id="dbesttime-body" ${db?.pollen_available === false ? 'style="display:none"' : ''}>
       ${drawerPol && weather ? (() => {
         const bt = calcBestTimes(drawerPol, activeDay);
         if (!bt) return `<div style="padding:10px 14px;font-size:.82rem;color:var(--text2)">${t("besttime_note")}</div>`;
@@ -1728,11 +1747,11 @@ function refreshDrawer() {
     </div>
 
     <!-- TIPS FOR TODAY -->
-    <div class="dsec-head" onclick="toggleDrawerSec('dtips')" id="dtips-head">
+    <div class="dsec-head${db?.pollen_available === false ? ' style="display:none"' : ''}" onclick="toggleDrawerSec('dtips')" id="dtips-head">
       <span>${t("tips_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
-    <div class="dsec-body open" id="dtips-body">
+    <div class="dsec-body open" id="dtips-body" ${db?.pollen_available === false ? 'style="display:none"' : ''}>
       ${drawerPol ? (() => {
         const wd   = weather?.daily?.[activeDay];
         const risk = personalRisk(drawerPol, activeDay).max;
@@ -1821,12 +1840,12 @@ function refreshDrawer() {
       ${renderHistory()}
     </div>
 
-    <!-- 2025 SEASON REVIEW (DE only) -->
-    ${appMode === "de" ? `<div class="dsec-head open" onclick="toggleDrawerSec('ds2025')" id="ds2025-head">` : `<div class="dsec-head" style="display:none" id="ds2025-head">`}
-      <span>📊 ${t("season2025_title")}</span>
+    <!-- 2025 SEASON REVIEW -->
+    <div class="dsec-head open" onclick="toggleDrawerSec('ds2025')" id="ds2025-head">
+      <span>📊 ${appMode === "de" ? t("season2025_title") : t("season_overview_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
-    <div class="${appMode === "de" ? "dsec-body open" : "dsec-body"}" id="ds2025-body">
+    <div class="dsec-body open" id="ds2025-body">
       ${renderSeason2025()}
     </div>
 
