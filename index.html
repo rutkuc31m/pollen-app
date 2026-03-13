@@ -1840,14 +1840,15 @@ function refreshDrawer() {
       ${renderHistory()}
     </div>
 
-    <!-- 2025 SEASON REVIEW -->
+    <!-- 2025 SEASON REVIEW (DE only) -->
+    ${appMode === "de" ? `
     <div class="dsec-head open" onclick="toggleDrawerSec('ds2025')" id="ds2025-head">
-      <span>📊 ${appMode === "de" ? t("season2025_title") : t("season_overview_title")}</span>
+      <span>📊 ${t("season2025_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
     <div class="dsec-body open" id="ds2025-body">
       ${renderSeason2025()}
-    </div>
+    </div>` : ""}
 
     <!-- LEGEND -->
     <div class="dsec-head" onclick="toggleDrawerSec('dlegend')" id="dlegend-head">
