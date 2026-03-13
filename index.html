@@ -622,6 +622,8 @@ const STRINGS = {
     locating: "Standort wird ermittelt…",
     source_om: "Open-Meteo · CAMS",
     reloc_btn: "Standort aktualisieren",
+    datasource_title: "Datenquelle",
+    datasource_auto: "Auto",
     // EU/US pollen names
     birch:"Birke", alder:"Erle", grass:"Gräser",
     mugwort:"Beifuß", ragweed:"Ambrosia", olive:"Olive", tree:"Bäume",
@@ -721,6 +723,8 @@ const STRINGS = {
     locating: "Detecting location…",
     source_om: "Open-Meteo · CAMS",
     reloc_btn: "Update location",
+    datasource_title: "Data source",
+    datasource_auto: "Auto",
     // EU/US pollen names
     birch:"Birch", alder:"Alder", grass:"Grasses",
     mugwort:"Mugwort", ragweed:"Ragweed", olive:"Olive", tree:"Trees",
@@ -804,7 +808,7 @@ const DAYS      = ["today","tomorrow","dayafter_to"];
 const DAY_NAMES = [t("today"), t("tomorrow"), t("dayafter")];
 const MONTHS    = t("months").split(",");
 
-const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist", open:"p_open" };
+const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode" };
 
 // Koordinaten je DWD-Region für Wetter-API
 const REGION_COORDS = {
@@ -1826,6 +1830,23 @@ function refreshDrawer() {
         </div>`).join("")}
       </div>
     </div>
+
+    <!-- DATA SOURCE OVERRIDE -->
+    <div style="padding:12px 14px 16px;border-top:1px solid var(--border);margin-top:4px">
+      <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:8px">${t("datasource_title")}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${[["auto","🌐 Auto"],["de","🇩🇪 DE"],["eu","🌍 EU"],["us","🇺🇸 US"]].map(([val,label])=>`
+          <button onclick="setDataSource('${val}')" style="
+            padding:5px 10px;border-radius:7px;font-size:.78rem;cursor:pointer;
+            border:1px solid ${(localStorage.getItem(LS.mode)??'auto')===val?'var(--accent)':'var(--border)'};
+            background:${(localStorage.getItem(LS.mode)??'auto')===val?'color-mix(in srgb,var(--accent) 15%,var(--card))':'var(--card2)'};
+            color:var(--text);font-weight:${(localStorage.getItem(LS.mode)??'auto')===val?'600':'400'}"
+          >${label}</button>`).join("")}
+      </div>
+      <div style="font-size:.65rem;color:var(--text3);margin-top:6px">
+        ${t("datasource_auto")}: ${(geoInfo?.country_code??'?')} · ${appMode.toUpperCase()}
+      </div>
+    </div>
   `;
 }
 
@@ -2026,6 +2047,9 @@ async function relocate() {
 }
 
 async function init() {
+  // Manual override takes priority over auto-detection
+  const manualMode = localStorage.getItem(LS.mode); // "de"|"eu"|"us"|null
+
   try {
     const res = await fetch("https://ipwho.is/");
     geoInfo = await res.json();
@@ -2033,8 +2057,10 @@ async function init() {
     geoInfo = { country_code:"DE", latitude:52.37, longitude:9.73, city:"", country:"Germany" };
   }
 
-  const cc = (geoInfo.country_code || "DE").toUpperCase();
-  if (cc === "DE") {
+  const autoCC = (geoInfo.country_code || "DE").toUpperCase();
+  const resolvedMode = manualMode ?? (autoCC === "DE" ? "de" : (autoCC === "US" || autoCC === "CA" || autoCC === "MX") ? "us" : "eu");
+
+  if (resolvedMode === "de") {
     appMode = "de";
     POLLEN  = POLLEN_DE;
     // Restore filter for DE
@@ -2043,10 +2069,20 @@ async function init() {
     if (!filter.length) filter = POLLEN.map(p => p.key);
     await loadDE();
   } else {
-    appMode = (cc === "US" || cc === "CA" || cc === "MX") ? "us" : "eu";
+    appMode = resolvedMode; // "eu" or "us"
     POLLEN  = appMode === "us" ? POLLEN_US : POLLEN_EU;
     await loadGlobal();
   }
+}
+
+function setDataSource(mode) {
+  if (mode === "auto") {
+    localStorage.removeItem(LS.mode);
+  } else {
+    localStorage.setItem(LS.mode, mode);
+  }
+  weather = null;
+  init();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
