@@ -1130,7 +1130,7 @@ function render() {
           <span style="font-size:.72rem;color:var(--text3)">${fetchedStr ? `${t("dwd_stand")} ${fetchedStr} · ` : ""}Open-Meteo</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:12px 14px 6px;text-align:center">
-          ${[[w.code!=null?wmoIcon(w.code):"🌡",t("temp"),`${w.temp}°C`],["💨",t("wind"),`${d.wind} km/h`],["💧",t("humidity"),`${w.humidity}%`],["🌧",t("rain"),`${d.rain} mm`],["☀️",t("uv"),`<span class="${uvCls}">${uvLabel}</span>`]].map(([ic,lb,val])=>`
+          ${[[w.code!=null?wmoIcon(w.code):"🌡",t("temp"),`${w.temp}${weather.units.temp}`],["💨",t("wind"),`${d.wind} ${weather.units.wind}`],["💧",t("humidity"),`${w.humidity}%`],["🌧",t("rain"),`${d.rain} ${weather.units.rain}`],["☀️",t("uv"),`<span class="${uvCls}">${uvLabel}</span>`]].map(([ic,lb,val])=>`
           <div style="padding:6px 2px">
             <div style="font-size:1.05rem">${ic}</div>
             <div style="font-size:1.12rem;font-weight:700;margin:3px 0 2px">${val}</div>
@@ -1152,7 +1152,7 @@ function render() {
               <div class="wd-name">${i===0?t("today"):dayName}</div>
               <div class="wd-icon">${wkIcon(wd.rain, wd.wind)}</div>
               <div class="wd-temp">${wd.tempMax}°</div>
-              <div class="wd-rain">${wd.rain > 0 ? wd.rain+"mm" : "–"}</div>
+              <div class="wd-rain">${wd.rain > 0 ? wd.rain+weather.units.rain : "–"}</div>
               ${uvW !== null ? `<div class="wd-uv ${uvWCls}">UV ${uvW} (${uvCat(uvW)})</div>` : ""}
             </div>`;
           }).join("")}
@@ -1176,7 +1176,7 @@ function render() {
             ${["✓","!","!!","‼"][sc]}
           </div>
           <div class="dc-sub" style="font-size:.7rem">${ri.label}</div>
-          ${wd ? `<div style="font-size:.66rem;color:var(--text3);margin-top:3px">${wd.tempMax}° · ${wd.wind}km/h</div>` : ""}
+          ${wd ? `<div style="font-size:.66rem;color:var(--text3);margin-top:3px">${wd.tempMax}${weather.units.temp} · ${wd.wind}${weather.units.wind}</div>` : ""}
         </div>`;
       }).join("")}
     </div>
@@ -1488,11 +1488,15 @@ async function loadWeather() {
   const coords = appMode === "de"
     ? (REGION_COORDS[rKey] || {lat:52.37,lon:9.73})
     : {lat: geoInfo?.latitude ?? 52.37, lon: geoInfo?.longitude ?? 9.73};
-  const tz = appMode === "de" ? "Europe%2FBerlin" : "auto";
+  const tz    = appMode === "de" ? "Europe%2FBerlin" : "auto";
+  const isUS  = appMode === "us";
+  const units = isUS
+    ? "&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch"
+    : "";
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}`
     + `&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code`
     + `&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,uv_index_max`
-    + `&timezone=${tz}&forecast_days=7`;
+    + `&timezone=${tz}&forecast_days=7${units}`;
   try {
     const res = await fetch(url);
     const data = await res.json();
@@ -1510,6 +1514,7 @@ async function loadWeather() {
         wind:    Math.round(data.daily.wind_speed_10m_max[i]),
         uv:      data.daily.uv_index_max ? Math.round(data.daily.uv_index_max[i]) : null,
       })),
+      units: isUS ? {temp:"°F", wind:"mph", rain:"in"} : {temp:"°C", wind:"km/h", rain:"mm"},
       fetchedAt: Date.now(),
     };
   } catch { weather = null; }
