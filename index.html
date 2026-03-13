@@ -1206,9 +1206,9 @@ function render() {
           <div class="dc-label" style="${isToday?"font-weight:700":""}">${n}</div>
           <div class="dc-date">${dStr(i)}</div>
           <div class="dc-ring ${cl}" style="font-size:.85rem;font-weight:700">
-            ${["✓","!","!!","‼"][sc]}
+            ${db.pollen_available === false ? "?" : ["✓","!","!!","‼"][sc]}
           </div>
-          <div class="dc-sub" style="font-size:.7rem">${ri.label}</div>
+          <div class="dc-sub" style="font-size:.7rem">${db.pollen_available === false ? "–" : ri.label}</div>
           ${wd ? `<div style="font-size:.66rem;color:var(--text3);margin-top:3px">${wd.tempMax}${weather.units.temp} · ${wd.wind}${weather.units.wind}</div>` : ""}
         </div>`;
       }).join("")}
