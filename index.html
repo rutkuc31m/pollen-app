@@ -1780,7 +1780,7 @@ function refreshDrawer() {
             <span style="font-size:1rem;width:22px;text-align:center">${p.icon}</span>
             <span style="flex:1;font-size:.8rem">${t(p.key)}</span>
             ${["off","mild","strong"].map(s => `
-              <button onclick="setSeverity('${p.key}','${s}')" style="
+              <button data-sev-key="${p.key}" data-sev-val="${s}" onclick="setSeverity('${p.key}','${s}')" style="
                 padding:2px 8px;border-radius:12px;font-size:.68rem;cursor:pointer;
                 border:1px solid ${sev===s?'var(--accent)':'var(--border)'};
                 background:${sev===s?'color-mix(in srgb,var(--accent) 15%,var(--card))':'transparent'};
@@ -1995,7 +1995,13 @@ function setSeverity(key, level) {
     if (!filter.includes(key)) filter.push(key);
   }
   localStorage.setItem(appMode === "de" ? LS.filter : LS.filter + "_" + appMode, JSON.stringify(filter));
-  refreshDrawer();
+  // Update only the affected buttons in-place — drawer stays open
+  document.querySelectorAll(`[data-sev-key="${key}"]`).forEach(btn => {
+    const active = btn.dataset.sevVal === level;
+    btn.style.borderColor  = active ? "var(--accent)" : "var(--border)";
+    btn.style.background   = active ? "color-mix(in srgb,var(--accent) 15%,var(--card))" : "transparent";
+    btn.style.color        = active ? "var(--text)" : "var(--text3)";
+  });
   render();
 }
 
