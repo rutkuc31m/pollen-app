@@ -641,7 +641,7 @@ const STRINGS = {
     reloc_btn: "Standort aktualisieren",
     datasource_title: "Datenquelle",
     datasource_auto: "Auto",
-    pollen_unavailable: "Pollendaten für diese Region aktuell nicht verfügbar (CAMS Europa-Modell). Wetterdaten werden angezeigt.",
+    pollen_unavailable: "Pollendaten für diesen Standort nicht verfügbar. Wetterdaten werden angezeigt.",
     pollen_unavailable_short: "Keine Pollendaten verfügbar",
     // EU/US pollen names
     birch:"Birke", alder:"Erle", grass:"Gräser",
@@ -744,7 +744,7 @@ const STRINGS = {
     reloc_btn: "Update location",
     datasource_title: "Data source",
     datasource_auto: "Auto",
-    pollen_unavailable: "Pollen data not available for this region (CAMS Europe model). Showing weather data.",
+    pollen_unavailable: "Pollen data not available for this location. Showing weather data only.",
     pollen_unavailable_short: "No pollen data available",
     // EU/US pollen names
     birch:"Birch", alder:"Alder", grass:"Grasses",
@@ -2149,6 +2149,9 @@ function setDataSource(mode) {
   } else {
     localStorage.setItem(LS.mode, mode);
   }
+  // Reset filter so new mode starts with all pollen selected
+  localStorage.removeItem(LS.filter);
+  filter = [];
   closeDrawer();
   weather = null;
   document.getElementById("page").innerHTML =
