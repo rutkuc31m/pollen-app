@@ -82,7 +82,7 @@
     /* region bar */
     .regionbar {
       border-top: 1px solid var(--border);
-      padding: 8px 16px;
+      padding: 8px 16px 6px;
     }
     .regionbar-inner { max-width: 640px; margin: 0 auto; }
     .regionbar select {
@@ -92,6 +92,22 @@
       padding: 7px 12px; font-size: .84rem; outline: none; cursor: pointer;
     }
     .regionbar select:focus { border-color: var(--accent); }
+    .src-bar {
+      max-width: 640px; margin: 4px auto 0;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .src-label { font-size: .68rem; color: var(--text3); flex-shrink: 0; }
+    .src-btn {
+      font-size: .7rem; padding: 2px 8px; border-radius: 20px; cursor: pointer;
+      border: 1px solid var(--border); background: transparent; color: var(--text3);
+      transition: all .15s;
+    }
+    .src-btn.active {
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 15%, var(--card));
+      color: var(--text); font-weight: 600;
+    }
+    .src-detected { font-size: .64rem; color: var(--text3); margin-left: auto; opacity: .7; }
 
     /* ── PAGE ────────────────────────────────────────── */
     .page { max-width: 640px; margin: 0 auto; padding: 14px 14px 80px; }
@@ -515,6 +531,7 @@
       <select id="region-sel"><option>Lade Regionen…</option></select>
       <button class="geo-btn" id="geo-btn" onclick="geoLocate()">📍</button>
     </div>
+    <div class="src-bar" id="src-bar"></div>
   </div>
 </div>
 
@@ -1239,6 +1256,7 @@ function render() {
   `;
   _open.forEach(id => toggleSection(id, false));
   refreshDrawer();
+  renderSrcBar();
 }
 
 function renderHistory() {
@@ -1838,23 +1856,6 @@ function refreshDrawer() {
         </div>`).join("")}
       </div>
     </div>
-
-    <!-- DATA SOURCE OVERRIDE -->
-    <div style="padding:12px 14px 16px;border-top:1px solid var(--border);margin-top:4px">
-      <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:8px">${t("datasource_title")}</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        ${[["auto","🌐 Auto"],["de","🇩🇪 DE"],["eu","🌍 EU"],["us","🇺🇸 US"]].map(([val,label])=>`
-          <button onclick="setDataSource('${val}')" style="
-            padding:5px 10px;border-radius:7px;font-size:.78rem;cursor:pointer;
-            border:1px solid ${(localStorage.getItem(LS.mode)??'auto')===val?'var(--accent)':'var(--border)'};
-            background:${(localStorage.getItem(LS.mode)??'auto')===val?'color-mix(in srgb,var(--accent) 15%,var(--card))':'var(--card2)'};
-            color:var(--text);font-weight:${(localStorage.getItem(LS.mode)??'auto')===val?'600':'400'}"
-          >${label}</button>`).join("")}
-      </div>
-      <div style="font-size:.65rem;color:var(--text3);margin-top:6px">
-        ${t("datasource_auto")}: ${geoInfo?.country_code || geoInfo?.ip || '–'} · ${appMode.toUpperCase()}
-      </div>
-    </div>
   `;
 }
 
@@ -1875,6 +1876,27 @@ function showS25Tip(e, name) {
   tip.classList.add("show");
   clearTimeout(_s25TipTimer);
   _s25TipTimer = setTimeout(() => tip.classList.remove("show"), 1400);
+}
+
+function renderSrcBar() {
+  const el = document.getElementById("src-bar");
+  if (!el) return;
+  const manual = localStorage.getItem(LS.mode); // null = auto
+  const current = manual ?? "auto";
+  const detected = geoInfo?.country_code || geoInfo?.ip || "–";
+  const items = [
+    {val:"auto", label:"🌐"},
+    {val:"de",   label:"🇩🇪"},
+    {val:"eu",   label:"🌍"},
+    {val:"us",   label:"🇺🇸"},
+  ];
+  el.innerHTML = `
+    <span class="src-label">${t("datasource_title")}:</span>
+    ${items.map(({val, label}) =>
+      `<button class="src-btn${current===val?" active":""}" onclick="setDataSource('${val}')">${label}</button>`
+    ).join("")}
+    <span class="src-detected">${manual ? "" : detected + " →"} ${appMode.toUpperCase()}</span>
+  `;
 }
 
 function toggleDrawerSec(id) {
