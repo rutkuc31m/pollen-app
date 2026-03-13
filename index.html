@@ -1205,10 +1205,9 @@ function render() {
                      onclick="setDay(${i})">
           <div class="dc-label" style="${isToday?"font-weight:700":""}">${n}</div>
           <div class="dc-date">${dStr(i)}</div>
-          <div class="dc-ring ${cl}" style="font-size:.85rem;font-weight:700">
-            ${db.pollen_available === false ? "?" : ["✓","!","!!","‼"][sc]}
-          </div>
-          <div class="dc-sub" style="font-size:.7rem">${db.pollen_available === false ? "–" : ri.label}</div>
+          ${db.pollen_available !== false ? `
+          <div class="dc-ring ${cl}" style="font-size:.85rem;font-weight:700">${["✓","!","!!","‼"][sc]}</div>
+          <div class="dc-sub" style="font-size:.7rem">${ri.label}</div>` : ""}
           ${wd ? `<div style="font-size:.66rem;color:var(--text3);margin-top:3px">${wd.tempMax}${weather.units.temp} · ${wd.wind}${weather.units.wind}</div>` : ""}
         </div>`;
       }).join("")}
@@ -1217,12 +1216,11 @@ function render() {
       ${[0,1,2].map(i=>`<div class="swipe-dot${i===activeDay?" active":""}"></div>`).join("")}
     </div>
 
+    ${db.pollen_available === false ? `
     <!-- POLLEN UNAVAILABLE NOTICE -->
-    ${appMode !== "de" && db?.pollen_available === false ? `
-    <div style="margin-bottom:10px;padding:10px 14px;border-radius:10px;background:color-mix(in srgb,#a16207 12%,var(--card));border:1px solid color-mix(in srgb,#a16207 30%,transparent);font-size:.8rem;color:var(--text2);line-height:1.45">
-      ⚠️ ${t("pollen_unavailable")}
-    </div>` : ""}
-
+    <div style="margin-bottom:10px;padding:10px 14px;border-radius:10px;background:color-mix(in srgb,#71717a 10%,var(--card));border:1px solid color-mix(in srgb,#71717a 25%,transparent);font-size:.82rem;color:var(--text2);line-height:1.5;text-align:center">
+      🌿 ${t("pollen_unavailable")}
+    </div>` : `
     <!-- POLLEN TABLE -->
     <div class="card">
       <div class="card-head collapsible" onclick="toggleSection('pollen')">
@@ -1261,7 +1259,7 @@ function render() {
         <button class="card-action" onclick="event.stopPropagation();resetFilter()" style="font-size:.78rem">${t("select_all")}</button>
       </div>
       </div>
-    </div>
+    </div>`}
 
   `;
   _open.forEach(id => toggleSection(id, false));
