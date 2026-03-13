@@ -1095,7 +1095,7 @@ function render() {
     </div>
 
     <!-- HERO: personal risk -->
-    ${(() => {
+    ${db.pollen_available !== false ? (() => {
       const todayScore    = personalRisk(pol, 0).max;
       const tomorrowScore = personalRisk(pol, 1).max;
       const trend = activeDay === 0
@@ -1107,13 +1107,6 @@ function render() {
       const expScore = calcExposureScore(pol, activeDay);
       return `
     <div class="hero">
-      ${db.pollen_available === false ? `
-      <div class="hero-badge risk-none" style="font-size:1.6rem;font-weight:800">?</div>
-      <div class="hero-body">
-        <div class="hero-risk risk-none" style="font-size:1.1rem">${t("pollen_unavailable_short")}</div>
-        <div class="hero-loc">${escapeHtml(reg.region_name)} · ${DAY_NAMES[activeDay]}</div>
-      </div>
-      ` : `
       <div class="hero-badge ${risk.cls}" style="font-size:1.6rem;font-weight:800">
         ${["✓","!","!!","‼"][risk.max]}
       </div>
@@ -1132,9 +1125,8 @@ function render() {
           <div class="exp-bar"><div class="exp-bar-fill ${risk.cls}" style="width:${expScore}%"></div></div>
         </div>
       </div>
-      `}
     </div>`;
-    })()}
+    })() : ""}
 
     <!-- WEATHER CARD -->
     ${weather ? (() => {
