@@ -642,6 +642,7 @@ const STRINGS = {
     datasource_title: "Datenquelle",
     datasource_auto: "Auto",
     pollen_unavailable: "Pollendaten für diese Region aktuell nicht verfügbar (CAMS Europa-Modell). Wetterdaten werden angezeigt.",
+    pollen_unavailable_short: "Keine Pollendaten verfügbar",
     // EU/US pollen names
     birch:"Birke", alder:"Erle", grass:"Gräser",
     mugwort:"Beifuß", ragweed:"Ambrosia", olive:"Olive", tree:"Bäume",
@@ -744,6 +745,7 @@ const STRINGS = {
     datasource_title: "Data source",
     datasource_auto: "Auto",
     pollen_unavailable: "Pollen data not available for this region (CAMS Europe model). Showing weather data.",
+    pollen_unavailable_short: "No pollen data available",
     // EU/US pollen names
     birch:"Birch", alder:"Alder", grass:"Grasses",
     mugwort:"Mugwort", ragweed:"Ragweed", olive:"Olive", tree:"Trees",
@@ -1105,6 +1107,13 @@ function render() {
       const expScore = calcExposureScore(pol, activeDay);
       return `
     <div class="hero">
+      ${db.pollen_available === false ? `
+      <div class="hero-badge risk-none" style="font-size:1.6rem;font-weight:800">?</div>
+      <div class="hero-body">
+        <div class="hero-risk risk-none" style="font-size:1.1rem">${t("pollen_unavailable_short")}</div>
+        <div class="hero-loc">${escapeHtml(reg.region_name)} · ${DAY_NAMES[activeDay]}</div>
+      </div>
+      ` : `
       <div class="hero-badge ${risk.cls}" style="font-size:1.6rem;font-weight:800">
         ${["✓","!","!!","‼"][risk.max]}
       </div>
@@ -1123,6 +1132,7 @@ function render() {
           <div class="exp-bar"><div class="exp-bar-fill ${risk.cls}" style="width:${expScore}%"></div></div>
         </div>
       </div>
+      `}
     </div>`;
     })()}
 
