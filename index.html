@@ -651,6 +651,19 @@ const STRINGS = {
     // EU/US seasons
     s_birch:"Mär–Mai", s_alder:"Feb–Apr", s_grass:"Mai–Aug",
     s_mugwort:"Jul–Sep", s_ragweed:"Aug–Okt", s_olive:"Apr–Jun", s_tree:"Feb–Mai",
+    // data export/import
+    data_title: "Daten",
+    data_export: "Exportieren",
+    data_import: "Importieren",
+    data_import_ok: "Importiert ✓",
+    data_import_err: "Ungültige Datei",
+    data_export_hint: "Symptome & Verlauf als JSON",
+    // prediction
+    pred_tomorrow: "Morgen erwartet",
+    based_on_history: "aus Verlauf",
+    // allergy severity
+    severity_off: "Keine", severity_mild: "Leicht", severity_strong: "Stark",
+    allergy_profile: "Allergieprofil",
   },
   en: {
     // days
@@ -756,6 +769,19 @@ const STRINGS = {
     // EU/US seasons
     s_birch:"Mar–May", s_alder:"Feb–Apr", s_grass:"May–Aug",
     s_mugwort:"Jul–Sep", s_ragweed:"Aug–Oct", s_olive:"Apr–Jun", s_tree:"Feb–May",
+    // data export/import
+    data_title: "Data",
+    data_export: "Export",
+    data_import: "Import",
+    data_import_ok: "Imported ✓",
+    data_import_err: "Invalid file",
+    data_export_hint: "Symptoms & history as JSON",
+    // prediction
+    pred_tomorrow: "Expected tomorrow",
+    based_on_history: "from history",
+    // allergy severity
+    severity_off: "None", severity_mild: "Mild", severity_strong: "Strong",
+    allergy_profile: "Allergy profile",
   }
 };
 
@@ -833,7 +859,7 @@ const DAYS      = ["today","tomorrow","dayafter_to"];
 const DAY_NAMES = [t("today"), t("tomorrow"), t("dayafter")];
 const MONTHS    = t("months").split(",");
 
-const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode" };
+const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev" };
 
 // Koordinaten je DWD-Region für Wetter-API
 const REGION_COORDS = {
@@ -863,6 +889,7 @@ let filter    = JSON.parse(localStorage.getItem(LS.filter) || "null") || POLLEN.
 let activeDay = 0;
 let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
+let severity  = JSON.parse(localStorage.getItem("p_sev")  || "{}");
 let draft     = {niesen:0,augen:0,atmung:0,muedigkeit:0};
 let symSaved  = !!symptoms[new Date().toISOString().slice(0,10)];
 let openSections = new Set(JSON.parse(localStorage.getItem("p_open") || '["pollen"]'));
@@ -902,8 +929,10 @@ function personalRisk(pol, dayIdx) {
   for (const p of POLLEN) {
     if (!filter.includes(p.key)) continue;
     const l = lv(pol?.[p.key]?.[DAYS[dayIdx]]??"-1");
-    if (l.sc>0) drivers.push({...p, pillCls:["risk-none","risk-low","risk-mid","risk-high"][l.sc]});
-    if (l.sc>max) max=l.sc;
+    const sev = severity[p.key] || "mild";
+    const sc = sev === "strong" ? l.sc : Math.floor(l.sc * 0.7); // mild = 70%
+    if (sc>0) drivers.push({...p, pillCls:["risk-none","risk-low","risk-mid","risk-high"][sc]});
+    if (sc>max) max=sc;
   }
   return { ...RISK[max], max, drivers };
 }
@@ -943,9 +972,10 @@ function calcBestTimes(pol, dayIdx) {
   const wind = wd.wind ?? 0, rain = wd.rain ?? 0, uv = wd.uv ?? 0;
   if (risk === 0) return { good: [t("besttime_allday")], avoid: null };
   if (risk >= 3 && wind > 25 && rain < 0.5) return { good: [], avoid: null };
+  if (risk >= 3 && wind > 20) return { good: [], avoid: t("besttime_none") };
   const good = [];
   if (wind <= 20) good.push("06:00–09:00");
-  good.push("19:00–22:00");
+  if (wind <= 25 && rain < 3) good.push("19:00–22:00");
   const avoid = (uv > 5 && risk >= 2) ? "11:00–16:00" : null;
   return { good, avoid };
 }
@@ -968,90 +998,6 @@ function renderBestTime(pol, dayIdx) {
           ${bt.avoid ? `<div class="time-win warn">⚠ ${t("besttime_avoid")}: ${bt.avoid}</div>` : ""}
         </div>
         <div class="time-note">${t("besttime_note")}</div>
-      </div>
-    </div>`;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// TIPS (medication + outdoor + indoor)
-// ─────────────────────────────────────────────────────────────────────────────
-function renderTips(pol, dayIdx) {
-  const wd   = weather?.daily?.[dayIdx];
-  const risk = personalRisk(pol, dayIdx).max;
-  if (risk === 0 && !wd) return "";
-  const wind = wd?.wind ?? 0, rain = wd?.rain ?? 0;
-  const row = (ok, text) =>
-    `<div class="tip-row"><span class="${ok?"tip-ok":"tip-no"}">${ok?"✓":"✗"}</span><span>${text}</span></div>`;
-  const med = [], outdoor = [], indoor = [];
-  if (risk >= 2)              med.push(row(true,  t("tip_antihistamine")));
-  if (risk >= 3)              med.push(row(true,  t("tip_eyedrops")));
-  if (risk >= 2 && wind > 15) med.push(row(true,  t("tip_nasal_spray")));
-  if (risk <= 1)              med.push(row(false, t("tip_med_low")));
-  if (wind > 20 || risk >= 3) outdoor.push(row(false, t("tip_windows_closed")));
-  else                        outdoor.push(row(true,  t("tip_windows_open")));
-  if (risk >= 1)              outdoor.push(row(true,  t("tip_shower_after")));
-  if (rain > 2)               outdoor.push(row(true,  t("tip_after_rain_vent")));
-  if (risk >= 2)              indoor.push(row(true,  t("tip_air_purifier")));
-  if (wind > 15 || risk >= 2) indoor.push(row(false, t("tip_no_laundry")));
-  else                        indoor.push(row(true,  t("tip_laundry_ok")));
-  const sec = (icon, title, rows) => !rows.length ? "" :
-    `<div class="tips-group"><div class="tips-group-title">${icon} ${title}</div>${rows.join("")}</div>`;
-  return `
-    <div class="card">
-      <div class="card-head collapsible" onclick="toggleSection('tips')">
-        <span class="card-title">${t("tips_title")}</span>
-        <span class="collapse-arrow">▼</span>
-      </div>
-      <div class="collapsible-body" id="tips-body">
-        ${sec("💊", t("tips_med"),     med)}
-        ${sec("🌿", t("tips_outdoor"), outdoor)}
-        ${sec("🏠", t("tips_indoor"),  indoor)}
-        <div style="height:8px"></div>
-      </div>
-    </div>`;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// NEARBY REGIONS + ESCAPE SUGGESTION
-// ─────────────────────────────────────────────────────────────────────────────
-function renderNearbyRegions() {
-  if (!db) return "";
-  const cur = REGION_COORDS[rKey];
-  if (!cur) return "";
-  const bCls = ["b-none","b-low","b-mid","b-high"];
-  const others = db.regions
-    .filter(r => rk(r) !== rKey && REGION_COORDS[rk(r)])
-    .map(r => {
-      const c   = REGION_COORDS[rk(r)];
-      const dist = haversine(cur.lat, cur.lon, c.lat, c.lon);
-      const sc  = personalRisk(r.pollen, 0).max;
-      return { r, dist, sc };
-    })
-    .sort((a,b) => a.dist - b.dist)
-    .slice(0, 6);
-  if (!others.length) return "";
-  const curSc  = personalRisk(db.regions.find(r=>rk(r)===rKey)?.pollen, 0).max;
-  const escape = others.find(o => o.sc < curSc && o.sc <= 1 && o.dist > 30);
-  return `
-    <div class="card">
-      <div class="card-head collapsible" onclick="toggleSection('nearby')">
-        <span class="card-title">${t("nearby_title")}</span>
-        <span class="collapse-arrow">▼</span>
-      </div>
-      <div class="collapsible-body" id="nearby-body">
-        <div class="nearby-list">
-          ${others.map(o=>`
-            <div class="nearby-row">
-              <span class="nearby-name">${escapeHtml(o.r.partregion_name||o.r.region_name)}</span>
-              <span class="badge ${bCls[o.sc]}">${RISK[o.sc].label}</span>
-              <span class="nearby-dist">${o.dist} ${t("km_away")}</span>
-            </div>`).join("")}
-        </div>
-        ${escape ? `
-          <div class="escape-box">
-            ✈ ${t("escape_hint")}: <strong>${escapeHtml(escape.r.partregion_name||escape.r.region_name)}</strong>
-            · ${RISK[escape.sc].label} · ${escape.dist} ${t("km_away")}
-          </div>` : ""}
       </div>
     </div>`;
 }
@@ -1724,6 +1670,29 @@ function refreshDrawer() {
       ${symSaved ? "" : `<button class="sym-save" onclick="saveSym()">${t("save")}</button>`}
       ${renderSymHistory()}
       ${renderCorrelation()}
+      ${(() => {
+        if (!db) return "";
+        const pol = db.regions.find(r=>rk(r)===rKey)?.pollen;
+        if (!pol) return "";
+        const tomorrowRisk = personalRisk(pol, 1).max;
+        if (tomorrowRisk === 0) return "";
+        const symEntries = Object.entries(symptoms).sort((a,b)=>a[0].localeCompare(b[0]));
+        if (symEntries.length < 3) return "";
+        const totalSym = e => (e[1].niesen||0)+(e[1].augen||0)+(e[1].atmung||0)+(e[1].muedigkeit||0);
+        const avg = arr => arr.reduce((s,v)=>s+v,0)/arr.length;
+        const highDays = symEntries.filter(e => {
+          const d = e[0];
+          const h = history[d];
+          return h && Math.max(...Object.values(h).map(v=>lv(v).sc)) >= 2;
+        }).map(e => totalSym(e));
+        if (highDays.length < 2) return "";
+        const avgHigh = avg(highDays);
+        const predicted = Math.round(Math.min(20, avgHigh * ([0,0.4,0.7,1][tomorrowRisk])) * 10)/10;
+        return `<div style="padding:8px 14px 10px;border-top:1px solid var(--border);font-size:.79rem;color:var(--text2)">
+          🔮 ${t("pred_tomorrow")}: <strong style="color:var(--accent)">${predicted}/20</strong>
+          <span style="opacity:.6;font-size:.7rem"> (${t("based_on_history")})</span>
+        </div>`;
+      })()}
     </div>
 
     <!-- BEST TIME OUTSIDE -->
@@ -1798,6 +1767,31 @@ function refreshDrawer() {
       </div>
     </div>
 
+    <!-- ALLERGY PROFILE -->
+    <div class="dsec-head" onclick="toggleDrawerSec('dprofile')" id="dprofile-head">
+      <span>🧬 ${t("allergy_profile")}</span>
+      <span class="dsec-arrow">▼</span>
+    </div>
+    <div class="dsec-body" id="dprofile-body">
+      <div style="padding:8px 14px 12px">
+        ${POLLEN.map(p => {
+          const sev = severity[p.key] || (filter.includes(p.key) ? "mild" : "off");
+          return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+            <span style="font-size:1rem;width:22px;text-align:center">${p.icon}</span>
+            <span style="flex:1;font-size:.8rem">${t(p.key)}</span>
+            ${["off","mild","strong"].map(s => `
+              <button onclick="setSeverity('${p.key}','${s}')" style="
+                padding:2px 8px;border-radius:12px;font-size:.68rem;cursor:pointer;
+                border:1px solid ${sev===s?'var(--accent)':'var(--border)'};
+                background:${sev===s?'color-mix(in srgb,var(--accent) 15%,var(--card))':'transparent'};
+                color:${sev===s?'var(--text)':'var(--text3)'}">
+                ${t("severity_"+s)}
+              </button>`).join("")}
+          </div>`;
+        }).join("")}
+      </div>
+    </div>
+
     <!-- POLLEN NEARBY (DE only) -->
     ${appMode === "de" ? `<div class="dsec-head" onclick="toggleDrawerSec('dnearby')" id="dnearby-head">` : `<div class="dsec-head" style="display:none" id="dnearby-head">`}
       <span>${t("nearby_title")}</span>
@@ -1842,6 +1836,23 @@ function refreshDrawer() {
       ${renderSeason2025()}
     </div>` : ""}
 
+    <!-- DATA EXPORT/IMPORT -->
+    <div class="dsec-head" onclick="toggleDrawerSec('ddata')" id="ddata-head">
+      <span>📦 ${t("data_title")}</span>
+      <span class="dsec-arrow">▼</span>
+    </div>
+    <div class="dsec-body" id="ddata-body">
+      <div style="padding:10px 14px 14px;display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:.75rem;color:var(--text3)">${t("data_export_hint")}</div>
+        <div style="display:flex;gap:8px">
+          <button class="card-action" style="padding:6px 14px;border:1px solid var(--border);border-radius:8px;font-size:.8rem;cursor:pointer;background:var(--card2);color:var(--text)" onclick="exportData()">${t("data_export")}</button>
+          <label style="padding:6px 14px;border:1px solid var(--border);border-radius:8px;font-size:.8rem;cursor:pointer;background:var(--card2);color:var(--text)">
+            ${t("data_import")} <input type="file" accept=".json" style="display:none" onchange="importData(event)">
+          </label>
+        </div>
+      </div>
+    </div>
+
     <!-- LEGEND -->
     <div class="dsec-head" onclick="toggleDrawerSec('dlegend')" id="dlegend-head">
       <span>${t("legend_title")}</span>
@@ -1882,7 +1893,7 @@ function showS25Tip(e, name) {
   }
   tip.textContent = name;
   const r = e.currentTarget.getBoundingClientRect();
-  tip.style.left = Math.min(r.left + r.width/2, window.innerWidth - 120) + "px";
+  tip.style.left = Math.max(10, Math.min(r.left + r.width/2, window.innerWidth - 110)) + "px";
   tip.style.top  = (r.top - 32) + "px";
   tip.style.transform = "translateX(-50%)";
   tip.classList.add("show");
@@ -1908,6 +1919,7 @@ function renderSrcBar() {
       `<button class="src-btn${current===val?" active":""}" onclick="setDataSource('${val}')">${label}</button>`
     ).join("")}
     <span class="src-detected">${manual ? "" : detected + " →"} ${appMode.toUpperCase()}</span>
+    <button class="src-btn" onclick="shareUrl()" title="Share" style="margin-left:auto">🔗</button>
   `;
 }
 
@@ -1922,6 +1934,69 @@ function toggleDrawerSec(id) {
       head.scrollIntoView({behavior:"smooth", block:"start"});
     });
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EXPORT / IMPORT DATA
+// ─────────────────────────────────────────────────────────────────────────────
+function exportData() {
+  const data = {
+    version: 1,
+    exported: new Date().toISOString(),
+    symptoms: JSON.parse(localStorage.getItem(LS.syms) || "{}"),
+    history:  JSON.parse(localStorage.getItem(LS.hist) || "{}"),
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href = url; a.download = `pollen-data-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function importData(e) {
+  const file = e.target.files?.[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.version) throw new Error("invalid");
+      if (data.symptoms) localStorage.setItem(LS.syms, JSON.stringify(data.symptoms));
+      if (data.history)  localStorage.setItem(LS.hist, JSON.stringify(data.history));
+      symptoms = JSON.parse(localStorage.getItem(LS.syms) || "{}");
+      history  = JSON.parse(localStorage.getItem(LS.hist) || "{}");
+      showToast(t("data_import_ok"));
+      render();
+    } catch { showToast(t("data_import_err")); }
+  };
+  reader.readAsText(file);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SHAREABLE URL
+// ─────────────────────────────────────────────────────────────────────────────
+function shareUrl() {
+  const url = `${location.origin}${location.pathname}?rgn=${encodeURIComponent(rKey)}`;
+  if (navigator.share) {
+    navigator.share({ title: "Pollenflug", url });
+  } else {
+    navigator.clipboard.writeText(url).then(() => showToast("🔗 Link kopiert"));
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ALLERGY SEVERITY
+// ─────────────────────────────────────────────────────────────────────────────
+function setSeverity(key, level) {
+  severity[key] = level;
+  localStorage.setItem(LS.sev, JSON.stringify(severity));
+  if (level === "off") {
+    filter = filter.filter(k => k !== key);
+  } else {
+    if (!filter.includes(key)) filter.push(key);
+  }
+  localStorage.setItem(appMode === "de" ? LS.filter : LS.filter + "_" + appMode, JSON.stringify(filter));
+  refreshDrawer();
+  render();
 }
 
 // LOAD
@@ -2142,6 +2217,14 @@ async function init() {
         `<div class="center">${t("no_data")}<br><small>${t("check_conn")}</small></div>`;
     }
   }
+
+  // Apply URL params
+  const urlRgn = new URLSearchParams(location.search).get("rgn");
+  if (urlRgn && db?.regions?.find(r => rk(r) === urlRgn)) {
+    rKey = urlRgn;
+    localStorage.setItem(LS.region, rKey);
+    render();
+  }
 }
 
 function setDataSource(mode) {
@@ -2165,7 +2248,8 @@ function setDataSource(mode) {
 // INIT STATIC HTML WITH I18N
 // ─────────────────────────────────────────────────────────────────────────────
 document.getElementById("drawer-head-title").textContent = t("menu");
-document.getElementById("geo-btn").title = t("geo_title");
+const geoBtn = document.getElementById("geo-btn");
+if (geoBtn) geoBtn.title = t("geo_title");
 document.querySelector(".offline-pill").textContent = t("offline");
 document.querySelector(".logo").innerHTML = `🌿 <em>Pollen</em>${lang==="de"?"flug":""}`;
 document.getElementById("page").innerHTML = `<div class="center"><div class="spin"></div><span>${t("loading")}</span></div>`;
