@@ -1831,14 +1831,6 @@ function refreshDrawer() {
       })() : ""}
     </div>
 
-    <!-- WEEKLY HISTORY -->
-    <div class="dsec-head" onclick="toggleDrawerSec('dshist')" id="dshist-head">
-      <span>📅 ${t("week_history_title")}</span>
-      <span class="dsec-arrow">▼</span>
-    </div>
-    <div class="dsec-body" id="dshist-body">
-      ${renderHistory()}
-    </div>
 
     <!-- 2025 SEASON REVIEW (DE only) -->
     ${appMode === "de" ? `
