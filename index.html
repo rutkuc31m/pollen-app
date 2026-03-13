@@ -1960,6 +1960,21 @@ async function loadDE() {
     }
     sel.appendChild(g);
   }
+
+  // Auto-select nearest region from geoInfo if no saved region
+  if (!localStorage.getItem(LS.region) && geoInfo?.latitude && geoInfo?.longitude) {
+    const lat = geoInfo.latitude, lon = geoInfo.longitude;
+    let best = null, bestDist = Infinity;
+    for (const [key, c] of Object.entries(REGION_COORDS)) {
+      const d = Math.hypot(c.lat - lat, c.lon - lon);
+      if (d < bestDist) { bestDist = d; best = key; }
+    }
+    if (best && best !== rKey) {
+      rKey = best;
+      sel.value = rKey;
+    }
+  }
+
   document.getElementById("region-sel").addEventListener("change", e => {
     const val = e.target.value;
     clearTimeout(regionDebounce);
