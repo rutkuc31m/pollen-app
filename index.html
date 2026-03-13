@@ -511,7 +511,7 @@
     <button class="icon-btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
   </div>
   <div class="regionbar">
-    <div class="regionbar-inner">
+    <div class="regionbar-inner" id="regionbar-inner">
       <select id="region-sel"><option>Lade Regionen…</option></select>
       <button class="geo-btn" id="geo-btn" onclick="geoLocate()">📍</button>
     </div>
@@ -618,6 +618,16 @@ const STRINGS = {
     nearby_title: "Pollen in der Nähe",
     escape_hint: "Ausweichoption",
     km_away: "km",
+    // global mode
+    locating: "Standort wird ermittelt…",
+    source_om: "Open-Meteo · CAMS",
+    reloc_btn: "Standort aktualisieren",
+    // EU/US pollen names
+    birch:"Birke", alder:"Erle", grass:"Gräser",
+    mugwort:"Beifuß", ragweed:"Ambrosia", olive:"Olive", tree:"Bäume",
+    // EU/US seasons
+    s_birch:"Mär–Mai", s_alder:"Feb–Apr", s_grass:"Mai–Aug",
+    s_mugwort:"Jul–Sep", s_ragweed:"Aug–Okt", s_olive:"Apr–Jun", s_tree:"Feb–Mai",
   },
   en: {
     // days
@@ -707,13 +717,23 @@ const STRINGS = {
     nearby_title: "Pollen nearby",
     escape_hint: "Escape option",
     km_away: "km",
+    // global mode
+    locating: "Detecting location…",
+    source_om: "Open-Meteo · CAMS",
+    reloc_btn: "Update location",
+    // EU/US pollen names
+    birch:"Birch", alder:"Alder", grass:"Grasses",
+    mugwort:"Mugwort", ragweed:"Ragweed", olive:"Olive", tree:"Trees",
+    // EU/US seasons
+    s_birch:"Mar–May", s_alder:"Feb–Apr", s_grass:"May–Aug",
+    s_mugwort:"Jul–Sep", s_ragweed:"Aug–Oct", s_olive:"Apr–Jun", s_tree:"Feb–May",
   }
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONSTANTS
 // ─────────────────────────────────────────────────────────────────────────────
-const POLLEN = [
+let POLLEN = [
   { key:"Hasel",    icon:"🌰", mo:[1,2,3]    },
   { key:"Erle",     icon:"🌲", mo:[2,3,4]    },
   { key:"Esche",    icon:"🌳", mo:[3,4,5]    },
@@ -723,6 +743,44 @@ const POLLEN = [
   { key:"Beifuss",  icon:"🌱", mo:[7,8,9]    },
   { key:"Ambrosia", icon:"🌻", mo:[8,9,10]   },
 ];
+
+// ── GLOBAL POLLEN SOURCES ────────────────────────────────────────────────────
+const POLLEN_DE = POLLEN; // keep reference
+
+const POLLEN_EU = [
+  { key:"birch",   icon:"🍃", mo:[2,3,4]      },
+  { key:"alder",   icon:"🌲", mo:[1,2,3]      },
+  { key:"grass",   icon:"🌾", mo:[4,5,6,7,8]  },
+  { key:"mugwort", icon:"🌱", mo:[6,7,8,9]    },
+  { key:"ragweed", icon:"🌻", mo:[7,8,9,10]   },
+  { key:"olive",   icon:"🫒", mo:[3,4,5,6]    },
+];
+
+const POLLEN_US = [
+  { key:"tree",    icon:"🌳", mo:[2,3,4,5]    },
+  { key:"grass",   icon:"🌾", mo:[4,5,6,7,8]  },
+  { key:"ragweed", icon:"🌻", mo:[7,8,9,10]   },
+];
+
+// Open-Meteo Air Quality variable names per mode
+const OM_VARS = {
+  eu: ["alder_pollen","birch_pollen","grass_pollen","mugwort_pollen","ragweed_pollen","olive_pollen"],
+  us: ["tree_pollen","grass_pollen","ragweed_pollen"],
+};
+
+// Open-Meteo variable name → internal pollen key
+const OM_KEY = {
+  alder_pollen:"alder", birch_pollen:"birch", grass_pollen:"grass",
+  mugwort_pollen:"mugwort", ragweed_pollen:"ragweed", olive_pollen:"olive",
+  tree_pollen:"tree",
+};
+
+// Thresholds grains/m³ → level (low, mid, high)
+const OM_THR = {
+  birch:[15,90], alder:[15,90], grass:[10,50],
+  mugwort:[10,50], ragweed:[10,50], olive:[20,100],
+  tree:[100,500],
+};
 
 const LV = {
   "-1":{ cls:"b-none", sc:0, get label(){ return "–"; },            rc:"none" },
@@ -767,6 +825,8 @@ const REGION_COORDS = {
 // ─────────────────────────────────────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────────────────────────────────────
+let appMode   = "de";   // "de" | "eu" | "us"
+let geoInfo   = null;   // { country_code, latitude, longitude, city, country }
 let db        = null;
 let weather   = null; // { current, daily, fetchedAt }
 let rKey      = localStorage.getItem(LS.region)  || "30-32";
@@ -1365,12 +1425,12 @@ function setDay(i) { activeDay=i; render(); }
 function toggleFilter(key) {
   if (!POLLEN.some(p => p.key === key)) return;
   filter = filter.includes(key) ? filter.filter(k=>k!==key) : [...filter,key];
-  localStorage.setItem(LS.filter, JSON.stringify(filter));
+  localStorage.setItem(appMode === "de" ? LS.filter : LS.filter + "_" + appMode, JSON.stringify(filter));
   render();
 }
 function resetFilter() {
   filter = POLLEN.map(p=>p.key);
-  localStorage.setItem(LS.filter, JSON.stringify(filter));
+  localStorage.setItem(appMode === "de" ? LS.filter : LS.filter + "_" + appMode, JSON.stringify(filter));
   render();
 }
 
@@ -1420,27 +1480,19 @@ function toggleSection(id, save=true) {
 }
 
 let regionDebounce = null;
-document.getElementById("region-sel").addEventListener("change", e => {
-  const val = e.target.value;
-  clearTimeout(regionDebounce);
-  regionDebounce = setTimeout(() => {
-    rKey = val;
-    localStorage.setItem(LS.region, rKey);
-    weather = null;
-    render();
-    loadWeather();
-  }, 300);
-});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // WEATHER
 // ─────────────────────────────────────────────────────────────────────────────
 async function loadWeather() {
-  const coords = REGION_COORDS[rKey] || {lat:52.37,lon:9.73};
+  const coords = appMode === "de"
+    ? (REGION_COORDS[rKey] || {lat:52.37,lon:9.73})
+    : {lat: geoInfo?.latitude ?? 52.37, lon: geoInfo?.longitude ?? 9.73};
+  const tz = appMode === "de" ? "Europe%2FBerlin" : "auto";
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}`
     + `&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code`
     + `&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,uv_index_max`
-    + `&timezone=Europe%2FBerlin&forecast_days=7`;
+    + `&timezone=${tz}&forecast_days=7`;
   try {
     const res = await fetch(url);
     const data = await res.json();
@@ -1692,8 +1744,8 @@ function refreshDrawer() {
       </div>
     </div>
 
-    <!-- POLLEN NEARBY -->
-    <div class="dsec-head" onclick="toggleDrawerSec('dnearby')" id="dnearby-head">
+    <!-- POLLEN NEARBY (DE only) -->
+    ${appMode === "de" ? `<div class="dsec-head" onclick="toggleDrawerSec('dnearby')" id="dnearby-head">` : `<div class="dsec-head" style="display:none" id="dnearby-head">`}
       <span>${t("nearby_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
@@ -1734,12 +1786,12 @@ function refreshDrawer() {
       ${renderHistory()}
     </div>
 
-    <!-- 2025 SEASON REVIEW -->
-    <div class="dsec-head open" onclick="toggleDrawerSec('ds2025')" id="ds2025-head">
+    <!-- 2025 SEASON REVIEW (DE only) -->
+    ${appMode === "de" ? `<div class="dsec-head open" onclick="toggleDrawerSec('ds2025')" id="ds2025-head">` : `<div class="dsec-head" style="display:none" id="ds2025-head">`}
       <span>📊 ${t("season2025_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
-    <div class="dsec-body open" id="ds2025-body">
+    <div class="${appMode === "de" ? "dsec-body open" : "dsec-body"}" id="ds2025-body">
       ${renderSeason2025()}
     </div>
 
@@ -1806,7 +1858,7 @@ function toggleDrawerSec(id) {
 
 // LOAD
 // ─────────────────────────────────────────────────────────────────────────────
-async function load() {
+async function loadDE() {
   try {
     const res = await fetch("./data.json?v="+Date.now());
     if (!res.ok) throw new Error();
@@ -1832,14 +1884,15 @@ async function load() {
     }
   }
 
-  // Region dropdown
+  // Restore DE regionbar (dropdown + geo button)
+  document.getElementById("regionbar-inner").innerHTML =
+    `<select id="region-sel"></select><button class="geo-btn" id="geo-btn" onclick="geoLocate()" title="${t("geo_title")}">📍</button>`;
   const sel = document.getElementById("region-sel");
   const groups = {};
   for (const r of db.regions) {
     if (!groups[r.region_name]) groups[r.region_name] = [];
     groups[r.region_name].push(r);
   }
-  sel.innerHTML = "";
   for (const [name, list] of Object.entries(groups)) {
     const g = document.createElement("optgroup");
     g.label = name;
@@ -1851,6 +1904,17 @@ async function load() {
     }
     sel.appendChild(g);
   }
+  document.getElementById("region-sel").addEventListener("change", e => {
+    const val = e.target.value;
+    clearTimeout(regionDebounce);
+    regionDebounce = setTimeout(() => {
+      rKey = val;
+      localStorage.setItem(LS.region, rKey);
+      weather = null;
+      render();
+      loadWeather();
+    }, 200);
+  });
 
   // store today's history
   const reg = db.regions.find(r=>rk(r)===rKey) ?? db.regions[0];
@@ -1858,6 +1922,126 @@ async function load() {
 
   render();
   loadWeather(); // läuft parallel, rendert nochmal wenn fertig
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GLOBAL MODE: Open-Meteo Air Quality
+// ─────────────────────────────────────────────────────────────────────────────
+async function loadGlobal() {
+  const lat = geoInfo.latitude;
+  const lon = geoInfo.longitude;
+  const vars = OM_VARS[appMode];
+
+  // Regionbar: location name + relocate button
+  const locName = [geoInfo.city, geoInfo.country].filter(Boolean).join(", ");
+  document.getElementById("regionbar-inner").innerHTML =
+    `<span style="font-size:.84rem;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📍 ${escapeHtml(locName)}</span>
+     <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}">🔄</button>`;
+
+  const url = `https://air-quality-api.open-meteo.com/v1/air-quality`
+    + `?latitude=${lat}&longitude=${lon}`
+    + `&hourly=${vars.join(",")}`
+    + `&forecast_days=3&timezone=auto`;
+
+  let raw = null;
+  try {
+    const res = await fetch(url);
+    raw = await res.json();
+    localStorage.setItem(LS.cache + "_om", JSON.stringify({raw, ts: Date.now(), lat, lon}));
+  } catch {
+    const cached = localStorage.getItem(LS.cache + "_om");
+    if (cached) {
+      const c = JSON.parse(cached);
+      raw = c.raw;
+      const pill = document.getElementById("offline-pill");
+      pill.textContent = t("offline");
+      pill.classList.add("show");
+    } else {
+      document.getElementById("page").innerHTML =
+        `<div class="center">${t("no_data")}<br><small>${t("check_conn")}</small></div>`;
+      return;
+    }
+  }
+
+  // Aggregate hourly → daily max (hours 6–20)
+  const times = raw.hourly.time;
+  const byDate = {};
+  times.forEach((ts, i) => {
+    const date = ts.slice(0, 10);
+    const hour = parseInt(ts.slice(11, 13));
+    if (hour < 6 || hour > 20) return;
+    if (!byDate[date]) byDate[date] = {};
+    for (const v of vars) {
+      const key = OM_KEY[v];
+      const val = raw.hourly[v]?.[i] ?? 0;
+      byDate[date][key] = Math.max(byDate[date][key] ?? 0, val);
+    }
+  });
+
+  const dates = Object.keys(byDate).sort().slice(0, 3);
+  const dayKeys = ["today", "tomorrow", "dayafter_to"];
+  const pollen = {};
+  for (const p of POLLEN) {
+    pollen[p.key] = {};
+    dayKeys.forEach((dk, di) => {
+      const date = dates[di];
+      if (!date) { pollen[p.key][dk] = "-1"; return; }
+      const raw2 = byDate[date]?.[p.key] ?? 0;
+      const [t1, t2] = OM_THR[p.key] ?? [10, 50];
+      pollen[p.key][dk] = raw2 <= 0 ? "0" : raw2 < t1 ? "1" : raw2 < t2 ? "2" : "3";
+    });
+  }
+
+  db = {
+    last_update: dates[0] ?? todayISO(),
+    next_update: "",
+    regions: [{ region_id:0, partregion_id:-1, region_name: locName, partregion_name:"", pollen }],
+  };
+  rKey = "0--1";
+
+  // Validate filter against current pollen types
+  const validKeys = POLLEN.map(p => p.key);
+  filter = (JSON.parse(localStorage.getItem(LS.filter + "_" + appMode) || "null") ?? validKeys)
+    .filter(k => validKeys.includes(k));
+  if (!filter.length) filter = [...validKeys];
+
+  storeHistoryDay(pollen);
+  render();
+  loadWeather();
+}
+
+async function relocate() {
+  if (!navigator.geolocation) { showToast(t("geo_unsupported")); return; }
+  navigator.geolocation.getCurrentPosition(async pos => {
+    geoInfo.latitude  = pos.coords.latitude;
+    geoInfo.longitude = pos.coords.longitude;
+    weather = null;
+    await loadGlobal();
+  }, () => showToast(t("geo_error")), { timeout: 8000 });
+}
+
+async function init() {
+  try {
+    const res = await fetch("https://ipwho.is/");
+    geoInfo = await res.json();
+  } catch {
+    geoInfo = { country_code:"DE", latitude:52.37, longitude:9.73, city:"", country:"Germany" };
+  }
+
+  const cc = (geoInfo.country_code || "DE").toUpperCase();
+  if (cc === "DE") {
+    appMode = "de";
+    POLLEN  = POLLEN_DE;
+    // Restore filter for DE
+    filter = JSON.parse(localStorage.getItem(LS.filter) || "null") || POLLEN.map(p => p.key);
+    filter = filter.filter(k => POLLEN.some(p => p.key === k));
+    if (!filter.length) filter = POLLEN.map(p => p.key);
+    await loadDE();
+  } else {
+    appMode = (cc === "US" || cc === "CA" || cc === "MX") ? "us" : "eu";
+    POLLEN  = appMode === "us" ? POLLEN_US : POLLEN_EU;
+    await loadGlobal();
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1869,14 +2053,14 @@ document.querySelector(".offline-pill").textContent = t("offline");
 document.querySelector(".logo").innerHTML = `🌿 <em>Pollen</em>${lang==="de"?"flug":""}`;
 document.getElementById("page").innerHTML = `<div class="center"><div class="spin"></div><span>${t("loading")}</span></div>`;
 
-load();
+init();
 
 // ── AUTO-REFRESH bei App-Wechsel ─────────────────────────────────────────────
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") {
     const ts = localStorage.getItem(LS.cache + "_ts");
     const ageMin = ts ? (Date.now() - new Date(ts).getTime()) / 60000 : 999;
-    if (ageMin > 30) load(); // neu laden wenn Daten älter als 30 Min
+    if (ageMin > 30) init(); // neu laden wenn Daten älter als 30 Min
   }
 });
 
@@ -1926,7 +2110,7 @@ document.addEventListener("touchend", e => {
     if (ptr_pulling && parseInt(ptr_el.style.height) >= 28) {
       ptr_el.style.height = "42px";
       ptr_el.querySelector("#ptr-icon").textContent = t("ptr_loading");
-      load().finally(() => { ptr_el.style.height = "0"; });
+      init().finally(() => { ptr_el.style.height = "0"; });
     } else {
       ptr_el.style.height = "0";
     }
