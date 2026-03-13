@@ -1852,7 +1852,7 @@ function refreshDrawer() {
           >${label}</button>`).join("")}
       </div>
       <div style="font-size:.65rem;color:var(--text3);margin-top:6px">
-        ${t("datasource_auto")}: ${(geoInfo?.country_code??'?')} · ${appMode.toUpperCase()}
+        ${t("datasource_auto")}: ${geoInfo?.country_code || geoInfo?.ip || '–'} · ${appMode.toUpperCase()}
       </div>
     </div>
   `;
@@ -2074,9 +2074,13 @@ async function init() {
   if (!geoInfo) {
     try {
       const ctrl = new AbortController();
-      setTimeout(() => ctrl.abort(), 5000); // 5s timeout
+      setTimeout(() => ctrl.abort(), 5000);
       const res = await fetch("https://ipwho.is/", { signal: ctrl.signal });
-      geoInfo = await res.json();
+      const json = await res.json();
+      // success:false means unrecognised IP (VPN/datacenter) — still use coords if present
+      geoInfo = (json.success !== false && json.country_code)
+        ? json
+        : { ...json, country_code: json.country_code || "DE" };
     } catch {
       geoInfo = { country_code:"DE", latitude:52.37, longitude:9.73, city:"", country:"Germany" };
     }
