@@ -2108,6 +2108,7 @@ async function init() {
 function setDataSource(mode) {
   if (mode === "auto") {
     localStorage.removeItem(LS.mode);
+    geoInfo = null; // force fresh IP lookup for auto-detection
   } else {
     localStorage.setItem(LS.mode, mode);
   }
