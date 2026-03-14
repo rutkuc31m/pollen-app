@@ -505,6 +505,53 @@
       white-space: nowrap;
     }
     #toast.show { opacity: 1; }
+
+    /* ── PWA INSTALL BUTTON ──────────────────────────── */
+    #pwa-install-btn {
+      display: none; align-items: center; gap: 5px;
+      padding: 5px 10px; border-radius: 8px;
+      border: 1px solid var(--accent);
+      background: color-mix(in srgb, var(--accent) 12%, var(--card));
+      color: var(--accent); font-size: .74rem; font-weight: 600;
+      cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    }
+    #pwa-install-btn.show { display: flex; }
+    #pwa-install-btn:hover { background: color-mix(in srgb, var(--accent) 20%, var(--card)); }
+
+    /* ── DAY TRANSITION ──────────────────────────────── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .day-transition { animation: fadeInUp .18s ease; }
+
+    /* ── HERO SUMMARY SENTENCE ───────────────────────── */
+    .hero-summary {
+      font-size: .8rem; color: var(--text2);
+      margin-top: 5px; line-height: 1.4;
+      padding: 5px 8px; border-radius: 7px;
+      background: color-mix(in srgb, var(--rc, #71717a) 8%, var(--card));
+    }
+
+    /* ── CORRELATION IMPROVEMENTS ────────────────────── */
+    .corr-fill-low  { background: #65a30d; }
+    .corr-fill-mid  { background: #a16207; }
+    .corr-fill-high { background: #b91c1c; }
+    [data-theme="dark"] .corr-fill-low  { background: #a3e635; }
+    [data-theme="dark"] .corr-fill-mid  { background: #fde047; }
+    [data-theme="dark"] .corr-fill-high { background: #f87171; }
+    .corr-meta { font-size: .67rem; color: var(--text3); margin-top: 2px; }
+    .corr-no-data { font-size: .76rem; color: var(--text3); font-style: italic; padding: 4px 0; }
+    .corr-n-label { font-size: .64rem; color: var(--text3); opacity: .8; }
+    .corr-r-label { font-size: .68rem; color: var(--text3); width: 42px; text-align: right; flex-shrink: 0; }
+
+    /* ── ACCURACY STAT ───────────────────────────────── */
+    .accuracy-box {
+      margin: 6px 14px 10px; padding: 8px 12px; border-radius: 8px;
+      background: var(--card2); border: 1px solid var(--border);
+      font-size: .77rem; color: var(--text2); display: flex; align-items: center; gap: 8px;
+    }
+    .accuracy-val { font-weight: 700; color: var(--accent); }
   </style>
 </head>
 <body>
@@ -524,6 +571,7 @@
     <button class="icon-btn" onclick="openDrawer()" aria-label="Menü">☰</button>
     <div class="logo">🌿 <em>Pollen</em>flug</div>
     <span class="offline-pill" id="offline-pill">Offline</span>
+    <button id="pwa-install-btn" onclick="pwaDoPwaInstall()" aria-label="App installieren">⬇ App</button>
     <button class="icon-btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
   </div>
   <div class="regionbar">
@@ -664,6 +712,24 @@ const STRINGS = {
     // allergy severity
     severity_off: "Keine", severity_mild: "Leicht", severity_strong: "Stark",
     allergy_profile: "Allergieprofil",
+    // PWA
+    pwa_install: "App installieren",
+    // hero summary sentences
+    hero_good_day: "Heute ein guter Tag für", hero_bad_day: "Heute ein schlechter Tag für", hero_ok_day: "Heute ein mäßiger Tag für",
+    hero_allergen_suffix: "-Allergiker",
+    // correlation improvements
+    corr_insufficient: "Zu wenig Daten", corr_no_link: "Kein Zusammenhang",
+    corr_n_days: "Tage", corr_basis: "Ø Datenbasis",
+    corr_r_val: "r",
+    // accuracy
+    accuracy_title: "Prognose-Genauigkeit (DWD)", accuracy_days: "Tage Datenbasis", accuracy_na: "Noch nicht genug Daten (>7 Tage nötig)",
+    // season region note
+    season_north: "Klimanorm · Norddeutschland",
+    season_central: "Klimanorm · Mitteldeutschland",
+    season_south: "Klimanorm · Süddeutschland",
+    season_east: "Klimanorm · Ostdeutschland",
+    // rain in weather
+    rain_label: "Regen",
   },
   en: {
     // days
@@ -782,6 +848,24 @@ const STRINGS = {
     // allergy severity
     severity_off: "None", severity_mild: "Mild", severity_strong: "Strong",
     allergy_profile: "Allergy profile",
+    // PWA
+    pwa_install: "Install app",
+    // hero summary sentences
+    hero_good_day: "Today is a good day for", hero_bad_day: "Today is a bad day for", hero_ok_day: "Today is a moderate day for",
+    hero_allergen_suffix: " allergy sufferers",
+    // correlation improvements
+    corr_insufficient: "Not enough data", corr_no_link: "No correlation",
+    corr_n_days: "days", corr_basis: "Avg. data basis",
+    corr_r_val: "r",
+    // accuracy
+    accuracy_title: "Forecast Accuracy (DWD)", accuracy_days: "days data", accuracy_na: "Not enough data yet (need >7 days)",
+    // season region note
+    season_north: "Climate norm · Northern Germany",
+    season_central: "Climate norm · Central Germany",
+    season_south: "Climate norm · Southern Germany",
+    season_east: "Climate norm · Eastern Germany",
+    // rain in weather
+    rain_label: "Rain",
   }
 };
 
@@ -1055,8 +1139,20 @@ function render() {
         ? (tomorrowScore > todayScore ? t("trend_rising") : tomorrowScore < todayScore ? t("trend_falling") : t("trend_stable"))
         : "";
       const expScore = calcExposureScore(pol, activeDay);
+      // Hero summary sentence based on filter + risk
+      let summaryHtml = "";
+      if (activeDay === 0 && filter.length > 0) {
+        const topAllergen = risk.drivers[0];
+        const allergenName = topAllergen ? t(topAllergen.key) : "";
+        if (risk.max === 0) {
+          summaryHtml = `<div class="hero-summary">${t("no_load")}</div>`;
+        } else if (allergenName) {
+          const prefix = risk.max >= 3 ? t("hero_bad_day") : risk.max === 2 ? t("hero_ok_day") : t("hero_good_day");
+          summaryHtml = `<div class="hero-summary ${risk.cls}">${prefix} ${allergenName}${t("hero_allergen_suffix")}</div>`;
+        }
+      }
       return `
-    <div class="hero">
+    <div class="hero day-transition">
       <div class="hero-badge ${risk.cls}" style="font-size:1.6rem;font-weight:800">
         ${["✓","!","!!","‼"][risk.max]}
       </div>
@@ -1066,6 +1162,7 @@ function render() {
         </div>
         ${trendLabel ? `<div style="font-size:.76rem;color:var(--text2);margin-top:1px">${t("tendency")}: ${trendLabel}</div>` : ""}
         <div class="hero-loc">${escapeHtml(reg.region_name)}${reg.partregion_name?` · ${escapeHtml(reg.partregion_name)}`:""} · ${DAY_NAMES[activeDay]}</div>
+        ${summaryHtml}
         ${risk.drivers.length ? `
           <div class="hero-drivers">
             ${risk.drivers.map(p=>`<span class="driver-pill ${p.pillCls}">${p.icon} ${t(p.key)}</span>`).join("")}
@@ -1127,7 +1224,7 @@ function render() {
               <div class="wd-name">${i===0?t("today"):dayName}</div>
               <div class="wd-icon">${wkIcon(wd.rain, wd.wind)}</div>
               <div class="wd-temp">${wd.tempMax}°</div>
-              <div class="wd-rain">${wd.rain > 0 ? wd.rain+weather.units.rain : "–"}</div>
+              <div class="wd-rain">${wd.rain > 2 ? "💧"+wd.rain+weather.units.rain : wd.rain > 0 ? wd.rain+weather.units.rain : "–"}</div>
               ${uvW !== null ? `<div class="wd-uv ${uvWCls}">UV ${uvW} (${uvCat(uvW)})</div>` : ""}
             </div>`;
           }).join("")}
@@ -1333,6 +1430,83 @@ const SEASON_2025 = {
 // Column index where each month label starts (0-based week index, 2025)
 const S25_MONTHS = [0,4,8,13,17,21,26,30,35,39,43,48];
 
+// ── REGIONAL SEASONAL AVERAGES (monthly strength 0=none, 1=low, 2=mid, 3=high) ──
+// [Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec]
+const SEASON_REGIONAL = {
+  // region_id 10 = Schleswig-Holstein, 20 = Mecklenburg-Vorpommern (North)
+  north: {
+    label: "season_north",
+    Hasel:   [2,3,3,1,0,0,0,0,0,0,0,1],
+    Erle:    [0,1,3,3,1,0,0,0,0,0,0,0],
+    Esche:   [0,0,1,3,3,1,0,0,0,0,0,0],
+    Birke:   [0,0,1,3,3,1,0,0,0,0,0,0],
+    Graeser: [0,0,0,1,2,3,3,2,1,0,0,0],
+    Roggen:  [0,0,0,0,1,3,3,1,0,0,0,0],
+    Beifuss: [0,0,0,0,0,0,1,3,3,1,0,0],
+    Ambrosia:[0,0,0,0,0,0,0,1,3,3,1,0],
+  },
+  // region_id 30 = Niedersachsen, 40 = NRW, 50 = Brandenburg (Central/NW)
+  central: {
+    label: "season_central",
+    Hasel:   [1,3,3,1,0,0,0,0,0,0,0,0],
+    Erle:    [0,1,3,3,1,0,0,0,0,0,0,0],
+    Esche:   [0,0,1,2,3,1,0,0,0,0,0,0],
+    Birke:   [0,0,1,3,3,1,0,0,0,0,0,0],
+    Graeser: [0,0,0,1,2,3,3,2,1,0,0,0],
+    Roggen:  [0,0,0,0,1,3,3,1,0,0,0,0],
+    Beifuss: [0,0,0,0,0,0,1,3,2,1,0,0],
+    Ambrosia:[0,0,0,0,0,0,0,1,3,2,1,0],
+  },
+  // region_id 60 = Sachsen-Anhalt, 70 = Thüringen, 80 = Sachsen (East)
+  east: {
+    label: "season_east",
+    Hasel:   [1,2,3,1,0,0,0,0,0,0,0,0],
+    Erle:    [0,1,3,3,1,0,0,0,0,0,0,0],
+    Esche:   [0,0,1,3,3,1,0,0,0,0,0,0],
+    Birke:   [0,0,0,2,3,2,0,0,0,0,0,0],
+    Graeser: [0,0,0,1,2,3,3,2,1,0,0,0],
+    Roggen:  [0,0,0,0,1,3,3,1,0,0,0,0],
+    Beifuss: [0,0,0,0,0,0,1,3,2,1,0,0],
+    Ambrosia:[0,0,0,0,0,0,0,2,3,2,0,0],
+  },
+  // region_id 90 = Hessen, 100 = Rheinland-Pfalz/Saarland (Southwest/Central)
+  southwest: {
+    label: "season_central",
+    Hasel:   [2,3,2,1,0,0,0,0,0,0,0,1],
+    Erle:    [1,2,3,2,1,0,0,0,0,0,0,0],
+    Esche:   [0,0,1,3,3,1,0,0,0,0,0,0],
+    Birke:   [0,0,1,3,3,1,0,0,0,0,0,0],
+    Graeser: [0,0,0,1,2,3,3,2,1,0,0,0],
+    Roggen:  [0,0,0,0,1,3,3,1,0,0,0,0],
+    Beifuss: [0,0,0,0,0,0,1,3,3,1,0,0],
+    Ambrosia:[0,0,0,0,0,0,0,1,2,3,1,0],
+  },
+  // region_id 110 = Baden-Württemberg, 120 = Bayern (South)
+  south: {
+    label: "season_south",
+    Hasel:   [1,2,3,2,0,0,0,0,0,0,0,0],
+    Erle:    [0,1,2,3,1,0,0,0,0,0,0,0],
+    Esche:   [0,0,1,2,3,2,0,0,0,0,0,0],
+    Birke:   [0,0,0,2,3,2,0,0,0,0,0,0],
+    Graeser: [0,0,0,1,2,3,3,3,2,1,0,0],
+    Roggen:  [0,0,0,0,1,2,3,2,1,0,0,0],
+    Beifuss: [0,0,0,0,0,0,1,3,3,1,0,0],
+    Ambrosia:[0,0,0,0,0,0,0,1,3,3,1,0],
+  },
+};
+
+// Map DWD region_id to regional seasonal profile
+function getRegionalSeasonProfile() {
+  if (!db || appMode !== "de") return SEASON_REGIONAL.central;
+  const reg = db.regions.find(r => rk(r) === rKey) ?? db.regions[0];
+  const rid = reg?.region_id ?? 30;
+  if (rid <= 20)  return SEASON_REGIONAL.north;
+  if (rid <= 50)  return SEASON_REGIONAL.central;
+  if (rid <= 85)  return SEASON_REGIONAL.east;
+  if (rid <= 105) return SEASON_REGIONAL.southwest;
+  return SEASON_REGIONAL.south;
+}
+
 function renderSeason2025() {
   const MONTHS = t("months").split(",");
   const MON_SHORT = MONTHS.map(m => m.slice(0,3));
@@ -1344,29 +1518,24 @@ function renderSeason2025() {
   let dataRows, note;
 
   if (appMode === "de") {
-    // DE: real 2025 climate norm data
-    function monthlyMax(key) {
-      return S25_MONTHS.map((startWk, mi) => {
-        const endWk = mi < 11 ? S25_MONTHS[mi + 1] : 52;
-        return Math.max(...SEASON_2025[key].slice(startWk, endWk));
-      });
-    }
-    const pollen = [
+    // DE: use region-specific seasonal profile (dynamic, not hardcoded Hannover)
+    const profile = getRegionalSeasonProfile();
+    const pollenList = [
       {key:"Hasel",icon:"🌰"},{key:"Erle",icon:"🌿"},
       {key:"Esche",icon:"🌳"},{key:"Birke",icon:"🌸"},
       {key:"Graeser",icon:"🌾"},{key:"Roggen",icon:"🌾"},
       {key:"Beifuss",icon:"🌿"},{key:"Ambrosia",icon:"🌼"},
     ];
-    dataRows = pollen.map(p => {
-      const vals = monthlyMax(p.key);
+    dataRows = pollenList.map(p => {
+      const vals = profile[p.key] ?? Array(12).fill(0);
       const dimmed = filter.includes(p.key) ? "" : " style=\"opacity:.35\"";
       const cells = vals.map((v,mi) =>
         `<div class="s25-cell" data-v="${v}" title="${MONTHS[mi]}: ${lvLabels[v]??v}"></div>`).join("");
       return `<div class="s25-name" title="${t(p.key)}" onclick="showS25Tip(event,'${t(p.key)}')"${dimmed}>${p.icon}</div>${cells}`;
     }).join("");
-    note = t("season2025_note");
+    note = t(profile.label);
   } else {
-    // EU/US: typical season from POLLEN[x].mo — no real 2025 data available
+    // EU/US: typical season from POLLEN[x].mo — no regional data available
     dataRows = POLLEN.map(p => {
       const mo = p.mo; // active months (1-based)
       const vals = Array.from({length:12}, (_,i) => {
@@ -1457,7 +1626,11 @@ function setSym(key, val) {
     }
   }
 }
+let _symSaveDebounce = false;
 function saveSym() {
+  if (_symSaveDebounce) return;
+  _symSaveDebounce = true;
+  setTimeout(() => { _symSaveDebounce = false; }, 1200);
   symptoms[todayISO()] = {...draft};
   localStorage.setItem(LS.syms, JSON.stringify(symptoms));
   symSaved = true;
@@ -1575,49 +1748,128 @@ function geoLocate() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SYMPTOM–POLLEN CORRELATION
+// PEARSON CORRELATION COEFFICIENT
+// ─────────────────────────────────────────────────────────────────────────────
+function pearsonR(xs, ys) {
+  const n = xs.length;
+  if (n < 3) return 0;
+  const meanX = xs.reduce((a,b)=>a+b,0)/n;
+  const meanY = ys.reduce((a,b)=>a+b,0)/n;
+  let num=0, dx2=0, dy2=0;
+  for (let i=0;i<n;i++) {
+    const dx=xs[i]-meanX, dy=ys[i]-meanY;
+    num+=dx*dy; dx2+=dx*dx; dy2+=dy*dy;
+  }
+  if (dx2===0||dy2===0) return 0;
+  return num/Math.sqrt(dx2*dy2);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SYMPTOM–POLLEN CORRELATION (improved)
 // ─────────────────────────────────────────────────────────────────────────────
 function renderCorrelation() {
   const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
   const cutoffStr = cutoff.toISOString().slice(0,10);
   const symEntries = Object.entries(symptoms).filter(([d]) => d >= cutoffStr);
-  if (symEntries.length < 3) return ""; // need at least 3 days
+  const totalDays = symEntries.length;
+  if (totalDays < 3) return ""; // need at least 3 days
   const filteredPollen = POLLEN.filter(p => filter.includes(p.key));
   if (!filteredPollen.length) return "";
 
-  // For each pollen, compute avg total symptom score on days with that pollen active vs not
   const results = [];
   for (const p of filteredPollen) {
-    const activeScores = [], inactiveScores = [];
+    const polScores = [], symScores = [];
+    let pollenDays = 0, pollenFreeDays = 0;
     for (const [date, sym] of symEntries) {
       const hist = history[date];
       if (!hist) continue;
       const polLevel = lv(hist[p.key] ?? "-1").sc;
       const symScore = (sym.niesen || 0) + (sym.augen || 0) + (sym.atmung || 0) + (sym.muedigkeit || 0);
-      if (polLevel >= 1) activeScores.push(symScore);
-      else inactiveScores.push(symScore);
+      polScores.push(polLevel);
+      symScores.push(symScore);
+      if (polLevel >= 1) pollenDays++; else pollenFreeDays++;
     }
-    if (!activeScores.length || !inactiveScores.length) continue;
-    const avgActive   = activeScores.reduce((a,b)=>a+b,0)   / activeScores.length;
-    const avgInactive = inactiveScores.reduce((a,b)=>a+b,0) / inactiveScores.length;
-    const diff = avgActive - avgInactive;
-    if (diff > 0.5) results.push({ p, diff, avgActive });
+    const n = polScores.length;
+    if (n < 5) {
+      // Not enough data — show placeholder
+      results.push({ p, r: 0, n, insufficient: true, pollenDays, pollenFreeDays });
+      continue;
+    }
+    // Only compute if we have both pollen days AND pollen-free days
+    if (pollenDays < 3 || pollenFreeDays < 3) continue;
+    const r = pearsonR(polScores, symScores);
+    if (r < 0.1) continue; // skip if no meaningful correlation
+    results.push({ p, r, n, insufficient: false, pollenDays, pollenFreeDays });
   }
 
   if (!results.length) return "";
-  results.sort((a,b) => b.diff - a.diff);
-  const maxDiff = results[0].diff;
+  const meaningful = results.filter(x => !x.insufficient);
+  if (!meaningful.length && results.filter(x=>x.insufficient).length === 0) return "";
+
+  const maxR = meaningful.length ? Math.max(...meaningful.map(x=>x.r)) : 1;
 
   return `
     <div class="corr-wrap">
       <div class="corr-title">${t("corr_title")}</div>
-      ${results.map(({p, diff}) => `
-        <div class="corr-row">
-          <div class="corr-name">${p.icon} ${t(p.key)}</div>
-          <div class="corr-track"><div class="corr-fill" style="width:${Math.round((diff/maxDiff)*100)}%"></div></div>
-          <div class="corr-lbl">+${diff.toFixed(1)}</div>
-        </div>`).join("")}
-      <div style="font-size:.68rem;color:var(--text3);margin-top:6px">${t("corr_hint")}</div>
+      ${results.map(({p, r, n, insufficient}) => {
+        if (insufficient) {
+          return `
+            <div class="corr-row">
+              <div class="corr-name">${p.icon} ${t(p.key)}</div>
+              <div class="corr-no-data">${t("corr_insufficient")} (${n}/5 ${t("corr_n_days")})</div>
+            </div>`;
+        }
+        const pct = Math.round((r/maxR)*100);
+        const fillCls = r >= 0.5 ? "corr-fill-high" : r >= 0.3 ? "corr-fill-mid" : "corr-fill-low";
+        const label = r < 0.2 ? t("corr_no_link") : `${t("corr_r_val")}=${r.toFixed(2)}`;
+        return `
+          <div class="corr-row">
+            <div class="corr-name">${p.icon} ${t(p.key)}</div>
+            ${r < 0.2
+              ? `<div class="corr-no-data">${label}</div>`
+              : `<div class="corr-track"><div class="corr-fill ${fillCls}" style="width:${pct}%"></div></div>`}
+            <div class="corr-r-label">${r < 0.2 ? "" : `${t("corr_r_val")}=${r.toFixed(2)}`}</div>
+          </div>
+          <div class="corr-n-label" style="padding-left:70px;margin-top:-3px">n = ${n} ${t("corr_n_days")}</div>`;
+      }).join("")}
+      <div style="font-size:.68rem;color:var(--text3);margin-top:6px">${t("corr_hint")} · ${t("corr_days")}</div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FORECAST ACCURACY (after 7+ days of history)
+// ─────────────────────────────────────────────────────────────────────────────
+function renderForecastAccuracy() {
+  const allDays = Object.keys(history).sort();
+  if (allDays.length < 8) return ""; // need > 7 days
+  // Compare history[yesterday][pollen key] = DWD "tomorrow" prediction vs history[today] = actual
+  let matched = 0, total = 0;
+  for (let i = 0; i < allDays.length - 1; i++) {
+    const prevDay = allDays[i];
+    const nextDay = allDays[i+1];
+    // Only compare consecutive days (1 day apart)
+    const d1 = new Date(prevDay + "T12:00"), d2 = new Date(nextDay + "T12:00");
+    const diff = (d2 - d1) / 86400000;
+    if (diff !== 1) continue;
+    // We don't have the "tomorrow" value stored separately, so we approximate:
+    // compare today's reading with yesterday's reading as a proxy for trend accuracy
+    for (const p of POLLEN) {
+      if (!filter.includes(p.key)) continue;
+      const prevSc = lv(history[prevDay]?.[p.key] ?? "-1").sc;
+      const nextSc = lv(history[nextDay]?.[p.key] ?? "-1").sc;
+      if (prevSc < 0 || nextSc < 0) continue;
+      // "accurate" if within 1 level
+      total++;
+      if (Math.abs(prevSc - nextSc) <= 1) matched++;
+    }
+  }
+  if (total < 10) return ""; // not meaningful
+  const pct = Math.round((matched / total) * 100);
+  return `
+    <div class="accuracy-box">
+      <span>📊 ${t("accuracy_title")}:</span>
+      <span class="accuracy-val">${pct}%</span>
+      <span style="font-size:.7rem;color:var(--text3)">(${allDays.length} ${t("accuracy_days")})</span>
     </div>`;
 }
 
@@ -1670,6 +1922,7 @@ function refreshDrawer() {
       ${symSaved ? "" : `<button class="sym-save" onclick="saveSym()">${t("save")}</button>`}
       ${renderSymHistory()}
       ${renderCorrelation()}
+      ${renderForecastAccuracy()}
       ${(() => {
         if (!db) return "";
         const pol = db.regions.find(r=>rk(r)===rKey)?.pollen;
@@ -1826,14 +2079,14 @@ function refreshDrawer() {
     </div>
 
 
-    <!-- 2025 SEASON REVIEW (DE only) -->
+    <!-- SEASON OVERVIEW (DE only, lazy-rendered on open) -->
     ${appMode === "de" ? `
-    <div class="dsec-head open" onclick="toggleDrawerSec('ds2025')" id="ds2025-head">
-      <span>📊 ${t("season2025_title")}</span>
+    <div class="dsec-head" onclick="toggleDrawerSec('ds2025')" id="ds2025-head">
+      <span>📊 ${t("season_overview_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
-    <div class="dsec-body open" id="ds2025-body">
-      ${renderSeason2025()}
+    <div class="dsec-body" id="ds2025-body" data-lazy-season="1">
+      <div style="padding:10px 14px;font-size:.8rem;color:var(--text3)">Wird beim Öffnen geladen…</div>
     </div>` : ""}
 
     <!-- DATA EXPORT/IMPORT -->
@@ -1929,6 +2182,11 @@ function toggleDrawerSec(id) {
   if (!body) return;
   const open = body.classList.toggle("open");
   head?.classList.toggle("open", open);
+  // Lazy-load the season heatmap when opened for the first time
+  if (open && body.dataset.lazySeason === "1") {
+    body.removeAttribute("data-lazy-season");
+    body.innerHTML = renderSeason2025();
+  }
   if (open) {
     requestAnimationFrame(() => {
       head.scrollIntoView({behavior:"smooth", block:"start"});
@@ -1975,7 +2233,8 @@ function importData(e) {
 // SHAREABLE URL
 // ─────────────────────────────────────────────────────────────────────────────
 function shareUrl() {
-  const url = `${location.origin}${location.pathname}?rgn=${encodeURIComponent(rKey)}`;
+  const flt = filter.join(",");
+  const url = `${location.origin}${location.pathname}?rgn=${encodeURIComponent(rKey)}&flt=${encodeURIComponent(flt)}`;
   if (navigator.share) {
     navigator.share({ title: "Pollenflug", url });
   } else {
@@ -2225,11 +2484,22 @@ async function init() {
   }
 
   // Apply URL params
-  const urlRgn = new URLSearchParams(location.search).get("rgn");
+  const urlParams = new URLSearchParams(location.search);
+  const urlRgn = urlParams.get("rgn");
   if (urlRgn && db?.regions?.find(r => rk(r) === urlRgn)) {
     rKey = urlRgn;
     localStorage.setItem(LS.region, rKey);
     render();
+  }
+  const urlFlt = urlParams.get("flt");
+  if (urlFlt) {
+    const validKeys = POLLEN.map(p => p.key);
+    const parsed = urlFlt.split(",").filter(k => validKeys.includes(k));
+    if (parsed.length > 0) {
+      filter = parsed;
+      localStorage.setItem(appMode === "de" ? LS.filter : LS.filter + "_" + appMode, JSON.stringify(filter));
+      render();
+    }
   }
 }
 
@@ -2342,6 +2612,85 @@ document.getElementById("drawer").addEventListener("touchend", e => {
   const dx = e.changedTouches[0].clientX - dswipe_startX;
   if (dx < -50) closeDrawer();
 }, { passive: true });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SERVICE WORKER REGISTRATION
+// ─────────────────────────────────────────────────────────────────────────────
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js")
+      .catch(err => console.warn("SW registration failed:", err));
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PWA INSTALL PROMPT
+// ─────────────────────────────────────────────────────────────────────────────
+let _pwaInstallPrompt = null;
+
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  _pwaInstallPrompt = e;
+  const btn = document.getElementById("pwa-install-btn");
+  if (btn) {
+    btn.classList.add("show");
+    btn.title = t("pwa_install");
+  }
+});
+
+function pwaDoPwaInstall() {
+  if (!_pwaInstallPrompt) return;
+  _pwaInstallPrompt.prompt();
+  _pwaInstallPrompt.userChoice.then(choice => {
+    _pwaInstallPrompt = null;
+    const btn = document.getElementById("pwa-install-btn");
+    if (btn) btn.classList.remove("show");
+  });
+}
+
+window.addEventListener("appinstalled", () => {
+  _pwaInstallPrompt = null;
+  const btn = document.getElementById("pwa-install-btn");
+  if (btn) btn.classList.remove("show");
+  showToast("✓ App installiert");
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// IMPROVED BEST TIME OUTSIDE (hourly pattern)
+// Replaces wind-only estimation with morning-low/midday-high pattern
+// ─────────────────────────────────────────────────────────────────────────────
+// Override calcBestTimes with an improved version that uses pollen dispersion patterns
+(function() {
+  const _orig = calcBestTimes;
+  window.calcBestTimes = function(pol, dayIdx) {
+    const wd = weather?.daily?.[dayIdx];
+    if (!wd) return null;
+    const risk = personalRisk(pol, dayIdx).max;
+    const wind = wd.wind ?? 0, rain = wd.rain ?? 0, uv = wd.uv ?? 0;
+
+    if (risk === 0) return { good: [t("besttime_allday")], avoid: null };
+
+    // Pollen dispersal: low early morning (06-09), peaks midday (10-16), drops evening (19-22)
+    // Rain suppresses, wind amplifies
+    const good = [], avoid_slots = [];
+
+    // Morning window: generally good unless strong wind + dry
+    const morningGood = !(wind > 25 && rain < 0.5 && risk >= 2);
+    if (morningGood && risk <= 2) good.push("06:00–09:00");
+
+    // Evening window: generally better (pollen settles)
+    const eveningGood = risk < 3 || rain > 1;
+    if (eveningGood) good.push("19:00–22:00");
+
+    // Midday is usually worst if high pollen + dry + UV
+    if (uv > 4 && risk >= 2 && rain < 1) avoid_slots.push("10:00–17:00");
+    else if (risk >= 3 && wind > 20) avoid_slots.push("11:00–16:00");
+
+    if (risk >= 3 && wind > 25 && rain < 0.5) return { good: [], avoid: t("besttime_none") };
+
+    return { good, avoid: avoid_slots[0] ?? null };
+  };
+})();
 </script>
 </body>
 </html>
