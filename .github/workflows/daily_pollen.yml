@@ -31,8 +31,7 @@ jobs:
           git diff --cached --quiet || git commit -m "Update pollen data $(date +%Y-%m-%d)"
           git push
 
-      - name: Telegram-Benachrichtigung senden
+      - name: Discord-Benachrichtigung senden
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python pollen_alert.py

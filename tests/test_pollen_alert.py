@@ -133,7 +133,8 @@ class TestMain:
         assert "keine Benachrichtigung" in out
 
     def test_summary_printed_when_active(self, capsys):
-        with patch.object(pa, "lade_pollendaten", return_value=make_dwd_data()):
+        with patch.object(pa, "lade_pollendaten", return_value=make_dwd_data()), \
+             patch.object(pa, "sende_discord"):
             pa.main()
         out = capsys.readouterr().out
         assert "Birke" in out or "Erle" in out

@@ -190,27 +190,26 @@ def main():
         print("Keine aktiven Pollen – keine Benachrichtigung gesendet.")
         return
 
-    sende_telegram(text)
+    sende_discord(text)
 
 
-def sende_telegram(text):
-    token   = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
-    chat_id = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
-    if not token or not chat_id:
-        print("⚠️  TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID nicht gesetzt – übersprungen.")
+def sende_discord(text):
+    webhook_url = os.environ.get("DISCORD_WEBHOOK_URL", "").strip()
+    if not webhook_url:
+        print("⚠️  DISCORD_WEBHOOK_URL nicht gesetzt – übersprungen.")
         return
-    payload = json.dumps({"chat_id": chat_id, "text": text, "parse_mode": "HTML"}).encode()
-    req = Request(
-        f"https://api.telegram.org/bot{token}/sendMessage",
-        data=payload,
-        headers={"Content-Type": "application/json"},
-    )
+    # Discord verwendet Markdown, kein HTML – einfache Konvertierung
+    md = text.replace("<b>", "**").replace("</b>", "**") \
+             .replace("<i>", "*").replace("</i>", "*") \
+             .replace("<a href=", "[").replace("</a>", "]")
+    payload = json.dumps({"content": md, "username": "🌿 Pollenflug"}).encode()
+    req = Request(webhook_url, data=payload, headers={"Content-Type": "application/json"})
     try:
         with urlopen(req, timeout=10) as resp:
-            if resp.status == 200:
-                print("✅ Telegram-Nachricht gesendet.")
+            if resp.status in (200, 204):
+                print("✅ Discord-Nachricht gesendet.")
     except Exception as e:
-        print(f"❌ Telegram-Fehler: {e}", file=sys.stderr)
+        print(f"❌ Discord-Fehler: {e}", file=sys.stderr)
         sys.exit(1)
 
 
