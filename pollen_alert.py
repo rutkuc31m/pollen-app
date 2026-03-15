@@ -146,8 +146,7 @@ def erstelle_zusammenfassung(region_data, today, wetter=None):
     trend = " ↑" if sc_morgen > sc_heute else (" ↓" if sc_morgen < sc_heute else "")
 
     lines = [
-        f"🌿 <b>Pollenflug · {today.strftime('%d.%m.%Y')}</b>",
-        f"📍 {region_name}",
+        f"<b>{today.strftime('%d.%m.%Y')} · {region_name}</b>",
         "",
     ]
 
