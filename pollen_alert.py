@@ -166,8 +166,8 @@ def erstelle_zusammenfassung(region_data, today, wetter=None):
         regen = f"🌧 {wetter['rain']} mm ({wetter['rain_prob']}%)" if wetter['rain'] > 0 else f"🌂 Kein Regen ({wetter['rain_prob']}%)"
         lines += [
             "",
-            f"{wetter['icon']} <b>Wetter heute</b>",
-            f"{('🥶' if wetter['temp_max'] < 5 else '🧥' if wetter['temp_max'] < 12 else '😊' if wetter['temp_max'] < 22 else '😎' if wetter['temp_max'] < 30 else '🥵')} {wetter['temp_min']}° – {wetter['temp_max']}°C",
+            f"<b>Wetter heute</b>",
+            f"{wetter['icon']} {wetter['temp_min']}° – {wetter['temp_max']}°C",
             f"💨 {wetter['wind']} km/h  ·  Böen {wetter['gusts']} km/h",
             f"{regen}",
             f"☀️ UV {wetter['uv']} – {uv_kat}",
