@@ -199,9 +199,10 @@ def sende_discord(text):
         print("⚠️  DISCORD_WEBHOOK_URL nicht gesetzt – übersprungen.")
         return
     # Discord verwendet Markdown, kein HTML – einfache Konvertierung
+    import re
     md = text.replace("<b>", "**").replace("</b>", "**") \
-             .replace("<i>", "*").replace("</i>", "*") \
-             .replace("<a href=", "[").replace("</a>", "]")
+             .replace("<i>", "*").replace("</i>", "*")
+    md = re.sub(r'<a href="([^"]+)">([^<]+)</a>', r'[\2](\1)', md)
     payload = json.dumps({"content": md, "username": "🌿 Pollenflug"}).encode()
     req = Request(webhook_url, data=payload, headers={"Content-Type": "application/json", "User-Agent": "PollenflugBot/1.0"})
     try:

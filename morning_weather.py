@@ -131,7 +131,8 @@ def sende_discord(text):
         return
     md = text.replace("<b>", "**").replace("</b>", "**") \
              .replace("<i>", "*").replace("</i>", "*") \
-             .replace("<a href=", "[").replace("</a>", "]")
+    import re
+    md = re.sub(r'<a href="([^"]+)">([^<]+)</a>', r'[\2](\1)', md)
     payload = json.dumps({"content": md, "username": "🌤 Wetter Hannover"}).encode()
     req = Request(webhook_url, data=payload, headers={"Content-Type": "application/json", "User-Agent": "PollenflugBot/1.0"})
     try:
