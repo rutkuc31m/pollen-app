@@ -198,6 +198,7 @@ def sende_discord(text):
     if not webhook_url:
         print("⚠️  DISCORD_WEBHOOK_URL nicht gesetzt – übersprungen.")
         return
+    print(f"🔗 Webhook URL (erste 60 Zeichen): {webhook_url[:60]}")
     # Discord verwendet Markdown, kein HTML – einfache Konvertierung
     md = text.replace("<b>", "**").replace("</b>", "**") \
              .replace("<i>", "*").replace("</i>", "*") \
