@@ -15,9 +15,21 @@ DWD_URL     = "https://opendata.dwd.de/climate_environment/health/alerts/s31fg.j
 WEATHER_URL = (
     "https://api.open-meteo.com/v1/forecast"
     "?latitude=52.37&longitude=9.73"
-    "&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,uv_index_max"
+    "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,"
+    "precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,"
+    "uv_index_max,weather_code"
     "&timezone=Europe%2FBerlin&forecast_days=2"
 )
+
+WMO = {
+    0:"☀️", 1:"🌤", 2:"⛅", 3:"☁️",
+    45:"🌫", 48:"🌫",
+    51:"🌦", 53:"🌦", 55:"🌧",
+    61:"🌧", 63:"🌧", 65:"🌧",
+    71:"🌨", 73:"🌨", 75:"❄️",
+    80:"🌦", 81:"🌧", 82:"⛈",
+    95:"⛈", 96:"⛈", 99:"⛈",
+}
 
 LEVEL_MAP = {
     "-1": ("⬜", "keine Daten"),
@@ -61,10 +73,14 @@ def lade_wetter():
             data = json.loads(resp.read().decode("utf-8"))
         d = data["daily"]
         return {
-            "temp":  d["temperature_2m_max"][0],
-            "rain":  d["precipitation_sum"][0],
-            "wind":  d["wind_speed_10m_max"][0],
-            "uv":    d["uv_index_max"][0],
+            "temp_max": d["temperature_2m_max"][0],
+            "temp_min": d["temperature_2m_min"][0],
+            "rain":     d["precipitation_sum"][0],
+            "rain_prob":d["precipitation_probability_max"][0],
+            "wind":     d["wind_speed_10m_max"][0],
+            "gusts":    d["wind_gusts_10m_max"][0],
+            "uv":       d["uv_index_max"][0],
+            "icon":     WMO.get(d["weather_code"][0], "🌡"),
         }
     except Exception:
         return None
@@ -147,12 +163,14 @@ def erstelle_zusammenfassung(region_data, today, wetter=None):
 
     # Wetter
     if wetter:
-        regen = f"  🌧 {wetter['rain']} mm" if wetter['rain'] > 0 else ""
         uv_kat = uv_kategorie(wetter['uv'])
+        regen = f"🌧 {wetter['rain']} mm ({wetter['rain_prob']}%)" if wetter['rain'] > 0 else f"🌂 Kein Regen ({wetter['rain_prob']}%)"
         lines += [
             "",
-            f"<b>Wetter heute</b>",
-            f"🌡 {wetter['temp']}°C  💨 {wetter['wind']} km/h{regen}",
+            f"{wetter['icon']} <b>Wetter heute</b>",
+            f"🌡 {wetter['temp_min']}° – {wetter['temp_max']}°C",
+            f"💨 {wetter['wind']} km/h  ·  Böen {wetter['gusts']} km/h",
+            f"{regen}",
             f"☀️ UV {wetter['uv']} – {uv_kat}",
         ]
 
