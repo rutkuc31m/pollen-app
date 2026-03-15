@@ -194,7 +194,7 @@ def main():
 
 
 def sende_discord(text):
-    webhook_url = os.environ.get("DISCORD_WEBHOOK_URL", "").strip()
+    webhook_url = os.environ.get("DISCORD_WEBHOOK_URL", "").strip().replace("\n", "").replace("\r", "").replace(" ", "")
     if not webhook_url:
         print("⚠️  DISCORD_WEBHOOK_URL nicht gesetzt – übersprungen.")
         return
