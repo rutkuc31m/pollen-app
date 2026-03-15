@@ -204,7 +204,7 @@ def sende_discord(text):
              .replace("<i>", "*").replace("</i>", "*") \
              .replace("<a href=", "[").replace("</a>", "]")
     payload = json.dumps({"content": md, "username": "🌿 Pollenflug"}).encode()
-    req = Request(webhook_url, data=payload, headers={"Content-Type": "application/json"})
+    req = Request(webhook_url, data=payload, headers={"Content-Type": "application/json", "User-Agent": "PollenflugBot/1.0"})
     try:
         with urlopen(req, timeout=10) as resp:
             if resp.status in (200, 204):
