@@ -574,6 +574,7 @@
     <div class="logo">🌿 <em>Pollen</em>flug</div>
     <span class="offline-pill" id="offline-pill">Offline</span>
     <button id="pwa-install-btn" onclick="pwaDoPwaInstall()" aria-label="App installieren">⬇ App</button>
+    <button class="icon-btn" id="lang-btn" onclick="toggleLang()" style="font-size:.72rem;font-weight:700;letter-spacing:.3px;width:auto;padding:0 8px;"></button>
     <button class="icon-btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
   </div>
   <div class="regionbar">
@@ -593,8 +594,21 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // I18N
 // ─────────────────────────────────────────────────────────────────────────────
-const lang = (navigator.language || "de").toLowerCase().startsWith("de") ? "de" : "en";
+let lang = localStorage.getItem("p_lang") || ((navigator.language || "de").toLowerCase().startsWith("de") ? "de" : "en");
 function t(key) { return STRINGS[lang][key] ?? STRINGS.de[key] ?? key; }
+function toggleLang() {
+  lang = lang === "de" ? "en" : "de";
+  localStorage.setItem("p_lang", lang);
+  document.documentElement.lang = lang;
+  document.getElementById("lang-btn").textContent = lang === "de" ? "EN" : "DE";
+  document.getElementById("drawer-head-title").textContent = t("menu");
+  const geoBtn2 = document.getElementById("geo-btn");
+  if (geoBtn2) geoBtn2.title = t("geo_title");
+  document.querySelector(".offline-pill").textContent = t("offline");
+  document.querySelector(".logo").innerHTML = `🌿 <em>Pollen</em>${lang==="de"?"flug":""}`;
+  render();
+  renderSrcBar();
+}
 
 const STRINGS = {
   de: {
@@ -945,7 +959,7 @@ const DAYS      = ["today","tomorrow","dayafter_to"];
 const DAY_NAMES = [t("today"), t("tomorrow"), t("dayafter")];
 const MONTHS    = t("months").split(",");
 
-const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev" };
+const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev", lang:"p_lang" };
 
 // Koordinaten je DWD-Region für Wetter-API
 const REGION_COORDS = {
@@ -2530,6 +2544,8 @@ const geoBtn = document.getElementById("geo-btn");
 if (geoBtn) geoBtn.title = t("geo_title");
 document.querySelector(".offline-pill").textContent = t("offline");
 document.querySelector(".logo").innerHTML = `🌿 <em>Pollen</em>${lang==="de"?"flug":""}`;
+document.getElementById("lang-btn").textContent = lang === "de" ? "EN" : "DE";
+document.documentElement.lang = lang;
 document.getElementById("page").innerHTML = `<div class="center"><div class="spin"></div><span>${t("loading")}</span></div>`;
 
 init();
