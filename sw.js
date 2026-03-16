@@ -2,7 +2,7 @@
 // SERVICE WORKER · Pollenflug PWA
 // Cache-first for static assets, Network-first for data.json
 // ─────────────────────────────────────────────────────────────────────────────
-const CACHE_VERSION = "pollen-v3";
+const CACHE_VERSION = "pollen-v4";
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const DATA_CACHE    = `${CACHE_VERSION}-data`;
 
@@ -46,7 +46,14 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  // Cache-first for static assets on same origin
+  // Network-first for index.html (always serve latest app version)
+  if (url.origin === self.location.origin &&
+      (url.pathname === "/" || url.pathname.endsWith("/index.html") || url.pathname.endsWith("/"))) {
+    event.respondWith(networkFirstData(event.request));
+    return;
+  }
+
+  // Cache-first for other static assets (icons, manifest, …)
   if (url.origin === self.location.origin) {
     event.respondWith(cacheFirstStatic(event.request));
     return;
