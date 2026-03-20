@@ -2497,7 +2497,7 @@ async function fetchTRCity(city) {
     const res = await fetch(url);
     const json = await res.json();
     if (!json.error && json.hourly) {
-      pollenAvailable = vars.some(v => json.hourly[v]?.some(x => x !== null && x > 0));
+      pollenAvailable = vars.some(v => json.hourly[v]?.some(x => x !== null));
       raw = json;
       localStorage.setItem(LS.cache + "_tr", JSON.stringify({raw, ts: Date.now(), city: city.name}));
     }
@@ -2506,7 +2506,7 @@ async function fetchTRCity(city) {
     if (cached) {
       const c = JSON.parse(cached);
       raw = c.raw;
-      pollenAvailable = vars.some(v => raw.hourly?.[v]?.some(x => x !== null && x > 0));
+      pollenAvailable = vars.some(v => raw.hourly?.[v]?.some(x => x !== null));
       const pill = document.getElementById("offline-pill");
       pill.textContent = t("offline");
       pill.classList.add("show");
