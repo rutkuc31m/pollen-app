@@ -574,7 +574,11 @@
     <div class="logo">🌿 <em>Pollen</em>flug</div>
     <span class="offline-pill" id="offline-pill">Offline</span>
     <button id="pwa-install-btn" onclick="pwaDoPwaInstall()" aria-label="App installieren">⬇ App</button>
-    <button class="icon-btn" id="lang-btn" onclick="toggleLang()" style="font-size:.72rem;font-weight:700;letter-spacing:.3px;width:auto;padding:0 8px;"></button>
+    <div style="display:flex;gap:2px">
+      <button class="icon-btn" id="lang-btn-de" onclick="setLang('de')" style="font-size:.68rem;font-weight:700;width:auto;padding:0 6px;border-radius:6px 0 0 6px;border-right:none">DE</button>
+      <button class="icon-btn" id="lang-btn-en" onclick="setLang('en')" style="font-size:.68rem;font-weight:700;width:auto;padding:0 6px;border-radius:0;border-right:none">EN</button>
+      <button class="icon-btn" id="lang-btn-tr" onclick="setLang('tr')" style="font-size:.68rem;font-weight:700;width:auto;padding:0 6px;border-radius:0 6px 6px 0">TR</button>
+    </div>
     <button class="icon-btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
   </div>
   <div class="regionbar">
@@ -595,17 +599,26 @@
 // I18N
 // ─────────────────────────────────────────────────────────────────────────────
 let lang = localStorage.getItem("p_lang") || ((navigator.language || "de").toLowerCase().startsWith("de") ? "de" : "en");
-function t(key) { return STRINGS[lang][key] ?? STRINGS.de[key] ?? key; }
+function t(key) { return STRINGS[lang]?.[key] ?? STRINGS.en?.[key] ?? STRINGS.de[key] ?? key; }
 function toggleLang() {
-  lang = lang === "de" ? "en" : "de";
+  setLang(lang === "de" ? "en" : "de");
+}
+function setLang(newLang) {
+  lang = newLang;
   localStorage.setItem("p_lang", lang);
   document.documentElement.lang = lang;
-  document.getElementById("lang-btn").textContent = lang === "de" ? "EN" : "DE";
+  document.querySelector(".logo").innerHTML = `🌿 <em>Pollen</em>${lang==="de"?"flug":lang==="tr"?"":""}`;
+  ["de","en","tr"].forEach(l => {
+    const btn = document.getElementById("lang-btn-" + l);
+    if (!btn) return;
+    btn.style.background = l === lang ? "color-mix(in srgb,var(--accent) 20%,var(--card))" : "";
+    btn.style.color = l === lang ? "var(--accent)" : "";
+    btn.style.borderColor = l === lang ? "var(--accent)" : "";
+  });
   document.getElementById("drawer-head-title").textContent = t("menu");
   const geoBtn2 = document.getElementById("geo-btn");
   if (geoBtn2) geoBtn2.title = t("geo_title");
   document.querySelector(".offline-pill").textContent = t("offline");
-  document.querySelector(".logo").innerHTML = `🌿 <em>Pollen</em>${lang==="de"?"flug":""}`;
   render();
   renderSrcBar();
 }
@@ -746,6 +759,12 @@ const STRINGS = {
     season_east: "Klimanorm · Ostdeutschland",
     // rain in weather
     rain_label: "Regen",
+    // TR mode
+    no_api_key_msg: "Google API-Key erforderlich",
+    open_menu_to_configure: "Menü öffnen zum Konfigurieren",
+    // TR pollen names
+    cypress:"Zypresse", plane:"Platane",
+    s_cypress:"Jan–Apr", s_plane:"Mär–Mai",
   },
   en: {
     // days
@@ -882,6 +901,131 @@ const STRINGS = {
     season_east: "Climate norm · Eastern Germany",
     // rain in weather
     rain_label: "Rain",
+    // TR mode
+    no_api_key_msg: "Google API key required",
+    open_menu_to_configure: "Open menu to configure",
+    // TR pollen names
+    cypress:"Cypress", plane:"Plane tree",
+    s_cypress:"Jan–Apr", s_plane:"Mar–May",
+  },
+  tr: {
+    today:"Bugün", tomorrow:"Yarın", dayafter:"Öbür gün",
+    risk0:"Maruziyet yok", risk1:"Düşük maruziyet", risk2:"Orta maruziyet", risk3:"Yüksek maruziyet",
+    lv_none:"yok", lv_low:"düşük", lv_mid:"orta", lv_high:"yüksek",
+    lv_none_low:"yok–düşük", lv_low_mid:"düşük–orta", lv_mid_high:"orta–yüksek",
+    Hasel:"Fındık", Erle:"Kızılağaç", Esche:"Dişbudak", Birke:"Huş",
+    Graeser:"Çim", Roggen:"Çavdar", Beifuss:"Pelin", Ambrosia:"Ambrosia",
+    s_Hasel:"Oca–Mar", s_Erle:"Şub–Nis", s_Esche:"Mar–May", s_Birke:"Mar–May",
+    s_Graeser:"May–Ağu", s_Roggen:"May–Tem", s_Beifuss:"Tem–Eyl", s_Ambrosia:"Ağu–Eki",
+    months:"Oca,Şub,Mar,Nis,May,Haz,Tem,Ağu,Eyl,Eki,Kas,Ara",
+    menu:"Menü", close:"✕", offline:"Çevrimdışı",
+    loading:"DWD verisi yükleniyor…", no_data:"❌ Veri yok.",
+    check_conn:"Lütfen bağlantınızı kontrol edin.",
+    dwd_stand:"Güncellendi", next_update:"Sonraki güncelleme",
+    region:"Bölge", geo_title:"En yakın bölgeyi otomatik seç",
+    weather_title:"Hava & Polen etkisi",
+    temp:"Sıcaklık", wind:"Rüzgar", humidity:"Nem", rain:"Yağış", uv:"UV maks",
+    all_pollen:"Tüm Polenler", select_all:"Tümünü seç",
+    tap_hint:"Riski dahil etmek/çıkarmak için satıra dokun",
+    history_title:"Geçmiş – son", days:"gün",
+    week_history_title:"Haftalık Özet",
+    wh_no_data:"Henüz geçmiş yok. Her gün güncellenir.",
+    wh_leg_none:"yok", wh_leg_low:"düşük", wh_leg_mid:"orta", wh_leg_high:"yüksek", wh_leg_empty:"boş",
+    season2025_title:"2025 Sezon Özeti",
+    season2025_note:"Fenolojik iklim normu · Hannover · 2026 hazırlığı",
+    season_typical_note:"Tipik sezon · Klimatolojik norm",
+    season_overview_title:"Sezon Genel Bakışı",
+    sym_title:"Bugün nasılsınız?",
+    niesen:"Hapşırma", augen:"Göz", atmung:"Nefes", muedigkeit:"Yorgunluk",
+    save:"Kaydet", saved_entries:"Son girişler",
+    season_title:"Sezon takvimi",
+    legend_title:"Açıklama",
+    risk_calc_title:"Riskiniz nasıl hesaplanır?",
+    risk_calc_body:"<strong>Kişisel risk</strong>, seçilen polenler arasındaki <strong>en yüksek değere</strong> eşittir (tabloda yeşil kenarlık).<br><br>Örnek: Huş = düşük, Zeytin = yüksek → Risk = <strong>yüksek</strong>.",
+    uv_scale:"UV Endeksi Skalası (WHO, 0–11+)",
+    uv_low:"düşük", uv_moderate:"orta", uv_high:"yüksek", uv_very_high:"çok yüksek", uv_extreme:"aşırı",
+    trend_rising:"yarın artıyor", trend_falling:"yarın azalıyor", trend_stable:"kararlı",
+    tendency:"Eğilim",
+    no_load:"Alerjenleriniz için maruziyet yok.",
+    in_season:"sezon", off_season:"sezon dışı",
+    effect_rain_heavy:"Yağmur poleni azaltır",
+    effect_wind_strong:"Kuvvetli rüzgar poleni yayar",
+    effect_wind:"Rüzgar poleni yayar",
+    effect_humid:"Yüksek nem poleni engeller",
+    effect_rain_light:"Hafif yağmur poleni azaltır",
+    effect_neutral:"Havanın etkisi az",
+    corr_title:"Olası tetikleyiciler (semptom korelasyonu)",
+    corr_hint:"Polen günlerindeki ort. semptom skoru",
+    geo_error:"Konum belirlenemedi.",
+    geo_unsupported:"Coğrafi konum desteklenmiyor.",
+    n_label:"Ha", a_label:"Gz", at_label:"Ne", m_label:"Yo",
+    logo_title:"Polen",
+    ptr_pull:"↓ Çek",
+    ptr_release:"↺ Bırak",
+    ptr_loading:"⟳ Yenileniyor…",
+    sym_hints:["yok","neredeyse hissedilmiyor","hafif","orta","şiddetli","çok şiddetli"],
+    corr_days:"Son 90 gün",
+    exposure_title:"Günlük maruziyet", of:"/ ",
+    besttime_title:"Dışarıda en iyi zaman",
+    besttime_good:"Önerilen", besttime_avoid:"Kaçınılacak",
+    besttime_allday:"Tüm gün uygun",
+    besttime_none:"Bugün mümkünse içeride kalın",
+    besttime_note:"Tahmin · Günlük hava verilerine göre",
+    tips_title:"Bugün için ipuçları",
+    tips_med:"İlaç", tips_outdoor:"Dışarısı", tips_indoor:"İç mekan havası",
+    tip_antihistamine:"Antihistamin önerilir",
+    tip_eyedrops:"Göz damlası faydalı",
+    tip_nasal_spray:"Burun spreyi yardımcı",
+    tip_med_low:"Bugün ilaç gerekmiyor",
+    tip_windows_closed:"Pencereleri kapalı tutun (polen + rüzgar)",
+    tip_windows_open:"Havalandırma mümkün",
+    tip_shower_after:"Dışarı aktivitesinden sonra duş alın",
+    tip_after_rain_vent:"Yağmurdan sonra havalandırın",
+    tip_air_purifier:"Hava temizleyici önerilir",
+    tip_no_laundry:"Çamaşırları dışarıda kurutmayın",
+    tip_laundry_ok:"Çamaşır dışarıda kurutulabilir",
+    nearby_title:"Yakın bölgeler",
+    escape_hint:"Alternatif",
+    km_away:"km",
+    locating:"Konum belirleniyor…",
+    source_om:"Open-Meteo · CAMS",
+    reloc_btn:"Konumu güncelle",
+    datasource_title:"Veri kaynağı",
+    datasource_auto:"Otomatik",
+    pollen_unavailable:"Bu konum için polen verisi mevcut değil. Sadece hava durumu gösteriliyor.",
+    pollen_unavailable_short:"Polen verisi mevcut değil",
+    data_title:"Veri",
+    data_export:"Dışa aktar",
+    data_import:"İçe aktar",
+    data_import_ok:"İçe aktarıldı ✓",
+    data_import_err:"Geçersiz dosya",
+    data_export_hint:"Semptomlar ve geçmiş (JSON)",
+    allergy_profile:"Alerji profili",
+    severity_off:"Yok", severity_mild:"Hafif", severity_strong:"Şiddetli",
+    pwa_install:"Uygulamayı yükle",
+    hero_good_day:"Bugün iyi bir gün", hero_bad_day:"Bugün kötü bir gün", hero_ok_day:"Bugün orta bir gün",
+    hero_allergen_suffix:" alerjisi için",
+    corr_insufficient:"Yetersiz veri", corr_no_link:"İlişki yok",
+    corr_n_days:"gün", corr_basis:"Ort. veri tabanı",
+    corr_r_val:"r",
+    accuracy_title:"Tahmin Doğruluğu (DWD)", accuracy_days:"gün veri", accuracy_na:"Henüz yeterli veri yok (>7 gün gerekli)",
+    season_north:"İklim normu · Kuzey Almanya",
+    season_central:"İklim normu · Orta Almanya",
+    season_south:"İklim normu · Güney Almanya",
+    pred_tomorrow:"Yarın beklenen",
+    based_on_history:"geçmişten",
+    no_api_key_msg:"Google API anahtarı gerekli",
+    open_menu_to_configure:"Yapılandırmak için menüyü açın",
+    // TR pollen names
+    olive:"Zeytin", cypress:"Servi", plane:"Çınar",
+    grass:"Çim", mugwort:"Pelin", ragweed:"Ambrosia", tree:"Ağaç",
+    birch:"Huş", alder:"Kızılağaç",
+    // TR pollen seasons
+    s_olive:"Mar–Haz", s_cypress:"Oca–Nis", s_plane:"Mar–May",
+    s_grass:"May–Ağu", s_mugwort:"Tem–Eyl", s_ragweed:"Ağu–Eki",
+    s_tree:"Şub–May",
+    s_birch:"Mar–May", s_alder:"Şub–Nis",
+    rain_label:"Yağış",
   }
 };
 
@@ -915,6 +1059,15 @@ const POLLEN_US = [
   { key:"tree",    icon:"🌳", mo:[2,3,4,5]    },
   { key:"grass",   icon:"🌾", mo:[4,5,6,7,8]  },
   { key:"ragweed", icon:"🌻", mo:[7,8,9,10]   },
+];
+
+const POLLEN_TR = [
+  {key:"olive",   gpKey:"OLIVE",              icon:"🫒", mo:[3,4,5,6]},
+  {key:"cypress", gpKey:"CYPRESS",            icon:"🌲", mo:[1,2,3,4]},
+  {key:"plane",   gpKey:"PLANE_OR_PLANETREE", icon:"🌳", mo:[3,4,5]},
+  {key:"grass",   gpKey:"GRAMINALES",         icon:"🌾", mo:[4,5,6,7,8]},
+  {key:"mugwort", gpKey:"MUGWORT",            icon:"🌱", mo:[7,8,9]},
+  {key:"ragweed", gpKey:"RAGWEED",            icon:"🌻", mo:[8,9,10]},
 ];
 
 // Open-Meteo Air Quality variable names per mode
@@ -959,7 +1112,7 @@ const DAYS      = ["today","tomorrow","dayafter_to"];
 const DAY_NAMES = [t("today"), t("tomorrow"), t("dayafter")];
 const MONTHS    = t("months").split(",");
 
-const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev", lang:"p_lang" };
+const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev", lang:"p_lang", gapi:"p_gapi" };
 
 // Koordinaten je DWD-Region für Wetter-API
 const REGION_COORDS = {
@@ -980,7 +1133,8 @@ const REGION_COORDS = {
 // ─────────────────────────────────────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────────────────────────────────────
-let appMode   = "de";   // "de" | "eu" | "us"
+let appMode   = "de";   // "de" | "eu" | "us" | "tr"
+let googleApiKey = localStorage.getItem("p_gapi") || "";
 let geoInfo   = null;   // { country_code, latitude, longitude, city, country }
 let db        = null;
 let weather   = null; // { current, daily, fetchedAt }
@@ -1018,7 +1172,8 @@ function escapeHtml(s) {
 }
 function dStr(n) {
   const d=new Date(); d.setDate(d.getDate()+n);
-  return d.toLocaleDateString(lang==="de"?"de-DE":"en-GB",{weekday:"short",day:"2-digit",month:"2-digit"});
+  const loc = lang==="de"?"de-DE":lang==="tr"?"tr-TR":"en-GB";
+  return d.toLocaleDateString(loc,{weekday:"short",day:"2-digit",month:"2-digit"});
 }
 function lv(v)  { return LV[String(v)] ?? {cls:"b-none",sc:0,label:String(v),rc:"none"}; }
 function rk(r)  { return `${r.region_id}-${r.partregion_id}`; }
@@ -1145,7 +1300,15 @@ function render() {
     </div>
 
     <!-- HERO: personal risk -->
-    ${db.pollen_available !== false ? (() => {
+    ${db.pollen_available === false ? `
+    <div class="hero day-transition">
+      <div class="hero-badge risk-none" style="font-size:1.6rem;font-weight:800">${db.no_api_key ? "🔑" : "?"}</div>
+      <div class="hero-body">
+        <div class="hero-risk risk-none" style="font-size:1rem">${db.no_api_key ? t("no_api_key_msg") : t("pollen_unavailable_short")}</div>
+        <div class="hero-loc">${escapeHtml(reg.region_name)} · ${DAY_NAMES[activeDay]}</div>
+        ${db.no_api_key ? `<div style="font-size:.74rem;color:var(--text3);margin-top:4px">${t("open_menu_to_configure")}</div>` : ""}
+      </div>
+    </div>` : (() => {
       const todayScore    = personalRisk(pol, 0).max;
       const tomorrowScore = personalRisk(pol, 1).max;
       const trend = activeDay === 0
@@ -1189,7 +1352,7 @@ function render() {
         </div>
       </div>
     </div>`;
-    })() : ""}
+    })()}
 
     <!-- WEATHER CARD -->
     ${weather ? (() => {
@@ -2119,6 +2282,18 @@ function refreshDrawer() {
             ${t("data_import")} <input type="file" accept=".json" style="display:none" onchange="importData(event)">
           </label>
         </div>
+        ${appMode === "tr" ? `
+        <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">
+          <div style="font-size:.72rem;color:var(--text3);margin-bottom:5px">Google Pollen API Key</div>
+          <div style="display:flex;gap:6px">
+            <input id="gapi-input" type="password" value="${escapeHtml(localStorage.getItem(LS.gapi)||'')}"
+              placeholder="AIza..." style="flex:1;padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:.76rem;outline:none">
+            <button onclick="saveGapiKey()" style="padding:5px 10px;border-radius:7px;border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 15%,var(--card));color:var(--text);font-size:.76rem;cursor:pointer">${t("save")}</button>
+          </div>
+          <div style="font-size:.65rem;color:var(--text3);margin-top:4px">
+            console.cloud.google.com → Pollen API aktivieren
+          </div>
+        </div>` : ""}
       </div>
     </div>
 
@@ -2180,6 +2355,7 @@ function renderSrcBar() {
     {val:"auto", label:"🌐"},
     {val:"de",   label:"🇩🇪"},
     {val:"eu",   label:"🇪🇺"},
+    {val:"tr",   label:"🇹🇷"},
     {val:"us",   label:"🇺🇸"},
   ];
   el.innerHTML = `
@@ -2213,6 +2389,22 @@ function toggleDrawerSec(id) {
 // ─────────────────────────────────────────────────────────────────────────────
 // EXPORT / IMPORT DATA
 // ─────────────────────────────────────────────────────────────────────────────
+function saveGapiKey() {
+  const input = document.getElementById("gapi-input");
+  if (!input) return;
+  const key = input.value.trim();
+  if (key) {
+    localStorage.setItem(LS.gapi, key);
+    googleApiKey = key;
+  } else {
+    localStorage.removeItem(LS.gapi);
+    googleApiKey = "";
+  }
+  showToast(t("data_import_ok"));
+  closeDrawer();
+  init();
+}
+
 function exportData() {
   const data = {
     version: 1,
@@ -2282,6 +2474,102 @@ function setSeverity(key, level) {
 
 // LOAD
 // ─────────────────────────────────────────────────────────────────────────────
+async function loadTR() {
+  googleApiKey = localStorage.getItem(LS.gapi) || "";
+  if (!googleApiKey) {
+    db = {
+      regions: [{
+        region_id:"tr", partregion_id:-1, region_name: geoInfo?.city || "Turkey",
+        partregion_name:"", pollen:{}
+      }],
+      pollen_available: false,
+      no_api_key: true,
+      last_update:"", next_update:""
+    };
+    rKey = "tr--1";
+    render(); loadWeather(); return;
+  }
+
+  const lat = geoInfo?.latitude  ?? 41.01;
+  const lon = geoInfo?.longitude ?? 28.98;
+  const locName = [geoInfo?.city, geoInfo?.country].filter(Boolean).join(", ") || "Turkey";
+
+  document.getElementById("regionbar-inner").innerHTML =
+    `<span style="font-size:.84rem;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📍 ${escapeHtml(locName)}</span>
+     <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}">🔄</button>`;
+
+  const url = `https://pollen.googleapis.com/v1/forecast:lookup?key=${encodeURIComponent(googleApiKey)}&location.longitude=${lon}&location.latitude=${lat}&days=3&languageCode=en`;
+
+  let pollenByDay = {};
+  let pollenAvailable = false;
+
+  try {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 8000);
+    const res = await fetch(url, {signal: ctrl.signal});
+    const json = await res.json();
+
+    if (!res.ok || json.error) {
+      console.warn("Google Pollen API error:", json.error?.message || res.status);
+    } else if (json.dailyInfo?.length) {
+      const dayKeys = ["today","tomorrow","dayafter"];
+      json.dailyInfo.slice(0,3).forEach((day, di) => {
+        const dk = dayKeys[di];
+        if (!dk) return;
+        pollenByDay[dk] = {};
+        (day.plantInfo || []).forEach(plant => {
+          const match = POLLEN_TR.find(p => p.gpKey === plant.code);
+          if (!match) return;
+          const val = plant.indexInfo?.value ?? 0;
+          const mapped = val === 0 ? "0" : val <= 2 ? "1" : val <= 3 ? "2" : "3";
+          pollenByDay[dk][match.key] = mapped;
+          if (val > 0) pollenAvailable = true;
+        });
+      });
+
+      POLLEN_TR.forEach(p => {
+        ["today","tomorrow","dayafter"].forEach(dk => {
+          if (!pollenByDay[dk]) pollenByDay[dk] = {};
+          if (pollenByDay[dk][p.key] === undefined) pollenByDay[dk][p.key] = "0";
+        });
+      });
+    }
+  } catch(e) {
+    console.warn("loadTR fetch error:", e);
+  }
+
+  const pollenObj = {};
+  POLLEN_TR.forEach(p => {
+    pollenObj[p.key] = {
+      today:    pollenByDay.today?.[p.key]    ?? "-1",
+      tomorrow: pollenByDay.tomorrow?.[p.key] ?? "-1",
+      dayafter: pollenByDay.dayafter?.[p.key] ?? "-1",
+    };
+  });
+
+  const now = new Date();
+  db = {
+    regions: [{
+      region_id:"tr",
+      partregion_id:-1,
+      region_name: locName,
+      partregion_name:"",
+      pollen: pollenObj
+    }],
+    pollen_available: pollenAvailable,
+    last_update: now.toLocaleTimeString(lang === "de" ? "de-DE" : lang === "tr" ? "tr-TR" : "en-GB", {hour:"2-digit",minute:"2-digit"}),
+    next_update: ""
+  };
+  rKey = "tr--1";
+
+  filter = (JSON.parse(localStorage.getItem(LS.filter + "_tr") || "null") ?? POLLEN_TR.map(p=>p.key))
+    .filter(k => POLLEN_TR.some(p => p.key === k));
+  if (!filter.length) filter = POLLEN_TR.map(p => p.key);
+
+  render();
+  loadWeather();
+}
+
 async function loadDE() {
   try {
     const res = await fetch("./data.json?v="+Date.now());
@@ -2448,13 +2736,11 @@ async function loadGlobal() {
 }
 
 async function relocate() {
-  if (!navigator.geolocation) { showToast(t("geo_unsupported")); return; }
-  navigator.geolocation.getCurrentPosition(async pos => {
-    geoInfo.latitude  = pos.coords.latitude;
-    geoInfo.longitude = pos.coords.longitude;
-    weather = null;
-    await loadGlobal();
-  }, () => showToast(t("geo_error")), { timeout: 8000 });
+  geoInfo = null;
+  weather = null;
+  document.getElementById("page").innerHTML =
+    `<div class="center"><div class="spin"></div><span>${t("locating")}</span></div>`;
+  init();
 }
 
 async function init() {
@@ -2478,7 +2764,12 @@ async function init() {
   }
 
   const autoCC = (geoInfo.country_code || "DE").toUpperCase();
-  const resolvedMode = manualMode ?? (autoCC === "DE" ? "de" : (autoCC === "US" || autoCC === "CA" || autoCC === "MX") ? "us" : "eu");
+  const resolvedMode = manualMode ?? (
+    autoCC === "DE" ? "de" :
+    autoCC === "TR" ? "tr" :
+    (autoCC === "US" || autoCC === "CA" || autoCC === "MX") ? "us" :
+    "eu"
+  );
 
   if (resolvedMode === "de") {
     appMode = "de";
@@ -2488,6 +2779,16 @@ async function init() {
     filter = filter.filter(k => POLLEN.some(p => p.key === k));
     if (!filter.length) filter = POLLEN.map(p => p.key);
     await loadDE();
+  } else if (resolvedMode === "tr") {
+    appMode = "tr";
+    POLLEN  = POLLEN_TR;
+    filter = (JSON.parse(localStorage.getItem(LS.filter + "_tr") || "null") ?? POLLEN_TR.map(p=>p.key))
+      .filter(k => POLLEN_TR.some(p => p.key === k));
+    if (!filter.length) filter = POLLEN_TR.map(p => p.key);
+    try { await loadTR(); } catch(e) {
+      document.getElementById("page").innerHTML =
+        `<div class="center">${t("no_data")}<br><small>${t("check_conn")}</small></div>`;
+    }
   } else {
     appMode = resolvedMode; // "eu" or "us"
     POLLEN  = appMode === "us" ? POLLEN_US : POLLEN_EU;
@@ -2543,9 +2844,8 @@ document.getElementById("drawer-head-title").textContent = t("menu");
 const geoBtn = document.getElementById("geo-btn");
 if (geoBtn) geoBtn.title = t("geo_title");
 document.querySelector(".offline-pill").textContent = t("offline");
-document.querySelector(".logo").innerHTML = `🌿 <em>Pollen</em>${lang==="de"?"flug":""}`;
-document.getElementById("lang-btn").textContent = lang === "de" ? "EN" : "DE";
 document.documentElement.lang = lang;
+setLang(lang);
 document.getElementById("page").innerHTML = `<div class="center"><div class="spin"></div><span>${t("loading")}</span></div>`;
 
 init();
