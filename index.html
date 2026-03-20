@@ -611,9 +611,16 @@ function setLang(newLang) {
   ["de","en","tr"].forEach(l => {
     const btn = document.getElementById("lang-btn-" + l);
     if (!btn) return;
-    btn.style.background = l === lang ? "color-mix(in srgb,var(--accent) 20%,var(--card))" : "";
-    btn.style.color = l === lang ? "var(--accent)" : "";
-    btn.style.borderColor = l === lang ? "var(--accent)" : "";
+    if (l === lang) {
+      btn.style.background = "color-mix(in srgb,var(--accent) 20%,var(--card))";
+      btn.style.color      = "var(--accent)";
+      btn.style.border     = "1px solid var(--accent)";
+    } else {
+      btn.style.background  = "";
+      btn.style.color       = "";
+      btn.style.border      = "";
+      if (l !== "tr") btn.style.borderRight = "none";
+    }
   });
   document.getElementById("drawer-head-title").textContent = t("menu");
   const geoBtn2 = document.getElementById("geo-btn");
