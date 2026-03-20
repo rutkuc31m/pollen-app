@@ -1061,18 +1061,30 @@ const POLLEN_US = [
 ];
 
 const POLLEN_TR = [
-  {key:"olive",   gpKey:"OLIVE",              icon:"🫒", mo:[3,4,5,6]},
-  {key:"cypress", gpKey:"CYPRESS",            icon:"🌲", mo:[1,2,3,4]},
-  {key:"plane",   gpKey:"PLANE_OR_PLANETREE", icon:"🌳", mo:[3,4,5]},
-  {key:"grass",   gpKey:"GRAMINALES",         icon:"🌾", mo:[4,5,6,7,8]},
-  {key:"mugwort", gpKey:"MUGWORT",            icon:"🌱", mo:[7,8,9]},
-  {key:"ragweed", gpKey:"RAGWEED",            icon:"🌻", mo:[8,9,10]},
+  {key:"olive",   icon:"🫒", mo:[3,4,5,6]},
+  {key:"grass",   icon:"🌾", mo:[4,5,6,7,8]},
+  {key:"mugwort", icon:"🌱", mo:[7,8,9]},
+  {key:"ragweed", icon:"🌻", mo:[8,9,10]},
+];
+
+const TR_CITIES = [
+  {name:"İstanbul",    lat:41.0082, lon:28.9784},
+  {name:"Ankara",      lat:39.9208, lon:32.8541},
+  {name:"İzmir",       lat:38.4192, lon:27.1287},
+  {name:"Antalya",     lat:36.8969, lon:30.7133},
+  {name:"Bursa",       lat:40.1885, lon:29.0610},
+  {name:"Adana",       lat:37.0000, lon:35.3213},
+  {name:"Konya",       lat:37.8746, lon:32.4932},
+  {name:"Trabzon",     lat:41.0053, lon:39.7228},
+  {name:"Erzurum",     lat:39.9043, lon:41.2679},
+  {name:"Diyarbakır",  lat:37.9144, lon:40.2306},
 ];
 
 // Open-Meteo Air Quality variable names per mode
 const OM_VARS = {
   eu: ["alder_pollen","birch_pollen","grass_pollen","mugwort_pollen","ragweed_pollen","olive_pollen"],
   us: ["tree_pollen","grass_pollen","ragweed_pollen"],
+  tr: ["grass_pollen","mugwort_pollen","ragweed_pollen","olive_pollen"],
 };
 
 // Open-Meteo variable name → internal pollen key
@@ -2444,81 +2456,106 @@ function setSeverity(key, level) {
 // LOAD
 // ─────────────────────────────────────────────────────────────────────────────
 async function loadTR() {
-  // Fetch pre-built data_tr.json (populated daily by GitHub Action)
-  let trData = null;
-  try {
-    const res = await fetch("./data_tr.json?v=" + Date.now());
-    if (res.ok) trData = await res.json();
-  } catch(e) {
-    console.warn("loadTR: could not fetch data_tr.json", e);
-  }
+  const userLat = geoInfo?.latitude  ?? 41.0082;
+  const userLon = geoInfo?.longitude ?? 28.9784;
 
-  const cities = trData?.cities || [];
-  const userLat = geoInfo?.latitude  ?? 41.01;
-  const userLon = geoInfo?.longitude ?? 28.98;
+  // Find nearest city to user's coordinates
+  let nearest = TR_CITIES[0];
+  let minDist = Infinity;
+  TR_CITIES.forEach(c => {
+    const d = Math.hypot(c.lat - userLat, c.lon - userLon);
+    if (d < minDist) { minDist = d; nearest = c; }
+  });
 
-  // Find city nearest to user's coordinates
-  let nearest = cities[0] || null;
-  if (cities.length > 1) {
-    let minDist = Infinity;
-    cities.forEach(c => {
-      const d = Math.hypot(c.lat - userLat, c.lon - userLon);
-      if (d < minDist) { minDist = d; nearest = c; }
-    });
-  }
-
-  // Build TR regionbar: city dropdown + GPS button
-  const inner = document.getElementById("regionbar-inner");
-  if (cities.length > 0) {
-    inner.innerHTML =
-      `<select id="tr-city-sel" style="flex:1;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 8px;font-size:.85rem;cursor:pointer">
-        ${cities.map(c => `<option value="${escapeHtml(c.name)}"${c === nearest ? " selected" : ""}>${escapeHtml(c.name)}</option>`).join("")}
-      </select>
-      <button class="geo-btn" onclick="relocateTR()" title="${t("reloc_btn")}">📍</button>`;
-    document.getElementById("tr-city-sel").addEventListener("change", e => {
-      const city = cities.find(c => c.name === e.target.value);
-      if (city) applyTRCity(city, trData?.last_update || "");
-    });
-  } else {
-    // data_tr.json empty (first run before Action populates it)
-    inner.innerHTML =
-      `<span style="font-size:.84rem;color:var(--text2);flex:1">🇹🇷 Türkiye</span>
-       <button class="geo-btn" onclick="relocateTR()" title="${t("reloc_btn")}">📍</button>`;
-  }
-
-  if (nearest) {
-    applyTRCity(nearest, trData?.last_update || "");
-  } else {
-    db = {
-      regions: [{ region_id:"tr", partregion_id:-1, region_name:"Türkiye", partregion_name:"", pollen:{} }],
-      pollen_available: false,
-      last_update: "", next_update: ""
-    };
-    rKey = "tr--1";
-    filter = POLLEN_TR.map(p => p.key);
-    render(); loadWeather();
-  }
+  renderTRBar(nearest);
+  await fetchTRCity(nearest);
 }
 
-function applyTRCity(city, lastUpdate) {
-  const pollenObj = {};
-  POLLEN_TR.forEach(p => {
-    const d = city.pollen?.[p.key] || {};
-    pollenObj[p.key] = {
-      today:    d.today    ?? "-1",
-      tomorrow: d.tomorrow ?? "-1",
-      dayafter: d.dayafter ?? "-1",
-    };
+function renderTRBar(selected) {
+  document.getElementById("regionbar-inner").innerHTML =
+    `<select id="tr-city-sel" style="flex:1;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 8px;font-size:.85rem;cursor:pointer">
+      ${TR_CITIES.map(c => `<option value="${escapeHtml(c.name)}"${c.name === selected.name ? " selected" : ""}>${escapeHtml(c.name)}</option>`).join("")}
+    </select>
+    <button class="geo-btn" onclick="relocateTR()" title="${t("reloc_btn")}">📍</button>`;
+  document.getElementById("tr-city-sel").addEventListener("change", e => {
+    const city = TR_CITIES.find(c => c.name === e.target.value);
+    if (city) { renderTRBar(city); fetchTRCity(city); }
   });
-  const pollenAvailable = Object.values(pollenObj).some(v =>
-    ["1","2","3"].includes(v.today) || ["1","2","3"].includes(v.tomorrow)
-  );
+}
+
+async function fetchTRCity(city) {
+  const vars = OM_VARS.tr;
+  const url = `https://air-quality-api.open-meteo.com/v1/air-quality`
+    + `?latitude=${city.lat}&longitude=${city.lon}`
+    + `&hourly=${vars.join(",")}`
+    + `&forecast_days=3&timezone=auto`;
+
+  let raw = null;
+  let pollenAvailable = false;
+
+  try {
+    const res = await fetch(url);
+    const json = await res.json();
+    if (!json.error && json.hourly) {
+      pollenAvailable = vars.some(v => json.hourly[v]?.some(x => x !== null && x > 0));
+      raw = json;
+      localStorage.setItem(LS.cache + "_tr", JSON.stringify({raw, ts: Date.now(), city: city.name}));
+    }
+  } catch {
+    const cached = localStorage.getItem(LS.cache + "_tr");
+    if (cached) {
+      const c = JSON.parse(cached);
+      raw = c.raw;
+      pollenAvailable = vars.some(v => raw.hourly?.[v]?.some(x => x !== null && x > 0));
+      const pill = document.getElementById("offline-pill");
+      pill.textContent = t("offline");
+      pill.classList.add("show");
+    }
+  }
+
+  const dayKeys = ["today", "tomorrow", "dayafter_to"];
+  const pollen = {};
+  const dates = [];
+
+  if (pollenAvailable && raw?.hourly?.time) {
+    const byDate = {};
+    raw.hourly.time.forEach((ts, i) => {
+      const date = ts.slice(0, 10);
+      const hour = parseInt(ts.slice(11, 13));
+      if (hour < 6 || hour > 20) return;
+      if (!byDate[date]) byDate[date] = {};
+      for (const v of vars) {
+        const key = OM_KEY[v];
+        const val = raw.hourly[v]?.[i] ?? 0;
+        byDate[date][key] = Math.max(byDate[date][key] ?? 0, val);
+      }
+    });
+    dates.push(...Object.keys(byDate).sort().slice(0, 3));
+    for (const p of POLLEN) {
+      pollen[p.key] = {};
+      dayKeys.forEach((dk, di) => {
+        const date = dates[di];
+        if (!date) { pollen[p.key][dk] = "-1"; return; }
+        const v = byDate[date]?.[p.key] ?? 0;
+        const [t1, t2] = OM_THR[p.key] ?? [10, 50];
+        pollen[p.key][dk] = v <= 0 ? "0" : v < t1 ? "1" : v < t2 ? "2" : "3";
+      });
+    }
+  } else {
+    for (const p of POLLEN) {
+      pollen[p.key] = Object.fromEntries(dayKeys.map(dk => [dk, "-1"]));
+    }
+  }
+
+  // Update geoInfo coords so weather fetches for correct city
+  if (geoInfo) { geoInfo.latitude = city.lat; geoInfo.longitude = city.lon; }
+  else { geoInfo = { latitude: city.lat, longitude: city.lon }; }
 
   db = {
-    regions: [{ region_id:"tr", partregion_id:-1, region_name: city.name, partregion_name:"", pollen: pollenObj }],
+    last_update: dates[0] ?? todayISO(),
+    next_update: "",
     pollen_available: pollenAvailable,
-    last_update: lastUpdate,
-    next_update: ""
+    regions: [{ region_id:"tr", partregion_id:-1, region_name: city.name, partregion_name:"", pollen }],
   };
   rKey = "tr--1";
 
@@ -2533,12 +2570,8 @@ function applyTRCity(city, lastUpdate) {
 function relocateTR() {
   if (!navigator.geolocation) return;
   navigator.geolocation.getCurrentPosition(pos => {
-    if (geoInfo) {
-      geoInfo.latitude  = pos.coords.latitude;
-      geoInfo.longitude = pos.coords.longitude;
-    } else {
-      geoInfo = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
-    }
+    if (geoInfo) { geoInfo.latitude = pos.coords.latitude; geoInfo.longitude = pos.coords.longitude; }
+    else { geoInfo = { latitude: pos.coords.latitude, longitude: pos.coords.longitude }; }
     loadTR();
   });
 }

@@ -23,16 +23,11 @@ jobs:
       - name: Pollendaten für Web-Dashboard aktualisieren
         run: python fetch_data.py
 
-      - name: Türkei-Pollendaten aktualisieren
-        env:
-          GOOGLE_POLLEN_API_KEY: ${{ secrets.GOOGLE_POLLEN_API_KEY }}
-        run: python fetch_data_tr.py
-
-      - name: Daten committen
+      - name: data.json committen
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data.json data_tr.json
+          git add data.json
           git diff --cached --quiet || git commit -m "Update pollen data $(date +%Y-%m-%d)"
           git push
 
