@@ -2476,9 +2476,10 @@ function setSeverity(key, level) {
 async function loadTR() {
   googleApiKey = localStorage.getItem(LS.gapi) || "";
   if (!googleApiKey) {
+    const locName = [geoInfo?.city, geoInfo?.country].filter(Boolean).join(", ") || "Turkey";
     db = {
       regions: [{
-        region_id:"tr", partregion_id:-1, region_name: geoInfo?.city || "Turkey",
+        region_id:"tr", partregion_id:-1, region_name: locName,
         partregion_name:"", pollen:{}
       }],
       pollen_available: false,
@@ -2486,6 +2487,9 @@ async function loadTR() {
       last_update:"", next_update:""
     };
     rKey = "tr--1";
+    document.getElementById("regionbar-inner").innerHTML =
+      `<span style="font-size:.84rem;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📍 ${escapeHtml(locName)}</span>
+       <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}">🔄</button>`;
     render(); loadWeather(); return;
   }
 
