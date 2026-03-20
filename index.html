@@ -619,8 +619,7 @@ function setLang(newLang) {
   const geoBtn2 = document.getElementById("geo-btn");
   if (geoBtn2) geoBtn2.title = t("geo_title");
   document.querySelector(".offline-pill").textContent = t("offline");
-  render();
-  renderSrcBar();
+  if (db) { render(); renderSrcBar(); }
 }
 
 const STRINGS = {
