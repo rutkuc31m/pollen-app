@@ -1111,7 +1111,7 @@ const DAYS      = ["today","tomorrow","dayafter_to"];
 const DAY_NAMES = [t("today"), t("tomorrow"), t("dayafter")];
 const MONTHS    = t("months").split(",");
 
-const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev", lang:"p_lang", gapi:"p_gapi" };
+const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev", lang:"p_lang" };
 
 // Koordinaten je DWD-Region für Wetter-API
 const REGION_COORDS = {
@@ -1133,7 +1133,6 @@ const REGION_COORDS = {
 // STATE
 // ─────────────────────────────────────────────────────────────────────────────
 let appMode   = "de";   // "de" | "eu" | "us" | "tr"
-let googleApiKey = localStorage.getItem("p_gapi") || "";
 let geoInfo   = null;   // { country_code, latitude, longitude, city, country }
 let db        = null;
 let weather   = null; // { current, daily, fetchedAt }
@@ -1301,11 +1300,10 @@ function render() {
     <!-- HERO: personal risk -->
     ${db.pollen_available === false ? `
     <div class="hero day-transition">
-      <div class="hero-badge risk-none" style="font-size:1.6rem;font-weight:800">${db.no_api_key ? "🔑" : "?"}</div>
+      <div class="hero-badge risk-none" style="font-size:1.6rem;font-weight:800">?</div>
       <div class="hero-body">
-        <div class="hero-risk risk-none" style="font-size:1rem">${db.no_api_key ? t("no_api_key_msg") : t("pollen_unavailable_short")}</div>
+        <div class="hero-risk risk-none" style="font-size:1rem">${t("pollen_unavailable_short")}</div>
         <div class="hero-loc">${escapeHtml(reg.region_name)} · ${DAY_NAMES[activeDay]}</div>
-        ${db.no_api_key ? `<div style="font-size:.74rem;color:var(--text3);margin-top:4px">${t("open_menu_to_configure")}</div>` : ""}
       </div>
     </div>` : (() => {
       const todayScore    = personalRisk(pol, 0).max;
@@ -2281,18 +2279,6 @@ function refreshDrawer() {
             ${t("data_import")} <input type="file" accept=".json" style="display:none" onchange="importData(event)">
           </label>
         </div>
-        ${appMode === "tr" ? `
-        <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">
-          <div style="font-size:.72rem;color:var(--text3);margin-bottom:5px">Google Pollen API Key</div>
-          <div style="display:flex;gap:6px">
-            <input id="gapi-input" type="password" value="${escapeHtml(localStorage.getItem(LS.gapi)||'')}"
-              placeholder="AIza..." style="flex:1;padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:.76rem;outline:none">
-            <button onclick="saveGapiKey()" style="padding:5px 10px;border-radius:7px;border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 15%,var(--card));color:var(--text);font-size:.76rem;cursor:pointer">${t("save")}</button>
-          </div>
-          <div style="font-size:.65rem;color:var(--text3);margin-top:4px">
-            console.cloud.google.com → Pollen API aktivieren
-          </div>
-        </div>` : ""}
       </div>
     </div>
 
@@ -2388,22 +2374,6 @@ function toggleDrawerSec(id) {
 // ─────────────────────────────────────────────────────────────────────────────
 // EXPORT / IMPORT DATA
 // ─────────────────────────────────────────────────────────────────────────────
-function saveGapiKey() {
-  const input = document.getElementById("gapi-input");
-  if (!input) return;
-  const key = input.value.trim();
-  if (key) {
-    localStorage.setItem(LS.gapi, key);
-    googleApiKey = key;
-  } else {
-    localStorage.removeItem(LS.gapi);
-    googleApiKey = "";
-  }
-  showToast(t("data_import_ok"));
-  closeDrawer();
-  init();
-}
-
 function exportData() {
   const data = {
     version: 1,
@@ -2474,103 +2444,103 @@ function setSeverity(key, level) {
 // LOAD
 // ─────────────────────────────────────────────────────────────────────────────
 async function loadTR() {
-  googleApiKey = localStorage.getItem(LS.gapi) || "";
-  if (!googleApiKey) {
-    const locName = [geoInfo?.city, geoInfo?.country].filter(Boolean).join(", ") || "Turkey";
+  // Fetch pre-built data_tr.json (populated daily by GitHub Action)
+  let trData = null;
+  try {
+    const res = await fetch("./data_tr.json?v=" + Date.now());
+    if (res.ok) trData = await res.json();
+  } catch(e) {
+    console.warn("loadTR: could not fetch data_tr.json", e);
+  }
+
+  const cities = trData?.cities || [];
+  const userLat = geoInfo?.latitude  ?? 41.01;
+  const userLon = geoInfo?.longitude ?? 28.98;
+
+  // Find city nearest to user's coordinates
+  let nearest = cities[0] || null;
+  if (cities.length > 1) {
+    let minDist = Infinity;
+    cities.forEach(c => {
+      const d = Math.hypot(c.lat - userLat, c.lon - userLon);
+      if (d < minDist) { minDist = d; nearest = c; }
+    });
+  }
+
+  // Build TR regionbar: city dropdown + GPS button
+  const inner = document.getElementById("regionbar-inner");
+  if (cities.length > 0) {
+    inner.innerHTML =
+      `<select id="tr-city-sel" style="flex:1;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 8px;font-size:.85rem;cursor:pointer">
+        ${cities.map(c => `<option value="${escapeHtml(c.name)}"${c === nearest ? " selected" : ""}>${escapeHtml(c.name)}</option>`).join("")}
+      </select>
+      <button class="geo-btn" onclick="relocateTR()" title="${t("reloc_btn")}">📍</button>`;
+    document.getElementById("tr-city-sel").addEventListener("change", e => {
+      const city = cities.find(c => c.name === e.target.value);
+      if (city) applyTRCity(city, trData?.last_update || "");
+    });
+  } else {
+    // data_tr.json empty (first run before Action populates it)
+    inner.innerHTML =
+      `<span style="font-size:.84rem;color:var(--text2);flex:1">🇹🇷 Türkiye</span>
+       <button class="geo-btn" onclick="relocateTR()" title="${t("reloc_btn")}">📍</button>`;
+  }
+
+  if (nearest) {
+    applyTRCity(nearest, trData?.last_update || "");
+  } else {
     db = {
-      regions: [{
-        region_id:"tr", partregion_id:-1, region_name: locName,
-        partregion_name:"", pollen:{}
-      }],
+      regions: [{ region_id:"tr", partregion_id:-1, region_name:"Türkiye", partregion_name:"", pollen:{} }],
       pollen_available: false,
-      no_api_key: true,
-      last_update:"", next_update:""
+      last_update: "", next_update: ""
     };
     rKey = "tr--1";
-    document.getElementById("regionbar-inner").innerHTML =
-      `<span style="font-size:.84rem;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📍 ${escapeHtml(locName)}</span>
-       <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}">🔄</button>`;
-    render(); loadWeather(); return;
+    filter = POLLEN_TR.map(p => p.key);
+    render(); loadWeather();
   }
+}
 
-  const lat = geoInfo?.latitude  ?? 41.01;
-  const lon = geoInfo?.longitude ?? 28.98;
-  const locName = [geoInfo?.city, geoInfo?.country].filter(Boolean).join(", ") || "Turkey";
-
-  document.getElementById("regionbar-inner").innerHTML =
-    `<span style="font-size:.84rem;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📍 ${escapeHtml(locName)}</span>
-     <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}">🔄</button>`;
-
-  const url = `https://pollen.googleapis.com/v1/forecast:lookup?key=${encodeURIComponent(googleApiKey)}&location.longitude=${lon}&location.latitude=${lat}&days=3&languageCode=en`;
-
-  let pollenByDay = {};
-  let pollenAvailable = false;
-
-  try {
-    const ctrl = new AbortController();
-    setTimeout(() => ctrl.abort(), 8000);
-    const res = await fetch(url, {signal: ctrl.signal});
-    const json = await res.json();
-
-    if (!res.ok || json.error) {
-      console.warn("Google Pollen API error:", json.error?.message || res.status);
-    } else if (json.dailyInfo?.length) {
-      const dayKeys = ["today","tomorrow","dayafter"];
-      json.dailyInfo.slice(0,3).forEach((day, di) => {
-        const dk = dayKeys[di];
-        if (!dk) return;
-        pollenByDay[dk] = {};
-        (day.plantInfo || []).forEach(plant => {
-          const match = POLLEN_TR.find(p => p.gpKey === plant.code);
-          if (!match) return;
-          const val = plant.indexInfo?.value ?? 0;
-          const mapped = val === 0 ? "0" : val <= 2 ? "1" : val <= 3 ? "2" : "3";
-          pollenByDay[dk][match.key] = mapped;
-          if (val > 0) pollenAvailable = true;
-        });
-      });
-
-      POLLEN_TR.forEach(p => {
-        ["today","tomorrow","dayafter"].forEach(dk => {
-          if (!pollenByDay[dk]) pollenByDay[dk] = {};
-          if (pollenByDay[dk][p.key] === undefined) pollenByDay[dk][p.key] = "0";
-        });
-      });
-    }
-  } catch(e) {
-    console.warn("loadTR fetch error:", e);
-  }
-
+function applyTRCity(city, lastUpdate) {
   const pollenObj = {};
   POLLEN_TR.forEach(p => {
+    const d = city.pollen?.[p.key] || {};
     pollenObj[p.key] = {
-      today:    pollenByDay.today?.[p.key]    ?? "-1",
-      tomorrow: pollenByDay.tomorrow?.[p.key] ?? "-1",
-      dayafter: pollenByDay.dayafter?.[p.key] ?? "-1",
+      today:    d.today    ?? "-1",
+      tomorrow: d.tomorrow ?? "-1",
+      dayafter: d.dayafter ?? "-1",
     };
   });
+  const pollenAvailable = Object.values(pollenObj).some(v =>
+    ["1","2","3"].includes(v.today) || ["1","2","3"].includes(v.tomorrow)
+  );
 
-  const now = new Date();
   db = {
-    regions: [{
-      region_id:"tr",
-      partregion_id:-1,
-      region_name: locName,
-      partregion_name:"",
-      pollen: pollenObj
-    }],
+    regions: [{ region_id:"tr", partregion_id:-1, region_name: city.name, partregion_name:"", pollen: pollenObj }],
     pollen_available: pollenAvailable,
-    last_update: now.toLocaleTimeString(lang === "de" ? "de-DE" : lang === "tr" ? "tr-TR" : "en-GB", {hour:"2-digit",minute:"2-digit"}),
+    last_update: lastUpdate,
     next_update: ""
   };
   rKey = "tr--1";
 
-  filter = (JSON.parse(localStorage.getItem(LS.filter + "_tr") || "null") ?? POLLEN_TR.map(p=>p.key))
+  filter = (JSON.parse(localStorage.getItem(LS.filter + "_tr") || "null") ?? POLLEN_TR.map(p => p.key))
     .filter(k => POLLEN_TR.some(p => p.key === k));
   if (!filter.length) filter = POLLEN_TR.map(p => p.key);
 
   render();
   loadWeather();
+}
+
+function relocateTR() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(pos => {
+    if (geoInfo) {
+      geoInfo.latitude  = pos.coords.latitude;
+      geoInfo.longitude = pos.coords.longitude;
+    } else {
+      geoInfo = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+    }
+    loadTR();
+  });
 }
 
 async function loadDE() {

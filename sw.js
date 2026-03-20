@@ -1,8 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // SERVICE WORKER · Pollenflug PWA
-// Cache-first for static assets, Network-first for data.json
+// Cache-first for static assets, Network-first for data.json / data_tr.json
 // ─────────────────────────────────────────────────────────────────────────────
-const CACHE_VERSION = "pollen-v5";
+const CACHE_VERSION = "pollen-v6";
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const DATA_CACHE    = `${CACHE_VERSION}-data`;
 
@@ -40,8 +40,8 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   const url = new URL(event.request.url);
 
-  // Network-first for data.json (fresh pollen data matters)
-  if (url.pathname.endsWith("data.json") || url.pathname.endsWith("data.json/")) {
+  // Network-first for data.json / data_tr.json (fresh pollen data matters)
+  if (url.pathname.endsWith("data.json") || url.pathname.endsWith("data_tr.json")) {
     event.respondWith(networkFirstData(event.request));
     return;
   }
