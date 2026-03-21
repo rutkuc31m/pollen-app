@@ -2463,14 +2463,9 @@ function showS25Tip(e, name) {
 function renderSrcBar() {
   const el = document.getElementById("src-bar");
   if (!el) return;
-  const manual = localStorage.getItem(LS.mode);
-  const current = manual ?? "auto";
-  const detected = geoInfo?.country_code?.toUpperCase() || "";
-  const flag = detected ? String.fromCodePoint(...[...detected].map(c => 0x1F1A5 + c.charCodeAt(0))) : "";
-  const autoLabel = `📍 ${t("datasource_auto")}${flag && !manual ? " " + flag : ""}`;
+  const current = appMode; // always reflect actual active mode
   el.innerHTML = `
     <select class="src-sel" id="src-sel" onchange="setDataSource(this.value)">
-      <option value="auto"${current==="auto"?" selected":""}>${autoLabel}</option>
       <option value="de"${current==="de"?" selected":""}>${t("ds_de")}</option>
       <option value="eu"${current==="eu"?" selected":""}>${t("ds_eu")}</option>
       <option value="tr"${current==="tr"?" selected":""}>${t("ds_tr")}</option>
@@ -2974,12 +2969,7 @@ async function init() {
 }
 
 function setDataSource(mode) {
-  if (mode === "auto") {
-    localStorage.removeItem(LS.mode);
-    geoInfo = null; // force fresh IP lookup for auto-detection
-  } else {
-    localStorage.setItem(LS.mode, mode);
-  }
+  localStorage.setItem(LS.mode, mode);
   // Reset filter so new mode starts with all pollen selected
   localStorage.removeItem(LS.filter);
   filter = [];
