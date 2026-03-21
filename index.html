@@ -756,7 +756,8 @@ const STRINGS = {
     // correlation improvements
     corr_insufficient: "Zu wenig Daten", corr_no_link: "Kein Zusammenhang",
     corr_n_days: "Tage", corr_basis: "Ø Datenbasis",
-    corr_r_val: "r",
+    corr_r_val: "r", corr_strong: "Starker Zusammenhang mit Symptomen", corr_moderate: "Möglicher Zusammenhang mit Symptomen",
+    notif_title:"Tägliche Benachrichtigung", notif_enable:"Aktivieren", notif_on:"aktiv", notif_enabled:"Benachrichtigungen aktiviert", notif_denied:"Zugriff verweigert", notif_unsupported:"Nicht unterstützt",
     // accuracy
     accuracy_title: "Prognose-Genauigkeit (DWD)", accuracy_days: "Tage Datenbasis", accuracy_na: "Noch nicht genug Daten (>7 Tage nötig)",
     // season region note
@@ -898,7 +899,8 @@ const STRINGS = {
     // correlation improvements
     corr_insufficient: "Not enough data", corr_no_link: "No correlation",
     corr_n_days: "days", corr_basis: "Avg. data basis",
-    corr_r_val: "r",
+    corr_r_val: "r", corr_strong: "Strong correlation with symptoms", corr_moderate: "Possible correlation with symptoms",
+    notif_title:"Daily notification", notif_enable:"Enable", notif_on:"active", notif_enabled:"Notifications enabled", notif_denied:"Permission denied", notif_unsupported:"Not supported",
     // accuracy
     accuracy_title: "Forecast Accuracy (DWD)", accuracy_days: "days data", accuracy_na: "Not enough data yet (need >7 days)",
     // season region note
@@ -1014,7 +1016,8 @@ const STRINGS = {
     hero_allergen_suffix:" alerjisi için",
     corr_insufficient:"Yetersiz veri", corr_no_link:"İlişki yok",
     corr_n_days:"gün", corr_basis:"Ort. veri tabanı",
-    corr_r_val:"r",
+    corr_r_val:"r", corr_strong:"Semptomlarla güçlü korelasyon", corr_moderate:"Semptomlarla olası korelasyon",
+    notif_title:"Günlük bildirim", notif_enable:"Etkinleştir", notif_on:"aktif", notif_enabled:"Bildirimler etkinleştirildi", notif_denied:"İzin reddedildi", notif_unsupported:"Desteklenmiyor",
     accuracy_title:"Tahmin Doğruluğu (DWD)", accuracy_days:"gün veri", accuracy_na:"Henüz yeterli veri yok (>7 gün gerekli)",
     season_north:"İklim normu · Kuzey Almanya",
     season_central:"İklim normu · Orta Almanya",
@@ -1373,6 +1376,18 @@ function render() {
     </div>`;
     })()}
 
+    <!-- CORRELATION INSIGHT CHIP -->
+    ${(() => {
+      if (activeDay !== 0 || db.pollen_available === false) return "";
+      const top = getTopCorrelation();
+      if (!top) return "";
+      const str = top.r >= 0.7 ? t("corr_strong") : t("corr_moderate");
+      return `<div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--accent) 10%,var(--card));border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);font-size:.78rem;color:var(--text2)">
+        <span style="font-size:1rem">💡</span>
+        <span>${top.p.icon} <strong>${t(top.p.key)}</strong>: ${str} (r=${top.r.toFixed(2)})</span>
+      </div>`;
+    })()}
+
     <!-- WEATHER CARD -->
     ${weather ? (() => {
       const w = weather.current;
@@ -1445,7 +1460,15 @@ function render() {
           ${db.pollen_available !== false ? `
           <div class="dc-ring ${cl}" style="font-size:.85rem;font-weight:700">${["✓","!","!!","‼"][sc]}</div>
           <div class="dc-sub" style="font-size:.7rem">${ri.label}</div>` : ""}
-          ${wd ? `<div style="font-size:.66rem;color:var(--text3);margin-top:3px">${wd.tempMax}${weather.units.temp} · ${wd.wind}${weather.units.wind}</div>` : ""}
+          ${wd ? `
+          <div style="font-size:.66rem;color:var(--text3);margin-top:3px">${wd.tempMax}${weather.units.temp} · ${wd.wind}${weather.units.wind}</div>
+          ${wd.rainProb !== null ? `
+          <div style="margin-top:3px;display:flex;align-items:center;gap:3px">
+            <div style="flex:1;height:3px;border-radius:2px;background:var(--border);overflow:hidden">
+              <div style="width:${wd.rainProb}%;height:100%;border-radius:2px;background:${wd.rainProb>60?"#3b82f6":wd.rainProb>30?"#93c5fd":"#bfdbfe"}"></div>
+            </div>
+            <span style="font-size:.6rem;color:var(--text3);flex-shrink:0">${wd.rainProb}%</span>
+          </div>` : ""}` : ""}
         </div>`;
       }).join("")}
     </div>
@@ -1873,7 +1896,7 @@ async function loadWeather() {
     : "";
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}`
     + `&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code`
-    + `&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,uv_index_max`
+    + `&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,uv_index_max,precipitation_probability_max`
     + `&timezone=${tz}&forecast_days=7${units}`;
   try {
     const res = await fetch(url, { signal });
@@ -1887,10 +1910,11 @@ async function loadWeather() {
         code:     data.current.weather_code,
       },
       daily: data.daily.time.map((_, i) => ({
-        tempMax: Math.round(data.daily.temperature_2m_max[i]),
-        rain:    Math.round((data.daily.precipitation_sum[i] ?? 0) * 10) / 10,
-        wind:    Math.round(data.daily.wind_speed_10m_max[i]),
-        uv:      data.daily.uv_index_max ? Math.round(data.daily.uv_index_max[i]) : null,
+        tempMax:  Math.round(data.daily.temperature_2m_max[i]),
+        rain:     Math.round((data.daily.precipitation_sum[i] ?? 0) * 10) / 10,
+        wind:     Math.round(data.daily.wind_speed_10m_max[i]),
+        uv:       data.daily.uv_index_max ? Math.round(data.daily.uv_index_max[i]) : null,
+        rainProb: data.daily.precipitation_probability_max?.[i] ?? null,
       })),
       units: isUS ? {temp:"°F", wind:"mph", rain:"in"} : {temp:"°C", wind:"km/h", rain:"mm"},
       fetchedAt: Date.now(),
@@ -1980,6 +2004,28 @@ function pearsonR(xs, ys) {
 // ─────────────────────────────────────────────────────────────────────────────
 // SYMPTOM–POLLEN CORRELATION (improved)
 // ─────────────────────────────────────────────────────────────────────────────
+function getTopCorrelation() {
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
+  const cutoffStr = cutoff.toISOString().slice(0,10);
+  const symEntries = Object.entries(symptoms).filter(([d]) => d >= cutoffStr);
+  if (symEntries.length < 5) return null;
+  let best = null;
+  for (const p of POLLEN.filter(p => filter.includes(p.key))) {
+    const polS = [], symS = [];
+    let polD = 0, freeD = 0;
+    for (const [date, sym] of symEntries) {
+      const hist = history[date]; if (!hist) continue;
+      const pl = lv(hist[p.key] ?? "-1").sc;
+      polS.push(pl); symS.push((sym.niesen||0)+(sym.augen||0)+(sym.atmung||0)+(sym.muedigkeit||0));
+      if (pl >= 1) polD++; else freeD++;
+    }
+    if (polS.length < 5 || polD < 3 || freeD < 3) continue;
+    const r = pearsonR(polS, symS);
+    if (r >= 0.4 && (!best || r > best.r)) best = { p, r };
+  }
+  return best;
+}
+
 function renderCorrelation() {
   const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
   const cutoffStr = cutoff.toISOString().slice(0,10);
@@ -2105,6 +2151,33 @@ function closeDrawer() {
   document.getElementById("drawer-overlay").classList.remove("show");
 }
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BROWSER NOTIFICATIONS (once per day, opt-in)
+// ─────────────────────────────────────────────────────────────────────────────
+async function maybeNotify() {
+  if (!("Notification" in window)) return;
+  if (Notification.permission === "denied") return;
+  if (!db?.pollen_available) return;
+  const today = todayISO();
+  if (localStorage.getItem("p_notif_date") === today) return;
+  const reg = db.regions.find(r => rk(r) === rKey) ?? db.regions[0];
+  const risk = personalRisk(reg?.pollen, 0);
+  if (risk.max === 0) { localStorage.setItem("p_notif_date", today); return; }
+  if (Notification.permission !== "granted") return; // only auto-notify if already granted
+  const drivers = risk.drivers.slice(0,2).map(p => `${p.icon} ${t(p.key)}`).join(", ");
+  const body = `${RISK[risk.max].label}${drivers ? ` · ${drivers}` : ""}`;
+  new Notification("🌿 Pollenflug", { body, icon:"./apple-touch-icon.png", tag:"pollen-daily" });
+  localStorage.setItem("p_notif_date", today);
+}
+
+async function requestNotifPermission() {
+  if (!("Notification" in window)) { showToast("❌ " + t("notif_unsupported")); return; }
+  const perm = await Notification.requestPermission();
+  if (perm === "granted") { showToast("🔔 " + t("notif_enabled")); maybeNotify(); }
+  else { showToast("❌ " + t("notif_denied")); }
+  refreshDrawer();
+}
 
 function refreshDrawer() {
   const el = document.getElementById("drawer-content");
@@ -2317,6 +2390,14 @@ function refreshDrawer() {
             ${t("data_import")} <input type="file" accept=".json" style="display:none" onchange="importData(event)">
           </label>
         </div>
+        ${"Notification" in window ? (() => {
+          const perm = Notification.permission;
+          const granted = perm === "granted";
+          return `<div style="display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:1px solid var(--border)">
+            <span style="font-size:.76rem;color:var(--text2)">🔔 ${t("notif_title")} ${granted ? `<span style="color:var(--accent)">(${t("notif_on")})</span>` : ""}</span>
+            ${!granted ? `<button onclick="requestNotifPermission()" style="padding:4px 10px;border-radius:7px;border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card));color:var(--text);font-size:.75rem;cursor:pointer">${t("notif_enable")}</button>` : ""}
+          </div>`;
+        })() : ""}
       </div>
     </div>
 
@@ -2861,6 +2942,8 @@ async function init() {
         `<div class="center">${t("no_data")}<br><small>${t("check_conn")}</small></div>`;
     }
   }
+
+  maybeNotify();
 
   // Apply URL params
   const urlParams = new URLSearchParams(location.search);
