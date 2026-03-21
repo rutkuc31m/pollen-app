@@ -508,6 +508,33 @@
     }
     #toast.show { opacity: 1; }
 
+    /* ── NOTIFICATION PROMPT (first-run) ────────────── */
+    #notif-prompt-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      z-index: 400; display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .25s;
+    }
+    #notif-prompt-overlay.show { opacity: 1; pointer-events: all; }
+    #notif-prompt-box {
+      background: var(--card); border-radius: 20px 20px 0 0;
+      padding: 28px 24px 36px; width: 100%; max-width: 480px;
+      transform: translateY(60px); transition: transform .3s ease;
+      text-align: center;
+    }
+    #notif-prompt-overlay.show #notif-prompt-box { transform: translateY(0); }
+    #notif-prompt-box .np-icon { font-size: 2.2rem; margin-bottom: 10px; }
+    #notif-prompt-box h3 { margin: 0 0 8px; font-size: 1.05rem; color: var(--text); }
+    #notif-prompt-box p  { margin: 0 0 20px; font-size: .84rem; color: var(--text2); line-height: 1.5; }
+    .np-btns { display: flex; flex-direction: column; gap: 9px; }
+    .np-btn-yes {
+      padding: 12px; border-radius: 12px; border: none; cursor: pointer;
+      background: var(--accent); color: #fff; font-size: .92rem; font-weight: 600;
+    }
+    .np-btn-no {
+      padding: 10px; border-radius: 12px; border: 1px solid var(--border); cursor: pointer;
+      background: transparent; color: var(--text2); font-size: .88rem;
+    }
+
     /* ── PWA INSTALL BUTTON ──────────────────────────── */
     #pwa-install-btn {
       display: none; align-items: center; gap: 5px;
@@ -567,6 +594,17 @@
   <div id="drawer-content"></div>
 </div>
 <div id="toast"></div>
+<div id="notif-prompt-overlay">
+  <div id="notif-prompt-box">
+    <div class="np-icon">🔔</div>
+    <h3 id="np-title"></h3>
+    <p id="np-body"></p>
+    <div class="np-btns">
+      <button class="np-btn-yes" onclick="notifPromptYes()" id="np-yes"></button>
+      <button class="np-btn-no"  onclick="notifPromptNo()"  id="np-no"></button>
+    </div>
+  </div>
+</div>
 
 <div class="topbar">
   <div class="topbar-inner">
@@ -761,6 +799,7 @@ const STRINGS = {
     corr_n_days: "Tage", corr_basis: "Ø Datenbasis",
     corr_r_val: "r", corr_strong: "Starker Zusammenhang mit Symptomen", corr_moderate: "Möglicher Zusammenhang mit Symptomen",
     notif_title:"Tägliche Benachrichtigung", notif_enable:"Aktivieren", notif_on:"aktiv", notif_enabled:"Benachrichtigungen aktiviert", notif_denied:"Zugriff verweigert", notif_unsupported:"Nicht unterstützt",
+    notif_prompt_title:"Tägliche Pollenwarnung?", notif_prompt_body:"Erhalte jeden Morgen eine Benachrichtigung mit deiner persönlichen Pollenbelastung.", notif_prompt_yes:"Ja, aktivieren", notif_prompt_no:"Nein danke", notif_prompt_hint:"Du kannst Benachrichtigungen jederzeit im Menü unter Daten aktivieren.",
     // accuracy
     accuracy_title: "Prognose-Genauigkeit (DWD)", accuracy_days: "Tage Datenbasis", accuracy_na: "Noch nicht genug Daten (>7 Tage nötig)",
     // season region note
@@ -908,6 +947,7 @@ const STRINGS = {
     corr_n_days: "days", corr_basis: "Avg. data basis",
     corr_r_val: "r", corr_strong: "Strong correlation with symptoms", corr_moderate: "Possible correlation with symptoms",
     notif_title:"Daily notification", notif_enable:"Enable", notif_on:"active", notif_enabled:"Notifications enabled", notif_denied:"Permission denied", notif_unsupported:"Not supported",
+    notif_prompt_title:"Daily pollen alert?", notif_prompt_body:"Get a notification every morning with your personal pollen load.", notif_prompt_yes:"Yes, enable", notif_prompt_no:"No thanks", notif_prompt_hint:"You can enable notifications anytime in the menu under Data.",
     // accuracy
     accuracy_title: "Forecast Accuracy (DWD)", accuracy_days: "days data", accuracy_na: "Not enough data yet (need >7 days)",
     // season region note
@@ -1029,6 +1069,7 @@ const STRINGS = {
     corr_n_days:"gün", corr_basis:"Ort. veri tabanı",
     corr_r_val:"r", corr_strong:"Semptomlarla güçlü korelasyon", corr_moderate:"Semptomlarla olası korelasyon",
     notif_title:"Günlük bildirim", notif_enable:"Etkinleştir", notif_on:"aktif", notif_enabled:"Bildirimler etkinleştirildi", notif_denied:"İzin reddedildi", notif_unsupported:"Desteklenmiyor",
+    notif_prompt_title:"Günlük polen uyarısı?", notif_prompt_body:"Her sabah kişisel polen yüküyle ilgili bir bildirim al.", notif_prompt_yes:"Evet, etkinleştir", notif_prompt_no:"Hayır teşekkürler", notif_prompt_hint:"Bildirimleri menüdeki Veri bölümünden istediğin zaman etkinleştirebilirsin.",
     accuracy_title:"Tahmin Doğruluğu (DWD)", accuracy_days:"gün veri", accuracy_na:"Henüz yeterli veri yok (>7 gün gerekli)",
     season_north:"İklim normu · Kuzey Almanya",
     season_central:"İklim normu · Orta Almanya",
@@ -2190,6 +2231,29 @@ async function requestNotifPermission() {
   refreshDrawer();
 }
 
+function showNotifPrompt() {
+  if (!("Notification" in window)) return;
+  if (Notification.permission !== "default") return;
+  if (localStorage.getItem("p_notif_asked")) return;
+  document.getElementById("np-title").textContent = t("notif_prompt_title");
+  document.getElementById("np-body").textContent  = t("notif_prompt_body");
+  document.getElementById("np-yes").textContent   = t("notif_prompt_yes");
+  document.getElementById("np-no").textContent    = t("notif_prompt_no");
+  document.getElementById("notif-prompt-overlay").classList.add("show");
+}
+function _closeNotifPrompt() {
+  document.getElementById("notif-prompt-overlay").classList.remove("show");
+  localStorage.setItem("p_notif_asked", "1");
+}
+async function notifPromptYes() {
+  _closeNotifPrompt();
+  await requestNotifPermission();
+}
+function notifPromptNo() {
+  _closeNotifPrompt();
+  showToast("💡 " + t("notif_prompt_hint"), 5000);
+}
+
 function refreshDrawer() {
   const el = document.getElementById("drawer-content");
   if (!el) return;
@@ -2947,6 +3011,7 @@ async function init() {
   }
 
   maybeNotify();
+  setTimeout(showNotifPrompt, 1200); // slight delay so app is visible first
 
   // Apply URL params
   const urlParams = new URLSearchParams(location.search);
