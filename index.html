@@ -290,8 +290,9 @@
     .wh-leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 
     /* ── ANNUAL SEASON HEATMAP ───────────────────────── */
-    .s25-wrap { padding: 10px 14px 12px; }
-    .s25-grid { display: grid; grid-template-columns: 22px repeat(12, minmax(0, 1fr)); gap: 3px; align-items: center; }
+    .s25-wrap { padding: 10px 14px 12px; overflow-x: auto; scrollbar-width: none; }
+    .s25-wrap::-webkit-scrollbar { display: none; }
+    .s25-grid { display: grid; grid-template-columns: 22px repeat(12, minmax(0, 1fr)); gap: 3px; align-items: center; min-width: 320px; }
     .s25-name { font-size: .85rem; text-align: center; line-height: 1; cursor: default; user-select: none; }
     .s25-mon  { font-size: .6rem; color: var(--text3); text-align: center; font-weight: 600; padding: 0 0 2px; }
     .s25-cell {
@@ -1349,7 +1350,7 @@ function render() {
         }
       }
       return `
-    <div class="hero day-transition">
+    <div class="hero day-transition" onclick="openSection('pollen')" style="cursor:pointer" title="${t("all_pollen")}">
       <div class="hero-badge ${risk.cls}" style="font-size:1.6rem;font-weight:800">
         ${["✓","!","!!","‼"][risk.max]}
       </div>
@@ -1477,6 +1478,7 @@ function render() {
             const on = filter.includes(p.key);
             const inSeason = p.mo.includes(month);
             const vals = DAYS.map(d=>pol?.[p.key]?.[d]??"-1");
+            if (vals.every(v => v === "-1")) return ""; // no data at all for this type → hide row
             const lvls = vals.map(lv);
             return `<tr class="${!on?"dim":"active-row"}" onclick="toggleFilter('${p.key}')" style="cursor:pointer">
               <td>
@@ -1757,6 +1759,7 @@ function renderSeason2025() {
         ${dataRows}
       </div>
       <div class="s25-note">${note}</div>
+      <div style="font-size:.62rem;color:var(--text3);text-align:right;margin-top:2px;opacity:.6">← Jan – Dez →</div>
     </div>`;
 }
 
@@ -1842,6 +1845,12 @@ function toggleSection(id, save=true) {
   head?.classList.toggle("open", open);
   open ? openSections.add(id) : openSections.delete(id);
   if (save) localStorage.setItem(LS.open, JSON.stringify(Array.from(openSections)));
+}
+function openSection(id) {
+  const body = document.getElementById(id+"-body");
+  if (!body) return;
+  if (!body.classList.contains("open")) toggleSection(id);
+  body.closest(".card")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 let regionDebounce = null;
@@ -2095,6 +2104,7 @@ function closeDrawer() {
   document.getElementById("drawer").classList.remove("open");
   document.getElementById("drawer-overlay").classList.remove("show");
 }
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
 
 function refreshDrawer() {
   const el = document.getElementById("drawer-content");
@@ -2454,10 +2464,22 @@ function shareUrl() {
   const flt = filter.join(",");
   const url = `${location.origin}${location.pathname}?rgn=${encodeURIComponent(rKey)}&flt=${encodeURIComponent(flt)}`;
   if (navigator.share) {
-    navigator.share({ title: "Pollenflug", url });
+    navigator.share({ title: "Pollenflug", url }).catch(() => {});
+  } else if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(url)
+      .then(() => showToast("🔗 Link kopiert"))
+      .catch(() => _fallbackCopyUrl(url));
   } else {
-    navigator.clipboard.writeText(url).then(() => showToast("🔗 Link kopiert"));
+    _fallbackCopyUrl(url);
   }
+}
+function _fallbackCopyUrl(url) {
+  const ta = document.createElement("textarea");
+  ta.value = url; ta.style.cssText = "position:fixed;opacity:0;top:0;left:0";
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try { document.execCommand("copy"); showToast("🔗 Link kopiert"); }
+  catch { prompt("Link kopieren:", url); }
+  document.body.removeChild(ta);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
