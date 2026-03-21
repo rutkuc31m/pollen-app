@@ -2465,7 +2465,7 @@ function refreshDrawer() {
             ${t("data_import")} <input type="file" accept=".json" style="display:none" onchange="importData(event)">
           </label>
         </div>
-        (() => {
+        ${(() => {
           const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
           const supported = "Notification" in window;
           if (!supported) {
@@ -2487,7 +2487,7 @@ function refreshDrawer() {
             <span style="font-size:.76rem;color:var(--text2)">🔔 ${t("notif_title")}</span>
             ${right}
           </div>`;
-        })()
+        })()}
       </div>
     </div>
 
