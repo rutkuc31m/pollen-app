@@ -62,7 +62,7 @@
     .topbar-inner {
       max-width: 640px; margin: 0 auto;
       height: 52px;
-      display: flex; align-items: center; gap: 10px;
+      display: flex; align-items: center; gap: 6px;
     }
     .logo { font-weight: 700; font-size: 1rem; flex: 1; letter-spacing: -.2px; }
     .logo em { color: var(--accent); font-style: normal; }
@@ -96,20 +96,19 @@
     .regionbar select:focus { border-color: var(--accent); }
     .src-bar {
       max-width: 640px; margin: 4px auto 0;
-      display: flex; align-items: center; gap: 5px;
+      display: flex; align-items: center; gap: 6px;
     }
-    .src-label { font-size: .68rem; color: var(--text3); flex-shrink: 0; }
-    .src-btn {
-      font-size: .7rem; padding: 2px 8px; border-radius: 20px; cursor: pointer;
-      border: 1px solid var(--border); background: transparent; color: var(--text3);
-      transition: all .15s;
+    .src-sel {
+      flex: 1; background: var(--card2); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px;
+      padding: 5px 8px; font-size: .8rem; outline: none; cursor: pointer;
     }
-    .src-btn.active {
-      border-color: var(--accent);
-      background: color-mix(in srgb, var(--accent) 15%, var(--card));
-      color: var(--text); font-weight: 600;
+    .src-sel:focus { border-color: var(--accent); }
+    .src-share-btn {
+      flex-shrink: 0; padding: 5px 9px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--card2);
+      color: var(--text2); cursor: pointer; font-size: .84rem;
     }
-    .src-detected { font-size: .64rem; color: var(--text3); margin-left: auto; opacity: .7; }
 
     /* ── PAGE ────────────────────────────────────────── */
     .page { max-width: 640px; margin: 0 auto; padding: 14px 14px 80px; }
@@ -512,7 +511,7 @@
     /* ── PWA INSTALL BUTTON ──────────────────────────── */
     #pwa-install-btn {
       display: none; align-items: center; gap: 5px;
-      padding: 5px 10px; border-radius: 8px;
+      padding: 5px 9px; border-radius: 8px;
       border: 1px solid var(--accent);
       background: color-mix(in srgb, var(--accent) 12%, var(--card));
       color: var(--accent); font-size: .74rem; font-weight: 600;
@@ -574,7 +573,7 @@
     <button class="icon-btn" onclick="openDrawer()" aria-label="Menü">☰</button>
     <div class="logo">🌿 <em>Pollen</em>flug</div>
     <span class="offline-pill" id="offline-pill">Offline</span>
-    <button id="pwa-install-btn" class="icon-btn" onclick="pwaDoPwaInstall()" aria-label="App installieren" style="font-size:.7rem;font-weight:600;width:auto;padding:0 8px;letter-spacing:.2px">⬇ App</button>
+    <button id="pwa-install-btn" onclick="pwaDoPwaInstall()" aria-label="App installieren">⬇ App</button>
     <div style="display:flex;gap:2px">
       <button class="icon-btn" id="lang-btn-de" onclick="setLang('de')" style="font-size:.68rem;font-weight:700;width:auto;padding:0 6px;border-radius:6px 0 0 6px;border-right:none">DE</button>
       <button class="icon-btn" id="lang-btn-en" onclick="setLang('en')" style="font-size:.68rem;font-weight:700;width:auto;padding:0 6px;border-radius:0;border-right:none">EN</button>
@@ -726,7 +725,11 @@ const STRINGS = {
     source_om: "Open-Meteo · CAMS",
     reloc_btn: "Standort aktualisieren",
     datasource_title: "Datenquelle",
-    datasource_auto: "Auto",
+    datasource_auto: "Automatisch (IP-Erkennung)",
+    ds_de: "🇩🇪 Deutschland – DWD",
+    ds_eu: "🇪🇺 Europa – Open-Meteo",
+    ds_tr: "🇹🇷 Türkiye – Open-Meteo",
+    ds_us: "🇺🇸 USA / Amerika – Open-Meteo",
     pollen_unavailable: "Pollendaten für diesen Standort nicht verfügbar. Wetterdaten werden angezeigt.",
     pollen_unavailable_short: "Keine Pollendaten verfügbar",
     // EU/US pollen names
@@ -869,7 +872,11 @@ const STRINGS = {
     source_om: "Open-Meteo · CAMS",
     reloc_btn: "Update location",
     datasource_title: "Data source",
-    datasource_auto: "Auto",
+    datasource_auto: "Automatic (IP detection)",
+    ds_de: "🇩🇪 Germany – DWD",
+    ds_eu: "🇪🇺 Europe – Open-Meteo",
+    ds_tr: "🇹🇷 Turkey – Open-Meteo",
+    ds_us: "🇺🇸 USA / Americas – Open-Meteo",
     pollen_unavailable: "Pollen data not available for this location. Showing weather data only.",
     pollen_unavailable_short: "No pollen data available",
     // EU/US pollen names
@@ -1000,7 +1007,11 @@ const STRINGS = {
     source_om:"Open-Meteo · CAMS",
     reloc_btn:"Konumu güncelle",
     datasource_title:"Veri kaynağı",
-    datasource_auto:"Otomatik",
+    datasource_auto:"Otomatik (IP tespiti)",
+    ds_de:"🇩🇪 Almanya – DWD",
+    ds_eu:"🇪🇺 Avrupa – Open-Meteo",
+    ds_tr:"🇹🇷 Türkiye – Open-Meteo",
+    ds_us:"🇺🇸 ABD / Amerika – Open-Meteo",
     pollen_unavailable:"Bu konum için polen verisi mevcut değil. Sadece hava durumu gösteriliyor.",
     pollen_unavailable_short:"Polen verisi mevcut değil",
     data_title:"Veri",
@@ -2452,23 +2463,19 @@ function showS25Tip(e, name) {
 function renderSrcBar() {
   const el = document.getElementById("src-bar");
   if (!el) return;
-  const manual = localStorage.getItem(LS.mode); // null = auto
+  const manual = localStorage.getItem(LS.mode);
   const current = manual ?? "auto";
-  const detected = geoInfo?.country_code || geoInfo?.ip || "–";
-  const items = [
-    {val:"auto", label:"🌐"},
-    {val:"de",   label:"🇩🇪"},
-    {val:"eu",   label:"🇪🇺"},
-    {val:"tr",   label:"🇹🇷"},
-    {val:"us",   label:"🇺🇸"},
-  ];
+  const detected = geoInfo?.country_code?.toUpperCase() || "";
+  const autoLabel = `🌐 ${t("datasource_auto")}${detected && !manual ? " · " + detected : ""}`;
   el.innerHTML = `
-    <span class="src-label">${t("datasource_title")}:</span>
-    ${items.map(({val, label}) =>
-      `<button class="src-btn${current===val?" active":""}" onclick="setDataSource('${val}')">${label}</button>`
-    ).join("")}
-    <span class="src-detected">${manual ? "" : detected + " →"} ${appMode.toUpperCase()}</span>
-    <button class="src-btn" onclick="shareUrl()" title="Share" style="margin-left:auto">🔗</button>
+    <select class="src-sel" id="src-sel" onchange="setDataSource(this.value)">
+      <option value="auto"${current==="auto"?" selected":""}>${autoLabel}</option>
+      <option value="de"${current==="de"?" selected":""}>${t("ds_de")}</option>
+      <option value="eu"${current==="eu"?" selected":""}>${t("ds_eu")}</option>
+      <option value="tr"${current==="tr"?" selected":""}>${t("ds_tr")}</option>
+      <option value="us"${current==="us"?" selected":""}>${t("ds_us")}</option>
+    </select>
+    <button class="src-share-btn" onclick="shareUrl()" title="Share">🔗</button>
   `;
 }
 
