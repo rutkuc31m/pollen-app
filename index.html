@@ -1240,8 +1240,7 @@ function doRefresh() {
   btn.classList.remove("spinning");
   void btn.offsetWidth; // reflow to restart animation
   btn.classList.add("spinning");
-  btn.addEventListener("animationend", () => btn.classList.remove("spinning"), { once: true });
-  init();
+  btn.addEventListener("animationend", () => location.reload(), { once: true });
 }
 function toggleTheme() {
   const theme = document.documentElement.dataset.theme==="dark" ? "light" : "dark";
