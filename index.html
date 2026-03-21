@@ -1054,39 +1054,39 @@ const STRINGS = {
 // CONSTANTS
 // ─────────────────────────────────────────────────────────────────────────────
 let POLLEN = [
-  { key:"Hasel",    icon:"🌰", mo:[1,2,3]    },
-  { key:"Erle",     icon:"🌲", mo:[2,3,4]    },
-  { key:"Esche",    icon:"🌳", mo:[3,4,5]    },
-  { key:"Birke",    icon:"🍃", mo:[3,4,5]    },
-  { key:"Graeser",  icon:"🌾", mo:[5,6,7,8]  },
-  { key:"Roggen",   icon:"🌿", mo:[5,6,7]    },
-  { key:"Beifuss",  icon:"🌱", mo:[7,8,9]    },
-  { key:"Ambrosia", icon:"🌻", mo:[8,9,10]   },
+  { key:"Hasel",    icon:"🌰", mo:[1,2,3]    },  // Haselnuss – nächster verfügbarer Emoji
+  { key:"Erle",     icon:"🌳", mo:[2,3,4]    },  // Laubbaum (Erle = Laubbaum, kein Nadelbaum)
+  { key:"Esche",    icon:"🌳", mo:[3,4,5]    },  // Laubbaum
+  { key:"Birke",    icon:"🍃", mo:[3,4,5]    },  // Birkenblatt (Birke bekannt für Kätzchen + Blätter)
+  { key:"Graeser",  icon:"🌾", mo:[5,6,7,8]  },  // Ähre/Getreide – passt
+  { key:"Roggen",   icon:"🌾", mo:[5,6,7]    },  // Getreide – passt
+  { key:"Beifuss",  icon:"🌿", mo:[7,8,9]    },  // Kraut/Wildkraut
+  { key:"Ambrosia", icon:"🌿", mo:[8,9,10]   },  // Unkraut – kein passendes Emoji, 🌿 am nächsten
 ];
 
 // ── GLOBAL POLLEN SOURCES ────────────────────────────────────────────────────
 const POLLEN_DE = POLLEN; // keep reference
 
 const POLLEN_EU = [
-  { key:"birch",   icon:"🍃", mo:[2,3,4]      },
-  { key:"alder",   icon:"🌲", mo:[1,2,3]      },
-  { key:"grass",   icon:"🌾", mo:[4,5,6,7,8]  },
-  { key:"mugwort", icon:"🌱", mo:[6,7,8,9]    },
-  { key:"ragweed", icon:"🌻", mo:[7,8,9,10]   },
-  { key:"olive",   icon:"🫒", mo:[3,4,5,6]    },
+  { key:"birch",   icon:"🍃", mo:[2,3,4]      },  // Birkenblatt
+  { key:"alder",   icon:"🌳", mo:[1,2,3]      },  // Laubbaum (nicht Nadelbaum)
+  { key:"grass",   icon:"🌾", mo:[4,5,6,7,8]  },  // Ähre
+  { key:"mugwort", icon:"🌿", mo:[6,7,8,9]    },  // Wildkraut
+  { key:"ragweed", icon:"🌿", mo:[7,8,9,10]   },  // Unkraut (kein Sonnenblumen-Emoji)
+  { key:"olive",   icon:"🫒", mo:[3,4,5,6]    },  // Olive – perfekt
 ];
 
 const POLLEN_US = [
   { key:"tree",    icon:"🌳", mo:[2,3,4,5]    },
   { key:"grass",   icon:"🌾", mo:[4,5,6,7,8]  },
-  { key:"ragweed", icon:"🌻", mo:[7,8,9,10]   },
+  { key:"ragweed", icon:"🌿", mo:[7,8,9,10]   },
 ];
 
 const POLLEN_TR = [
   {key:"olive",   icon:"🫒", mo:[3,4,5,6]},
   {key:"grass",   icon:"🌾", mo:[4,5,6,7,8]},
-  {key:"mugwort", icon:"🌱", mo:[7,8,9]},
-  {key:"ragweed", icon:"🌻", mo:[8,9,10]},
+  {key:"mugwort", icon:"🌿", mo:[7,8,9]},
+  {key:"ragweed", icon:"🌿", mo:[8,9,10]},
 ];
 
 const TR_CITIES = [
@@ -1754,10 +1754,10 @@ function renderSeason2025() {
     // DE: use region-specific seasonal profile (dynamic, not hardcoded Hannover)
     const profile = getRegionalSeasonProfile();
     const pollenList = [
-      {key:"Hasel",icon:"🌰"},{key:"Erle",icon:"🌿"},
-      {key:"Esche",icon:"🌳"},{key:"Birke",icon:"🌸"},
+      {key:"Hasel",icon:"🌰"},{key:"Erle",icon:"🌳"},
+      {key:"Esche",icon:"🌳"},{key:"Birke",icon:"🍃"},
       {key:"Graeser",icon:"🌾"},{key:"Roggen",icon:"🌾"},
-      {key:"Beifuss",icon:"🌿"},{key:"Ambrosia",icon:"🌼"},
+      {key:"Beifuss",icon:"🌿"},{key:"Ambrosia",icon:"🌿"},
     ];
     dataRows = pollenList.map(p => {
       const vals = profile[p.key] ?? Array(12).fill(0);
