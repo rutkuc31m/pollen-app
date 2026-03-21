@@ -1151,10 +1151,12 @@ const REGION_COORDS = {
 // ─────────────────────────────────────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────────────────────────────────────
-let appMode   = "de";   // "de" | "eu" | "us" | "tr"
-let geoInfo   = null;   // { country_code, latitude, longitude, city, country }
-let db        = null;
-let weather   = null; // { current, daily, fetchedAt }
+let appMode      = "de";   // "de" | "eu" | "us" | "tr"
+let geoInfo      = null;   // { country_code, latitude, longitude, city, country }
+let db           = null;
+let weather      = null;   // { current, daily, fetchedAt }
+let _weatherAC   = null;   // AbortController for loadWeather()
+let _trCityAC    = null;   // AbortController for fetchTRCity()
 let rKey      = localStorage.getItem(LS.region)  || "30-32";
 let filter    = JSON.parse(localStorage.getItem(LS.filter) || "null") || POLLEN.map(p=>p.key);
 let activeDay = 0;
@@ -1848,6 +1850,10 @@ let regionDebounce = null;
 // WEATHER
 // ─────────────────────────────────────────────────────────────────────────────
 async function loadWeather() {
+  if (_weatherAC) _weatherAC.abort();
+  _weatherAC = new AbortController();
+  const { signal } = _weatherAC;
+
   const coords = appMode === "de"
     ? (REGION_COORDS[rKey] || {lat:52.37,lon:9.73})
     : {lat: geoInfo?.latitude ?? 52.37, lon: geoInfo?.longitude ?? 9.73};
@@ -1861,7 +1867,7 @@ async function loadWeather() {
     + `&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,uv_index_max`
     + `&timezone=${tz}&forecast_days=7${units}`;
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, { signal });
     const data = await res.json();
     weather = {
       current: {
@@ -1880,7 +1886,10 @@ async function loadWeather() {
       units: isUS ? {temp:"°F", wind:"mph", rain:"in"} : {temp:"°C", wind:"km/h", rain:"mm"},
       fetchedAt: Date.now(),
     };
-  } catch { weather = null; }
+  } catch(e) {
+    if (e.name === "AbortError") return; // newer request already in flight
+    weather = null;
+  }
   render();
 }
 
@@ -2413,7 +2422,20 @@ function importData(e) {
   reader.onload = ev => {
     try {
       const data = JSON.parse(ev.target.result);
-      if (!data.version) throw new Error("invalid");
+      if (typeof data !== "object" || !data.version) throw new Error("invalid");
+      const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+      if (data.symptoms) {
+        if (typeof data.symptoms !== "object" || Array.isArray(data.symptoms)) throw new Error("invalid");
+        for (const [d, v] of Object.entries(data.symptoms)) {
+          if (!DATE_RE.test(d) || typeof v !== "object" || Array.isArray(v)) throw new Error("invalid");
+        }
+      }
+      if (data.history) {
+        if (typeof data.history !== "object" || Array.isArray(data.history)) throw new Error("invalid");
+        for (const [d, v] of Object.entries(data.history)) {
+          if (!DATE_RE.test(d) || typeof v !== "object" || Array.isArray(v)) throw new Error("invalid");
+        }
+      }
       if (data.symptoms) localStorage.setItem(LS.syms, JSON.stringify(data.symptoms));
       if (data.history)  localStorage.setItem(LS.hist, JSON.stringify(data.history));
       symptoms = JSON.parse(localStorage.getItem(LS.syms) || "{}");
@@ -2491,6 +2513,10 @@ function renderTRBar(selected) {
 }
 
 async function fetchTRCity(city) {
+  if (_trCityAC) _trCityAC.abort();
+  _trCityAC = new AbortController();
+  const { signal } = _trCityAC;
+
   const vars = OM_VARS.tr;
   const url = `https://air-quality-api.open-meteo.com/v1/air-quality`
     + `?latitude=${city.lat}&longitude=${city.lon}`
@@ -2501,14 +2527,15 @@ async function fetchTRCity(city) {
   let pollenAvailable = false;
 
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, { signal });
     const json = await res.json();
     if (!json.error && json.hourly) {
       pollenAvailable = vars.some(v => json.hourly[v]?.some(x => x !== null));
       raw = json;
       localStorage.setItem(LS.cache + "_tr", JSON.stringify({raw, ts: Date.now(), city: city.name}));
     }
-  } catch {
+  } catch(e) {
+    if (e.name === "AbortError") return; // newer city selected, discard this result
     const cached = localStorage.getItem(LS.cache + "_tr");
     if (cached) {
       const c = JSON.parse(cached);
