@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html lang="de" data-theme="light">
 <head>
-  <script>
-    (function(){var t=localStorage.getItem("p_theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");document.documentElement.dataset.theme=t;})();
-  </script>
+  <script>(function(){var t=localStorage.getItem("p_theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");document.documentElement.dataset.theme=t;document.write('<meta name="theme-color" content="'+(t==="dark"?"#111114":"#f5f0eb")+'" id="theme-meta">');})();</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#f5f0eb" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#111114" media="(prefers-color-scheme: dark)">
   <link rel="manifest" href="./manifest.json">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1422,9 +1418,7 @@ let openSections = new Set(JSON.parse(localStorage.getItem(LS.open) || '["pollen
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   document.getElementById("theme-btn").textContent = theme==="dark" ? "☀️" : "🌙";
-  document.querySelectorAll('meta[name="theme-color"]').forEach(m => {
-    m.content = theme==="dark" ? "#111114" : "#f5f0eb";
-  });
+  document.getElementById("theme-meta").content = theme==="dark" ? "#111114" : "#f5f0eb";
 }
 function doRefresh() {
   const btn = document.getElementById("refresh-btn");
