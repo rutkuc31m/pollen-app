@@ -801,7 +801,7 @@ const STRINGS = {
     corr_hint:"Ø Symptom-Score an Pollentagen vs. pollenfreien Tagen",
     geo_error:"Standort konnte nicht ermittelt werden.",
     geo_unsupported:"Geolocation wird nicht unterstützt.",
-    n_label:"N", a_label:"A", at_label:"At", m_label:"M",
+    n_label:"Niesen", a_label:"Augen", at_label:"Atmung", m_label:"Müdigkeit",
     logo_title:"Pollenflug",
     ptr_pull: "↓ Ziehen",
     ptr_release: "↺ Loslassen",
@@ -977,7 +977,7 @@ const STRINGS = {
     corr_hint:"Avg. symptom score on pollen days vs. pollen-free days",
     geo_error:"Could not determine location.",
     geo_unsupported:"Geolocation is not supported.",
-    n_label:"Sn", a_label:"Ey", at_label:"Br", m_label:"Fa",
+    n_label:"Sneezing", a_label:"Eyes", at_label:"Breathing", m_label:"Fatigue",
     logo_title:"Pollen",
     ptr_pull: "↓ Pull to refresh",
     ptr_release: "↺ Release to refresh",
@@ -1146,7 +1146,7 @@ const STRINGS = {
     corr_hint:"Polen günlerindeki ort. semptom skoru",
     geo_error:"Konum belirlenemedi.",
     geo_unsupported:"Coğrafi konum desteklenmiyor.",
-    n_label:"Ha", a_label:"Gz", at_label:"Ne", m_label:"Yo",
+    n_label:"Hapşırık", a_label:"Gözler", at_label:"Nefes", m_label:"Yorgunluk",
     logo_title:"Polen",
     ptr_pull:"↓ Çek",
     ptr_release:"↺ Bırak",
@@ -2084,12 +2084,16 @@ function renderSymHistory() {
   return `
     <div class="sym-hist">
       <div class="sym-hist-title">${t("saved_entries")}</div>
+      <div style="display:grid;grid-template-columns:42px repeat(4,1fr);gap:4px;margin-bottom:4px;align-items:center">
+        <div></div>
+        ${[t("n_label"),t("a_label"),t("at_label"),t("m_label")].map(l=>`
+          <div style="text-align:center;font-size:.58rem;color:var(--text3);font-weight:600;text-transform:uppercase">${l}</div>`).join("")}
+      </div>
       ${entries.map(([d,s])=>`
-        <div class="sym-hist-row">
-          <div class="sym-hist-date">${new Date(d+"T12:00:00").toLocaleDateString(lang==="de"?"de-DE":"en-GB",{day:"2-digit",month:"2-digit"})}</div>
+        <div style="display:grid;grid-template-columns:42px repeat(4,1fr);gap:4px;align-items:center;margin-bottom:5px;font-size:.76rem">
+          <div style="color:var(--text3)">${new Date(d+"T12:00:00").toLocaleDateString(lang==="de"?"de-DE":"en-GB",{day:"2-digit",month:"2-digit"})}</div>
           ${["niesen","augen","atmung","muedigkeit"].map(k=>`
-            <div class="sym-dot" style="background:${sc(s[k])};color:#fff">${s[k]||"–"}</div>`).join("")}
-          <span style="font-size:.7rem;color:var(--text3)">${t("n_label")} · ${t("a_label")} · ${t("at_label")} · ${t("m_label")}</span>
+            <div style="display:flex;justify-content:center"><div class="sym-dot" style="background:${sc(s[k])};color:#fff">${s[k]||"–"}</div></div>`).join("")}
         </div>`).join("")}
     </div>`;
 }
@@ -2500,7 +2504,7 @@ function notifPromptNo() {
 const MED_TYPES = [
   {key:"antihistamine", icon:"💊"},
   {key:"eyedrops",      icon:"👁"},
-  {key:"nasal",         icon:"👃"},
+  {key:"nasal",         icon:"💧"},
   {key:"cortisone",     icon:"💉"},
 ];
 
