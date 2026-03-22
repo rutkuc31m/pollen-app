@@ -3051,8 +3051,7 @@ async function init() {
   maybeNotify();
   setTimeout(showNotifPrompt, 1200); // slight delay so app is visible first
 
-  // Apply URL params
-  const urlParams = new URLSearchParams(location.search);
+  // Apply URL params (reuse urlParams from top of init)
   const urlRgn = urlParams.get("rgn");
   if (urlRgn && db?.regions?.find(r => rk(r) === urlRgn)) {
     rKey = urlRgn;
