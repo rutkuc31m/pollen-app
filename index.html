@@ -16,29 +16,31 @@
   <style>
     /* ── TOKENS ─────────────────────────────────────── */
     :root {
-      --bg:      #f6f6f7;
+      --bg:      #f5f0eb;
       --card:    #ffffff;
-      --card2:   #f9f9fa;
-      --border:  #e4e4e7;
-      --text:    #09090b;
-      --text2:   #71717a;
-      --text3:   #a1a1aa;
-      --accent:  #16a34a;
+      --card2:   #f0ebe6;
+      --border:  #e0dbd6;
+      --text:    #1a1a1a;
+      --text2:   #6b6b6b;
+      --text3:   #9a9a9a;
+      --accent:  #22c55e;
       --accent-subtle: #f0fdf4;
-      --r:       13px;
-      --sh:      0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+      --r:       16px;
+      --sh:      0 2px 8px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.04);
+      --glow:    none;
     }
     [data-theme="dark"] {
-      --bg:     #0a0a0b;
-      --card:   #18181b;
-      --card2:  #27272a;
-      --border: #3f3f46;
-      --text:   #fafafa;
-      --text2:  #a1a1aa;
-      --text3:  #71717a;
+      --bg:     #111114;
+      --card:   #1c1c20;
+      --card2:  #19191d;
+      --border: #2a2a2f;
+      --text:   #ebebeb;
+      --text2:  #9a9a9a;
+      --text3:  #666666;
       --accent: #4ade80;
-      --accent-subtle: #052e16;
-      --sh:     0 1px 3px rgba(0,0,0,.5);
+      --accent-subtle: #0a1f12;
+      --sh:     0 2px 12px rgba(0,0,0,.3), 0 1px 4px rgba(0,0,0,.2);
+      --glow:   0 0 20px rgba(74,222,128,.06);
     }
 
     /* ── BASE ────────────────────────────────────────── */
@@ -47,8 +49,12 @@
       font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
       background: var(--bg);
       color: var(--text);
-      transition: background .2s, color .2s;
+      transition: background .3s, color .3s;
       min-height: 100vh;
+    }
+    [data-theme="dark"] body {
+      background: linear-gradient(160deg, #111114 0%, #0f0f12 40%, #131316 100%);
+      background-attachment: fixed;
     }
     button, select { font-family: inherit; }
 
@@ -58,6 +64,7 @@
       border-bottom: 1px solid var(--border);
       position: sticky; top: 0; z-index: 99;
       padding: 0 16px;
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
     }
     .topbar-inner {
       max-width: 640px; margin: 0 auto;
@@ -67,14 +74,16 @@
     .logo { font-weight: 700; font-size: 1rem; flex: 1; letter-spacing: -.2px; }
     .logo em { color: var(--accent); font-style: normal; }
     .icon-btn {
-      width: 34px; height: 34px; border-radius: 8px;
+      width: 34px; height: 34px; border-radius: 10px;
       border: 1px solid var(--border);
       background: var(--card2); color: var(--text);
       cursor: pointer; font-size: .95rem;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
+      transition: background .15s, transform .1s;
     }
     .icon-btn:hover { background: var(--border); }
+    .icon-btn:active { transform: scale(.93); }
     .offline-pill {
       font-size: .7rem; background: #f97316; color: #fff;
       padding: 2px 9px; border-radius: 20px; display: none;
@@ -113,17 +122,12 @@
     /* ── PAGE ────────────────────────────────────────── */
     .page { max-width: 640px; margin: 0 auto; padding: 14px 14px 80px; }
 
-    /* ── UPDATE LINE ─────────────────────────────────── */
-    .update-line {
-      font-size: .73rem; color: var(--text3);
-      text-align: center; padding: 6px 0 10px;
-    }
-
     /* ── CARD ────────────────────────────────────────── */
     .card {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--r); box-shadow: var(--sh);
+      border-radius: var(--r); box-shadow: var(--sh), var(--glow);
       margin-bottom: 12px; overflow: hidden;
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     }
     .card-head {
       padding: 13px 16px 11px;
@@ -142,9 +146,10 @@
     /* ── HERO (personal risk) ────────────────────────── */
     .hero {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--r); box-shadow: var(--sh);
+      border-radius: var(--r); box-shadow: var(--sh), var(--glow);
       margin-bottom: 12px; padding: 26px 20px;
       display: flex; align-items: center; gap: 16px;
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     }
     .hero-badge {
       width: 64px; height: 64px; border-radius: 16px;
@@ -183,9 +188,10 @@
       background: var(--card); border: 1px solid var(--border);
       border-radius: var(--r); box-shadow: var(--sh);
       padding: 12px 10px; text-align: center; cursor: pointer;
-      transition: border-color .15s;
+      transition: border-color .15s, box-shadow .15s;
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     }
-    .day-card.active { border-color: var(--accent); border-width: 2px; }
+    .day-card.active { border-color: var(--accent); border-width: 2px; box-shadow: var(--sh), 0 0 12px rgba(74,222,128,.15); }
     .day-card.today-card { background: var(--accent-subtle); }
     .day-card .dc-label { font-size: .78rem; font-weight: 600; color: var(--text); }
     .day-card .dc-date  { font-size: .68rem; color: var(--text3); margin-top: 1px; }
@@ -196,28 +202,6 @@
       font-size: .72rem; font-weight: 700;
     }
     .day-card .dc-sub { font-size: .68rem; color: var(--text2); }
-
-    /* ── ALLERGEN SELECTOR ───────────────────────────── */
-    .allergy-grid { display: flex; flex-wrap: wrap; gap: 7px; padding: 12px 14px 14px; }
-    .allergy-chip {
-      padding: 5px 10px; border-radius: 9px;
-      font-size: .77rem; cursor: pointer;
-      border: 1.5px solid var(--border);
-      background: var(--card2); color: var(--text2);
-      display: flex; align-items: center; gap: 5px;
-      transition: all .12s; user-select: none;
-    }
-    .allergy-chip.on {
-      background: #dcfce7;
-      color: #15803d;
-      border-color: #16a34a;
-      font-weight: 500;
-    }
-    [data-theme="dark"] .allergy-chip.on {
-      background: #052e16;
-      color: #4ade80;
-      border-color: #4ade80;
-    }
 
     /* ── POLLEN TABLE ────────────────────────────────── */
     .ptable { width: 100%; border-collapse: collapse; }
@@ -325,22 +309,24 @@
     .sym-label { font-size: .84rem; width: 70px; flex-shrink: 0; }
     .sym-scale { display: flex; gap: 4px; flex: 1; }
     .sym-btn {
-      flex: 1; padding: 6px 2px; border-radius: 7px;
+      flex: 1; padding: 6px 2px; border-radius: 9px;
       border: 1px solid var(--border); background: var(--card2);
       color: var(--text); font-size: .78rem; cursor: pointer;
-      transition: all .1s;
+      transition: all .12s;
     }
-    .sym-btn.on { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+    .sym-btn.on { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; box-shadow: 0 0 8px rgba(74,222,128,.2); }
     [data-theme="dark"] .sym-btn.on { color: #000; }
     .sym-save {
       display: block; margin: 10px 14px;
       width: calc(100% - 28px); padding: 10px;
       background: var(--accent); color: #fff;
-      border: none; border-radius: 9px;
+      border: none; border-radius: 12px;
       font-size: .9rem; font-weight: 600; cursor: pointer;
+      transition: opacity .15s, box-shadow .15s, transform .1s;
     }
-    [data-theme="dark"] .sym-save { color: #000; }
-    .sym-save:hover { opacity: .85; }
+    [data-theme="dark"] .sym-save { color: #000; box-shadow: 0 0 16px rgba(74,222,128,.2); }
+    .sym-save:hover { opacity: .88; }
+    .sym-save:active { transform: scale(.97); }
     .sym-hist { padding: 8px 14px 12px; border-top: 1px solid var(--border); }
     .sym-hist-title { font-size: .72rem; text-transform: uppercase; letter-spacing: .4px; color: var(--text3); margin-bottom: 7px; }
     .sym-hist-row { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; font-size: .76rem; }
@@ -382,15 +368,16 @@
     /* ── SWIPE DOTS ───────────────────────────────────── */
     .swipe-dots { display: flex; justify-content: center; gap: 6px; margin: -4px 0 8px; }
     .swipe-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background .2s; }
-    .swipe-dot.active { background: var(--accent); }
+    .swipe-dot.active { background: var(--accent); box-shadow: 0 0 6px rgba(74,222,128,.3); }
 
     /* ── WEEK WEATHER ────────────────────────────────── */
     .week-strip { padding: 0 14px 12px; display: flex; gap: 4px; justify-content: center; }
     .week-day {
       flex: 1 1 0; min-width: 0; text-align: center;
-      padding: 7px 3px; border-radius: 9px; background: var(--card2);
+      padding: 7px 3px; border-radius: 12px; background: var(--card2);
       border: 1px solid var(--border);
       display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     }
     .week-day.today-wk { border-color: var(--accent); }
     .wd-name { font-size: .62rem; color: var(--text3); font-weight: 600; text-transform: uppercase; }
@@ -427,6 +414,7 @@
       transition: transform .28s ease;
       overflow-y: auto;
       box-shadow: 4px 0 24px rgba(0,0,0,.18);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     }
     #drawer.open { transform: translateX(0); }
     #drawer-head {
@@ -499,12 +487,13 @@
     /* ── TOAST ───────────────────────────────────────── */
     #toast {
       position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-      background: #18181b; color: #fafafa;
+      background: rgba(24,24,27,.9); color: #fafafa;
       padding: 9px 18px; border-radius: 20px;
       font-size: .83rem; z-index: 300;
       opacity: 0; pointer-events: none;
       transition: opacity .25s;
       white-space: nowrap;
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     }
     #toast.show { opacity: 1; }
 
@@ -712,9 +701,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 let lang = localStorage.getItem("p_lang") || ((navigator.language || "de").toLowerCase().startsWith("de") ? "de" : "en");
 function t(key) { return STRINGS[lang]?.[key] ?? STRINGS.en?.[key] ?? STRINGS.de[key] ?? key; }
-function toggleLang() {
-  setLang(lang === "de" ? "en" : "de");
-}
 function setLang(newLang) {
   lang = newLang;
   localStorage.setItem("p_lang", lang);
@@ -1206,6 +1192,7 @@ const STRINGS = {
     season_north:"İklim normu · Kuzey Almanya",
     season_central:"İklim normu · Orta Almanya",
     season_south:"İklim normu · Güney Almanya",
+    season_east:"İklim normu · Doğu Almanya",
     pred_tomorrow:"Yarın beklenen",
     based_on_history:"geçmişten",
     no_api_key_msg:"Google API anahtarı gerekli",
@@ -1381,7 +1368,7 @@ const DAYS      = ["today","tomorrow","dayafter_to"];
 function DAY_NAMES() { return [t("today"), t("tomorrow"), t("dayafter")]; }
 function MONTHS_ARR() { return t("months").split(","); }
 
-const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev", lang:"p_lang", meds:"p_meds" };
+const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", cache_ts:"p_cache_ts", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev", lang:"p_lang", meds:"p_meds", notifDate:"p_notif_date", notifAsked:"p_notif_asked" };
 
 // Koordinaten je DWD-Region für Wetter-API
 const REGION_COORDS = {
@@ -1413,12 +1400,12 @@ let filter    = JSON.parse(localStorage.getItem(LS.filter) || "null") || POLLEN.
 let activeDay = 0;
 let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
-let severity  = JSON.parse(localStorage.getItem("p_sev")  || "{}");
+let severity  = JSON.parse(localStorage.getItem(LS.sev)  || "{}");
 let draft     = {niesen:0,augen:0,atmung:0,muedigkeit:0};
-let medications = JSON.parse(localStorage.getItem("p_meds") || "{}");
+let medications = JSON.parse(localStorage.getItem(LS.meds) || "{}");
 let medDraft  = {antihistamine:false,eyedrops:false,nasal:false,cortisone:false};
 let symSaved  = !!symptoms[new Date().toISOString().slice(0,10)];
-let openSections = new Set(JSON.parse(localStorage.getItem("p_open") || '["pollen"]'));
+let openSections = new Set(JSON.parse(localStorage.getItem(LS.open) || '["pollen"]'));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME
@@ -1426,7 +1413,7 @@ let openSections = new Set(JSON.parse(localStorage.getItem("p_open") || '["polle
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   document.getElementById("theme-btn").textContent = theme==="dark" ? "☀️" : "🌙";
-  document.getElementById("theme-meta").content = theme==="dark" ? "#18181b" : "#ffffff";
+  document.getElementById("theme-meta").content = theme==="dark" ? "#111114" : "#f5f0eb";
 }
 function doRefresh() {
   const btn = document.getElementById("refresh-btn");
@@ -1523,27 +1510,6 @@ function calcBestTimes(pol, dayIdx) {
   return { good, avoid: avoid_slots[0] ?? null };
 }
 
-function renderBestTime(pol, dayIdx) {
-  if (!weather) return "";
-  const bt = calcBestTimes(pol, dayIdx);
-  if (!bt) return "";
-  return `
-    <div class="card">
-      <div class="card-head collapsible" onclick="toggleSection('besttime')">
-        <span class="card-title">🕐 ${t("besttime_title")}</span>
-        <span class="collapse-arrow">▼</span>
-      </div>
-      <div class="collapsible-body" id="besttime-body">
-        <div class="time-windows">
-          ${bt.good.length
-            ? bt.good.map(w=>`<div class="time-win good">✓ ${w}</div>`).join("")
-            : `<div class="time-win none">⚠ ${t("besttime_none")}</div>`}
-          ${bt.avoid ? `<div class="time-win warn">⚠ ${t("besttime_avoid")}: ${bt.avoid}</div>` : ""}
-        </div>
-        <div class="time-note">${t("besttime_note")}</div>
-      </div>
-    </div>`;
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HISTORY: store today's data in localStorage
@@ -1682,7 +1648,7 @@ function _renderInner() {
         ? new Date(weather.fetchedAt).toLocaleTimeString(lang==="de"?"de-DE":"en-GB",{hour:"2-digit",minute:"2-digit"})
         : "";
       // week day names
-      const wkNames = lang==="de" ? ["Mo","Di","Mi","Do","Fr","Sa","So"] : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+      const wkNames = lang==="de" ? ["Mo","Di","Mi","Do","Fr","Sa","So"] : lang==="tr" ? ["Pt","Sa","Ça","Pe","Cu","Ct","Pz"] : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
       function wkIcon(rain, wind) {
         if (rain > 3) return "🌧";
         if (rain > 0.5) return "🌦";
@@ -1818,109 +1784,6 @@ function _renderInner() {
   renderSrcBar();
 }
 
-function renderHistory() {
-  const allDays = Object.keys(history).sort();
-  if (allDays.length < 1) {
-    return `<div style="padding:12px 14px;font-size:.83rem;color:var(--text3)">${t("wh_no_data")}</div>`;
-  }
-
-  // Day names Mon–Sun (0=Mon, 6=Sun in our grid)
-  const isDE = lang === "de";
-  const DOW = isDE
-    ? ["Mo","Di","Mi","Do","Fr","Sa","So"]
-    : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-
-  const todayStr = todayISO();
-
-  // Group dates by ISO week (Mon-based). Week key = date of Monday.
-  function isoWeekMonday(dateStr) {
-    const d = new Date(dateStr + "T12:00:00");
-    const day = (d.getDay() + 6) % 7; // 0=Mon … 6=Sun
-    const mon = new Date(d); mon.setDate(d.getDate() - day);
-    return mon.toISOString().slice(0, 10);
-  }
-
-  // Build a set of all weeks we need (from first day to today)
-  const firstDay = allDays[0];
-  const weekSet = new Set();
-  {
-    const cur = new Date(isoWeekMonday(firstDay) + "T12:00:00");
-    const end = new Date(isoWeekMonday(todayStr) + "T12:00:00");
-    while (cur <= end) {
-      weekSet.add(cur.toISOString().slice(0, 10));
-      cur.setDate(cur.getDate() + 7);
-    }
-  }
-  const weeks = [...weekSet].sort().slice(-13); // max 13 weeks (~3 months)
-
-  // Compute daily risk score from history
-  function dayScore(dateStr) {
-    const h = history[dateStr];
-    if (!h) return -1;
-    let max = -1;
-    for (const p of POLLEN) {
-      if (!filter.includes(p.key)) continue;
-      const sc = lv(h[p.key] ?? "-1").sc;
-      if (sc > max) max = sc;
-    }
-    return max; // -1 = no data, 0 = none, 1 = low, 2 = mid, 3 = high
-  }
-
-  const headerCells = DOW.map((d, i) =>
-    `<div class="wh-dayname${i>=5?" wh-weekend":""}">${d}</div>`
-  ).join("");
-
-  const rows = weeks.map(monStr => {
-    const monDate = new Date(monStr + "T12:00:00");
-    const weekLabel = monDate.toLocaleDateString(isDE?"de-DE":"en-GB",{day:"2-digit",month:"2-digit"});
-
-    const cells = Array.from({length: 7}, (_, i) => {
-      const d = new Date(monDate); d.setDate(monDate.getDate() + i);
-      const dStr2 = d.toISOString().slice(0, 10);
-      const dayNum = d.getDate();
-      const isFuture = dStr2 > todayStr;
-      const isToday = dStr2 === todayStr;
-      const sc = dayScore(dStr2);
-      const hasData = sc >= 0;
-
-      let cls = "wh-cell";
-      if (isToday) cls += " wh-today";
-      if (isFuture) cls += " wh-future";
-
-      const scAttr = hasData && !isFuture ? ` data-sc="${sc}"` : "";
-      const dot = hasData && !isFuture && sc > 0 ? `<div class="wh-dot"></div>` : "";
-      const titleText = isFuture ? dStr2 : (hasData ? `${dStr2}: ${["–","▲","▲▲","▲▲▲"][sc]??sc}` : dStr2);
-
-      return `<div class="${cls}"${scAttr} title="${titleText}">
-        <span class="wh-date">${dayNum}</span>${dot}
-      </div>`;
-    }).join("");
-
-    return `<div class="wh-row"><div class="wh-week-label">${weekLabel}</div>${cells}</div>`;
-  }).join("");
-
-  const legItems = [
-    {bg:"var(--border)",                              label: t("wh_leg_empty")},
-    {bg:"color-mix(in srgb,#65a30d 35%,var(--card))",label: t("wh_leg_none")},
-    {bg:"color-mix(in srgb,#65a30d 35%,var(--card))",label: t("wh_leg_low")},
-    {bg:"color-mix(in srgb,#a16207 45%,var(--card))",label: t("wh_leg_mid")},
-    {bg:"color-mix(in srgb,#b91c1c 55%,var(--card))",label: t("wh_leg_high")},
-  ].map(({bg, label}) =>
-    `<div class="wh-leg-item">
-      <div class="wh-leg-dot" style="background:${bg}"></div>
-      <span>${label}</span>
-    </div>`
-  ).join("");
-
-  return `
-    <div class="week-heatmap">
-      <div class="week-heatmap-inner">
-        <div class="wh-header"><div></div>${headerCells}</div>
-        ${rows}
-        <div class="wh-legend">${legItems}</div>
-      </div>
-    </div>`;
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 2025 SEASON OVERVIEW  (phänologische Klimanorm · Hannover)
@@ -2103,17 +1966,6 @@ function renderSymHistory() {
 // ─────────────────────────────────────────────────────────────────────────────
 function setDay(i) { activeDay=i; render(); }
 
-function toggleFilter(key) {
-  if (!POLLEN.some(p => p.key === key)) return;
-  filter = filter.includes(key) ? filter.filter(k=>k!==key) : [...filter,key];
-  localStorage.setItem(appMode === "de" ? LS.filter : LS.filter + "_" + appMode, JSON.stringify(filter));
-  render();
-}
-function resetFilter() {
-  filter = POLLEN.map(p=>p.key);
-  localStorage.setItem(appMode === "de" ? LS.filter : LS.filter + "_" + appMode, JSON.stringify(filter));
-  render();
-}
 
 function setSym(key, val) {
   draft[key] = val;
@@ -2456,15 +2308,15 @@ async function maybeNotify() {
   if (Notification.permission === "denied") return;
   if (!db?.pollen_available) return;
   const today = todayISO();
-  if (localStorage.getItem("p_notif_date") === today) return;
+  if (localStorage.getItem(LS.notifDate) === today) return;
   const reg = db.regions.find(r => rk(r) === rKey) ?? db.regions[0];
   const risk = personalRisk(reg?.pollen, 0);
-  if (risk.max === 0) { localStorage.setItem("p_notif_date", today); return; }
+  if (risk.max === 0) { localStorage.setItem(LS.notifDate, today); return; }
   if (Notification.permission !== "granted") return; // only auto-notify if already granted
   const drivers = risk.drivers.slice(0,2).map(p => `${p.icon} ${t(p.key)}`).join(", ");
   const body = `${RISK[risk.max].label}${drivers ? ` · ${drivers}` : ""}`;
   new Notification("🌿 Pollenflug", { body, icon:"./apple-touch-icon.png", tag:"pollen-daily" });
-  localStorage.setItem("p_notif_date", today);
+  localStorage.setItem(LS.notifDate, today);
 }
 
 async function requestNotifPermission() {
@@ -2478,7 +2330,7 @@ async function requestNotifPermission() {
 function showNotifPrompt() {
   if (!("Notification" in window)) return;
   if (Notification.permission !== "default") return;
-  if (localStorage.getItem("p_notif_asked")) return;
+  if (localStorage.getItem(LS.notifAsked)) return;
   document.getElementById("np-title").textContent = t("notif_prompt_title");
   document.getElementById("np-body").textContent  = t("notif_prompt_body");
   document.getElementById("np-yes").textContent   = t("notif_prompt_yes");
@@ -2487,7 +2339,7 @@ function showNotifPrompt() {
 }
 function _closeNotifPrompt() {
   document.getElementById("notif-prompt-overlay").classList.remove("show");
-  localStorage.setItem("p_notif_asked", "1");
+  localStorage.setItem(LS.notifAsked, "1");
 }
 async function notifPromptYes() {
   _closeNotifPrompt();
@@ -2787,7 +2639,7 @@ function refreshDrawer() {
     </div>
 
     <!-- BEST TIME OUTSIDE -->
-    <div class="dsec-head${db?.pollen_available === false ? ' style="display:none"' : ''}" onclick="toggleDrawerSec('dbesttime')" id="dbesttime-head">
+    <div class="dsec-head" ${db?.pollen_available === false ? 'style="display:none"' : ''} onclick="toggleDrawerSec('dbesttime')" id="dbesttime-head">
       <span>🕐 ${t("besttime_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
@@ -2807,7 +2659,7 @@ function refreshDrawer() {
     </div>
 
     <!-- TIPS FOR TODAY -->
-    <div class="dsec-head${db?.pollen_available === false ? ' style="display:none"' : ''}" onclick="toggleDrawerSec('dtips')" id="dtips-head">
+    <div class="dsec-head" ${db?.pollen_available === false ? 'style="display:none"' : ''} onclick="toggleDrawerSec('dtips')" id="dtips-head">
       <span>${t("tips_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
@@ -3055,11 +2907,13 @@ function toggleDrawerSec(id) {
 // ─────────────────────────────────────────────────────────────────────────────
 function exportData() {
   const data = {
-    version: 2,
+    version: 3,
     exported: new Date().toISOString(),
     symptoms: JSON.parse(localStorage.getItem(LS.syms) || "{}"),
     history:  JSON.parse(localStorage.getItem(LS.hist) || "{}"),
     medications: JSON.parse(localStorage.getItem(LS.meds) || "{}"),
+    filter: JSON.parse(localStorage.getItem(appMode === "de" ? LS.filter : LS.filter + "_" + appMode) || "[]"),
+    severity: JSON.parse(localStorage.getItem(LS.sev) || "{}"),
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
   const url  = URL.createObjectURL(blob);
@@ -3105,6 +2959,14 @@ function importData(e) {
       if (data.symptoms) localStorage.setItem(LS.syms, JSON.stringify(data.symptoms));
       if (data.history)  localStorage.setItem(LS.hist, JSON.stringify(data.history));
       if (data.medications) localStorage.setItem(LS.meds, JSON.stringify(data.medications));
+      if (data.filter && Array.isArray(data.filter)) {
+        localStorage.setItem(appMode === "de" ? LS.filter : LS.filter + "_" + appMode, JSON.stringify(data.filter));
+        filter = data.filter;
+      }
+      if (data.severity && typeof data.severity === "object") {
+        localStorage.setItem(LS.sev, JSON.stringify(data.severity));
+        severity = data.severity;
+      }
       symptoms = JSON.parse(localStorage.getItem(LS.syms) || "{}");
       history  = JSON.parse(localStorage.getItem(LS.hist) || "{}");
       medications = JSON.parse(localStorage.getItem(LS.meds) || "{}");
@@ -3160,8 +3022,9 @@ function setSeverity(key, level) {
     btn.style.color        = active ? "var(--text)" : "var(--text3)";
   });
   // Re-render main page without refreshing drawer (keeps drawer sections open)
+  const _prevOpen = new Set(openSections);
   try { _renderInner(); } catch(e) { console.error("render() error:", e); }
-  _open.forEach(id => toggleSection(id, false));
+  _prevOpen.forEach(id => toggleSection(id, false));
   renderSrcBar();
 }
 
@@ -3267,13 +3130,13 @@ async function loadDE() {
     if (!res.ok) throw new Error();
     db = await res.json();
     localStorage.setItem(LS.cache, JSON.stringify(db));
-    localStorage.setItem(LS.cache + "_ts", new Date().toISOString());
+    localStorage.setItem(LS.cache_ts, new Date().toISOString());
   } catch {
     const c = localStorage.getItem(LS.cache);
     if (c) {
       db = JSON.parse(c);
       const pill = document.getElementById("offline-pill");
-      const tsStr = localStorage.getItem(LS.cache + "_ts");
+      const tsStr = localStorage.getItem(LS.cache_ts);
       if (tsStr) {
         const d = new Date(tsStr);
         const time = d.toLocaleTimeString(lang==="de"?"de-DE":"en-GB",{hour:"2-digit",minute:"2-digit"});
@@ -3513,7 +3376,7 @@ init();
 // ── AUTO-REFRESH bei App-Wechsel ─────────────────────────────────────────────
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") {
-    const ts = localStorage.getItem(LS.cache + "_ts");
+    const ts = localStorage.getItem(LS.cache_ts);
     const ageMin = ts ? (Date.now() - new Date(ts).getTime()) / 60000 : 999;
     if (ageMin > 30) init(); // neu laden wenn Daten älter als 30 Min
   }
