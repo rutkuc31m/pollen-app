@@ -30,7 +30,7 @@
       --glow:    none;
     }
     [data-theme="dark"] {
-      --bg:     #1a1a1e;
+      --bg:     #111114;
       --card:   rgba(255,255,255,.06);
       --card2:  rgba(255,255,255,.04);
       --border: rgba(255,255,255,.08);
@@ -53,7 +53,7 @@
       min-height: 100vh;
     }
     [data-theme="dark"] body {
-      background: linear-gradient(160deg, #1a1a1e 0%, #18181c 40%, #1c1c20 100%);
+      background: linear-gradient(160deg, #111114 0%, #0f0f12 40%, #131316 100%);
       background-attachment: fixed;
     }
     button, select { font-family: inherit; }
@@ -1418,7 +1418,7 @@ let openSections = new Set(JSON.parse(localStorage.getItem(LS.open) || '["pollen
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   document.getElementById("theme-btn").textContent = theme==="dark" ? "☀️" : "🌙";
-  document.getElementById("theme-meta").content = theme==="dark" ? "#1a1a1e" : "#f5f0eb";
+  document.getElementById("theme-meta").content = theme==="dark" ? "#111114" : "#f5f0eb";
 }
 function doRefresh() {
   const btn = document.getElementById("refresh-btn");
