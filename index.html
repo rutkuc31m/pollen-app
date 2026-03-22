@@ -1168,6 +1168,43 @@ const OM_THR = {
   tree:[100,500],
 };
 
+// Shared parser for Open-Meteo Air Quality hourly data → pollen levels
+function parseOpenMeteoPollen(raw, vars, pollenAvailable) {
+  const dayKeys = ["today", "tomorrow", "dayafter_to"];
+  const pollen = {};
+  const dates = [];
+  if (pollenAvailable && raw?.hourly?.time) {
+    const byDate = {};
+    raw.hourly.time.forEach((ts, i) => {
+      const date = ts.slice(0, 10);
+      const hour = parseInt(ts.slice(11, 13));
+      if (hour < 6 || hour > 20) return;
+      if (!byDate[date]) byDate[date] = {};
+      for (const v of vars) {
+        const key = OM_KEY[v];
+        const val = raw.hourly[v]?.[i] ?? 0;
+        byDate[date][key] = Math.max(byDate[date][key] ?? 0, val);
+      }
+    });
+    dates.push(...Object.keys(byDate).sort().slice(0, 3));
+    for (const p of POLLEN) {
+      pollen[p.key] = {};
+      dayKeys.forEach((dk, di) => {
+        const date = dates[di];
+        if (!date) { pollen[p.key][dk] = "-1"; return; }
+        const v = byDate[date]?.[p.key] ?? 0;
+        const [t1, t2] = OM_THR[p.key] ?? [10, 50];
+        pollen[p.key][dk] = v <= 0 ? "0" : v < t1 ? "1" : v < t2 ? "2" : "3";
+      });
+    }
+  } else {
+    for (const p of POLLEN) {
+      pollen[p.key] = Object.fromEntries(dayKeys.map(dk => [dk, "-1"]));
+    }
+  }
+  return { pollen, dates };
+}
+
 const LV = {
   "-1":{ cls:"b-none", sc:0, get label(){ return "–"; },            rc:"none" },
   "0": { cls:"b-none", sc:0, get label(){ return t("lv_none"); },   rc:"none" },
@@ -1187,8 +1224,8 @@ const RISK = [
 ];
 
 const DAYS      = ["today","tomorrow","dayafter_to"];
-const DAY_NAMES = [t("today"), t("tomorrow"), t("dayafter")];
-const MONTHS    = t("months").split(",");
+function DAY_NAMES() { return [t("today"), t("tomorrow"), t("dayafter")]; }
+function MONTHS_ARR() { return t("months").split(","); }
 
 const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev", lang:"p_lang" };
 
@@ -1307,18 +1344,27 @@ function calcExposureScore(pol, dayIdx) {
 // BEST TIME OUTSIDE
 // ─────────────────────────────────────────────────────────────────────────────
 function calcBestTimes(pol, dayIdx) {
-  const wd   = weather?.daily?.[dayIdx];
+  const wd = weather?.daily?.[dayIdx];
   if (!wd) return null;
   const risk = personalRisk(pol, dayIdx).max;
   const wind = wd.wind ?? 0, rain = wd.rain ?? 0, uv = wd.uv ?? 0;
+
   if (risk === 0) return { good: [t("besttime_allday")], avoid: null };
-  if (risk >= 3 && wind > 25 && rain < 0.5) return { good: [], avoid: null };
-  if (risk >= 3 && wind > 20) return { good: [], avoid: t("besttime_none") };
-  const good = [];
-  if (wind <= 20) good.push("06:00–09:00");
-  if (wind <= 25 && rain < 3) good.push("19:00–22:00");
-  const avoid = (uv > 5 && risk >= 2) ? "11:00–16:00" : null;
-  return { good, avoid };
+  if (risk >= 3 && wind > 25 && rain < 0.5) return { good: [], avoid: t("besttime_none") };
+
+  // Pollen dispersal: low early morning (06-09), peaks midday (10-16), drops evening (19-22)
+  const good = [], avoid_slots = [];
+
+  const morningGood = !(wind > 25 && rain < 0.5 && risk >= 2);
+  if (morningGood && risk <= 2) good.push("06:00–09:00");
+
+  const eveningGood = risk < 3 || rain > 1;
+  if (eveningGood) good.push("19:00–22:00");
+
+  if (uv > 4 && risk >= 2 && rain < 1) avoid_slots.push("10:00–17:00");
+  else if (risk >= 3 && wind > 20) avoid_slots.push("11:00–16:00");
+
+  return { good, avoid: avoid_slots[0] ?? null };
 }
 
 function renderBestTime(pol, dayIdx) {
@@ -1366,6 +1412,18 @@ function storeHistoryDay(pol) {
 // RENDER
 // ─────────────────────────────────────────────────────────────────────────────
 function render() {
+  try { _renderInner(); } catch(e) {
+    console.error("render() error:", e);
+    document.getElementById("page").innerHTML =
+      `<div class="center" style="color:var(--text2)">
+        <div style="font-size:1.5rem;margin-bottom:8px">⚠️</div>
+        <div style="font-size:.9rem;font-weight:600;margin-bottom:4px">${t("no_data")}</div>
+        <div style="font-size:.78rem">${t("check_conn")}</div>
+        <button onclick="location.reload()" style="margin-top:12px;padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);cursor:pointer;font-size:.84rem">↻ Reload</button>
+      </div>`;
+  }
+}
+function _renderInner() {
   const reg   = region();
   const pol   = reg.pollen;
   const month = new Date().getMonth()+1;
@@ -1391,7 +1449,7 @@ function render() {
       <div class="hero-badge risk-none" style="font-size:1.6rem;font-weight:800">?</div>
       <div class="hero-body">
         <div class="hero-risk risk-none" style="font-size:1rem">${t("pollen_unavailable_short")}</div>
-        <div class="hero-loc">${escapeHtml(reg.region_name)} · ${DAY_NAMES[activeDay]}</div>
+        <div class="hero-loc">${escapeHtml(reg.region_name)} · ${DAY_NAMES()[activeDay]}</div>
       </div>
     </div>` : (() => {
       const todayScore    = personalRisk(pol, 0).max;
@@ -1425,7 +1483,7 @@ function render() {
           ${risk.label}${trend ? ` <span style="font-size:1rem;opacity:.8">${trend}</span>` : ""}
         </div>
         ${trendLabel ? `<div style="font-size:.76rem;color:var(--text2);margin-top:1px">${t("tendency")}: ${trendLabel}</div>` : ""}
-        <div class="hero-loc">${escapeHtml(reg.region_name)}${reg.partregion_name?` · ${escapeHtml(reg.partregion_name)}`:""} · ${DAY_NAMES[activeDay]}</div>
+        <div class="hero-loc">${escapeHtml(reg.region_name)}${reg.partregion_name?` · ${escapeHtml(reg.partregion_name)}`:""} · ${DAY_NAMES()[activeDay]}</div>
         ${summaryHtml}
         ${risk.drivers.length ? `
           <div class="hero-drivers">
@@ -1510,7 +1568,7 @@ function render() {
 
     <!-- 3-DAY STRIP -->
     <div class="days-strip">
-      ${DAY_NAMES.map((n,i)=>{
+      ${DAY_NAMES().map((n,i)=>{
         const sc = dayScores[i];
         const cl = ["risk-none","risk-low","risk-mid","risk-high"][sc];
         const ri = RISK[sc];
@@ -1547,7 +1605,7 @@ function render() {
     <!-- POLLEN TABLE -->
     <div class="card">
       <div class="card-head collapsible" onclick="toggleSection('pollen')">
-        <span class="card-title">${t("all_pollen")} · ${DAY_NAMES[activeDay]}</span>
+        <span class="card-title">${t("all_pollen")} · ${DAY_NAMES()[activeDay]}</span>
         <span class="collapse-arrow">▼</span>
       </div>
       <div class="collapsible-body" id="pollen-body">
@@ -1556,7 +1614,7 @@ function render() {
         <thead>
           <tr>
             <th>Pollen</th>
-            ${DAY_NAMES.map((n,i)=>`<th class="${i===activeDay?"col-hi":""}">${n}<br><span style="text-transform:none;font-size:.65rem;font-weight:400;letter-spacing:0">${dStr(i)}</span></th>`).join("")}
+            ${DAY_NAMES().map((n,i)=>`<th class="${i===activeDay?"col-hi":""}">${n}<br><span style="text-transform:none;font-size:.65rem;font-weight:400;letter-spacing:0">${dStr(i)}</span></th>`).join("")}
           </tr>
         </thead>
         <tbody>
@@ -2379,12 +2437,12 @@ function refreshDrawer() {
     </div>
     <div class="dsec-body" id="dseason-body">
       <div class="season-wrap">
-        <div class="season-mhead">${MONTHS.map(m=>`<div class="season-ml">${m}</div>`).join("")}</div>
+        <div class="season-mhead">${MONTHS_ARR().map(m=>`<div class="season-ml">${m}</div>`).join("")}</div>
         ${POLLEN.map(p=>`
           <div class="season-row">
             <div class="season-name">${p.icon} ${t(p.key)}</div>
             <div class="season-bar">
-              ${MONTHS.map((_,mi)=>{
+              ${MONTHS_ARR().map((_,mi)=>{
                 const m=mi+1,on=p.mo.includes(m),now=(m===month&&on);
                 return `<div class="sm${now?" now":on?" on":""}"></div>`;
               }).join("")}
@@ -2612,12 +2670,26 @@ function importData(e) {
         if (typeof data.symptoms !== "object" || Array.isArray(data.symptoms)) throw new Error("invalid");
         for (const [d, v] of Object.entries(data.symptoms)) {
           if (!DATE_RE.test(d) || typeof v !== "object" || Array.isArray(v)) throw new Error("invalid");
+          // Sanitize: symptom values must be integers 0-5
+          for (const k of ["niesen","augen","atmung","muedigkeit"]) {
+            const val = Number(v[k]);
+            v[k] = (Number.isInteger(val) && val >= 0 && val <= 5) ? val : 0;
+          }
+          // Remove any unexpected keys
+          const clean = {};
+          for (const k of ["niesen","augen","atmung","muedigkeit"]) clean[k] = v[k];
+          data.symptoms[d] = clean;
         }
       }
       if (data.history) {
         if (typeof data.history !== "object" || Array.isArray(data.history)) throw new Error("invalid");
         for (const [d, v] of Object.entries(data.history)) {
           if (!DATE_RE.test(d) || typeof v !== "object" || Array.isArray(v)) throw new Error("invalid");
+          // Sanitize: history values must be valid DWD levels
+          const validLevels = ["-1","0","0-1","1","1-2","2","2-3","3"];
+          for (const [pk, pv] of Object.entries(v)) {
+            if (!validLevels.includes(String(pv))) v[pk] = "-1";
+          }
         }
       }
       if (data.symptoms) localStorage.setItem(LS.syms, JSON.stringify(data.symptoms));
@@ -2636,7 +2708,7 @@ function importData(e) {
 // ─────────────────────────────────────────────────────────────────────────────
 function shareUrl() {
   const flt = filter.join(",");
-  const url = `${location.origin}${location.pathname}?rgn=${encodeURIComponent(rKey)}&flt=${encodeURIComponent(flt)}`;
+  const url = `${location.origin}${location.pathname}?rgn=${encodeURIComponent(rKey)}&flt=${encodeURIComponent(flt)}&mode=${appMode}&lang=${lang}`;
   if (navigator.share) {
     navigator.share({ title: "Pollenflug", url }).catch(() => {});
   } else if (navigator.clipboard?.writeText) {
@@ -2743,39 +2815,7 @@ async function fetchTRCity(city) {
     }
   }
 
-  const dayKeys = ["today", "tomorrow", "dayafter_to"];
-  const pollen = {};
-  const dates = [];
-
-  if (pollenAvailable && raw?.hourly?.time) {
-    const byDate = {};
-    raw.hourly.time.forEach((ts, i) => {
-      const date = ts.slice(0, 10);
-      const hour = parseInt(ts.slice(11, 13));
-      if (hour < 6 || hour > 20) return;
-      if (!byDate[date]) byDate[date] = {};
-      for (const v of vars) {
-        const key = OM_KEY[v];
-        const val = raw.hourly[v]?.[i] ?? 0;
-        byDate[date][key] = Math.max(byDate[date][key] ?? 0, val);
-      }
-    });
-    dates.push(...Object.keys(byDate).sort().slice(0, 3));
-    for (const p of POLLEN) {
-      pollen[p.key] = {};
-      dayKeys.forEach((dk, di) => {
-        const date = dates[di];
-        if (!date) { pollen[p.key][dk] = "-1"; return; }
-        const v = byDate[date]?.[p.key] ?? 0;
-        const [t1, t2] = OM_THR[p.key] ?? [10, 50];
-        pollen[p.key][dk] = v <= 0 ? "0" : v < t1 ? "1" : v < t2 ? "2" : "3";
-      });
-    }
-  } else {
-    for (const p of POLLEN) {
-      pollen[p.key] = Object.fromEntries(dayKeys.map(dk => [dk, "-1"]));
-    }
-  }
+  const { pollen, dates } = parseOpenMeteoPollen(raw, vars, pollenAvailable);
 
   // Update geoInfo coords so weather fetches for correct city
   if (geoInfo) { geoInfo.latitude = city.lat; geoInfo.longitude = city.lon; }
@@ -2901,7 +2941,7 @@ async function loadGlobal() {
     // API returns {error:true} when variables unsupported for region
     if (!json.error && json.hourly) {
       // Check if any pollen variable has actual (non-null) data
-      pollenAvailable = vars.some(v => json.hourly[v]?.some(x => x !== null && x > 0));
+      pollenAvailable = vars.some(v => json.hourly[v]?.some(x => x !== null));
       raw = json;
       localStorage.setItem(LS.cache + "_om", JSON.stringify({raw, ts: Date.now(), lat, lon}));
     }
@@ -2910,48 +2950,14 @@ async function loadGlobal() {
     if (cached) {
       const c = JSON.parse(cached);
       raw = c.raw;
-      pollenAvailable = vars.some(v => raw.hourly?.[v]?.some(x => x !== null && x > 0));
+      pollenAvailable = vars.some(v => raw.hourly?.[v]?.some(x => x !== null));
       const pill = document.getElementById("offline-pill");
       pill.textContent = t("offline");
       pill.classList.add("show");
     }
   }
 
-  // Build pollen data: real values if available, else all "-1" (no data)
-  const dayKeys = ["today", "tomorrow", "dayafter_to"];
-  const pollen = {};
-  const dates = [];
-
-  if (pollenAvailable && raw?.hourly?.time) {
-    const byDate = {};
-    raw.hourly.time.forEach((ts, i) => {
-      const date = ts.slice(0, 10);
-      const hour = parseInt(ts.slice(11, 13));
-      if (hour < 6 || hour > 20) return;
-      if (!byDate[date]) byDate[date] = {};
-      for (const v of vars) {
-        const key = OM_KEY[v];
-        const val = raw.hourly[v]?.[i] ?? 0;
-        byDate[date][key] = Math.max(byDate[date][key] ?? 0, val);
-      }
-    });
-    dates.push(...Object.keys(byDate).sort().slice(0, 3));
-    for (const p of POLLEN) {
-      pollen[p.key] = {};
-      dayKeys.forEach((dk, di) => {
-        const date = dates[di];
-        if (!date) { pollen[p.key][dk] = "-1"; return; }
-        const v = byDate[date]?.[p.key] ?? 0;
-        const [t1, t2] = OM_THR[p.key] ?? [10, 50];
-        pollen[p.key][dk] = v <= 0 ? "0" : v < t1 ? "1" : v < t2 ? "2" : "3";
-      });
-    }
-  } else {
-    // No pollen data for this region — fill with "-1" (unknown)
-    for (const p of POLLEN) {
-      pollen[p.key] = Object.fromEntries(dayKeys.map(dk => [dk, "-1"]));
-    }
-  }
+  const { pollen, dates } = parseOpenMeteoPollen(raw, vars, pollenAvailable);
 
   db = {
     last_update: dates[0] ?? todayISO(),
@@ -2980,8 +2986,14 @@ async function relocate() {
 }
 
 async function init() {
-  // Manual override takes priority over auto-detection
-  const manualMode = localStorage.getItem(LS.mode); // "de"|"eu"|"us"|null
+  // URL params can override mode and lang (from shared links)
+  const urlParams = new URLSearchParams(location.search);
+  const urlMode = urlParams.get("mode");
+  const urlLang = urlParams.get("lang");
+  if (urlLang && ["de","en","tr"].includes(urlLang)) setLang(urlLang);
+
+  // Manual override takes priority; URL mode overrides auto-detection
+  const manualMode = urlMode && ["de","eu","us","tr"].includes(urlMode) ? urlMode : localStorage.getItem(LS.mode);
 
   // Only fetch geoInfo once per session; reuse if already set
   if (!geoInfo) {
@@ -3207,42 +3219,6 @@ window.addEventListener("appinstalled", () => {
   showToast("✓ App installiert");
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// IMPROVED BEST TIME OUTSIDE (hourly pattern)
-// Replaces wind-only estimation with morning-low/midday-high pattern
-// ─────────────────────────────────────────────────────────────────────────────
-// Override calcBestTimes with an improved version that uses pollen dispersion patterns
-(function() {
-  const _orig = calcBestTimes;
-  window.calcBestTimes = function(pol, dayIdx) {
-    const wd = weather?.daily?.[dayIdx];
-    if (!wd) return null;
-    const risk = personalRisk(pol, dayIdx).max;
-    const wind = wd.wind ?? 0, rain = wd.rain ?? 0, uv = wd.uv ?? 0;
-
-    if (risk === 0) return { good: [t("besttime_allday")], avoid: null };
-
-    // Pollen dispersal: low early morning (06-09), peaks midday (10-16), drops evening (19-22)
-    // Rain suppresses, wind amplifies
-    const good = [], avoid_slots = [];
-
-    // Morning window: generally good unless strong wind + dry
-    const morningGood = !(wind > 25 && rain < 0.5 && risk >= 2);
-    if (morningGood && risk <= 2) good.push("06:00–09:00");
-
-    // Evening window: generally better (pollen settles)
-    const eveningGood = risk < 3 || rain > 1;
-    if (eveningGood) good.push("19:00–22:00");
-
-    // Midday is usually worst if high pollen + dry + UV
-    if (uv > 4 && risk >= 2 && rain < 1) avoid_slots.push("10:00–17:00");
-    else if (risk >= 3 && wind > 20) avoid_slots.push("11:00–16:00");
-
-    if (risk >= 3 && wind > 25 && rain < 0.5) return { good: [], avoid: t("besttime_none") };
-
-    return { good, avoid: avoid_slots[0] ?? null };
-  };
-})();
 </script>
 </body>
 </html>
