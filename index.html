@@ -385,7 +385,7 @@
     .swipe-dot.active { background: var(--accent); }
 
     /* ── WEEK WEATHER ────────────────────────────────── */
-    .week-strip { padding: 0 14px 12px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+    .week-strip { padding: 0 14px 12px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; justify-content: center; }
     .week-strip::-webkit-scrollbar { display: none; }
     .week-day {
       flex: 0 0 auto; min-width: 52px; text-align: center;
@@ -584,6 +584,76 @@
       font-size: .77rem; color: var(--text2); display: flex; align-items: center; gap: 8px;
     }
     .accuracy-val { font-weight: 700; color: var(--accent); }
+
+    /* ── MEDICATION TRACKER ─────────────────────────── */
+    .med-row {
+      padding: 8px 14px; display: flex; align-items: center; gap: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .med-icon { font-size: 1rem; width: 24px; text-align: center; flex-shrink: 0; }
+    .med-label { font-size: .82rem; flex: 1; min-width: 0; }
+    .med-toggle {
+      width: 40px; height: 22px; border-radius: 11px;
+      border: 1px solid var(--border); background: var(--card2);
+      cursor: pointer; position: relative; transition: all .15s;
+      flex-shrink: 0;
+    }
+    .med-toggle.on { background: var(--accent); border-color: var(--accent); }
+    .med-toggle::after {
+      content: ""; position: absolute; top: 2px; left: 2px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: #fff; transition: transform .15s;
+    }
+    .med-toggle.on::after { transform: translateX(18px); }
+    .med-hist-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-size: .76rem; }
+    .med-pill {
+      display: inline-block; padding: 1px 7px; border-radius: 10px;
+      font-size: .68rem; font-weight: 500;
+      background: color-mix(in srgb, var(--accent) 15%, var(--card));
+      color: var(--accent);
+    }
+    .med-eff-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+    .med-eff-name { width: 90px; font-size: .78rem; flex-shrink: 0; }
+    .med-eff-bar { flex: 1; background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; }
+    .med-eff-fill { height: 100%; border-radius: 4px; background: var(--accent); }
+    .med-eff-lbl { font-size: .68rem; color: var(--text3); width: 36px; text-align: right; flex-shrink: 0; }
+
+    /* ── TREND CHART ────────────────────────────────── */
+    .trend-chart-wrap { padding: 10px 14px 14px; }
+    .trend-svg { width: 100%; height: 120px; display: block; }
+    .trend-svg text { font-family: inherit; }
+    .trend-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .trend-leg-item { display: flex; align-items: center; gap: 4px; font-size: .68rem; color: var(--text2); }
+    .trend-leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .trend-note { font-size: .65rem; color: var(--text3); margin-top: 4px; }
+
+    /* ── CROSS-ALLERGY ALERT ────────────────────────── */
+    .cross-alert {
+      margin-bottom: 10px; padding: 10px 13px; border-radius: 10px;
+      background: color-mix(in srgb, #f59e0b 10%, var(--card));
+      border: 1px solid color-mix(in srgb, #f59e0b 25%, transparent);
+      font-size: .82rem; color: var(--text); line-height: 1.45;
+    }
+    [data-theme="dark"] .cross-alert {
+      background: color-mix(in srgb, #f59e0b 8%, var(--card));
+    }
+    .cross-alert.cross-high {
+      background: color-mix(in srgb, #ef4444 10%, var(--card));
+      border-color: color-mix(in srgb, #ef4444 25%, transparent);
+    }
+    [data-theme="dark"] .cross-alert.cross-high {
+      background: color-mix(in srgb, #ef4444 8%, var(--card));
+    }
+    .cross-high .cross-food {
+      background: color-mix(in srgb, #ef4444 15%, var(--card));
+    }
+    .cross-alert-title { font-weight: 600; margin-bottom: 4px; }
+    .cross-foods { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+    .cross-food {
+      display: inline-block; padding: 2px 8px; border-radius: 8px;
+      font-size: .74rem; background: color-mix(in srgb, #f59e0b 15%, var(--card));
+      color: var(--text2);
+    }
   </style>
 </head>
 <body>
@@ -819,6 +889,32 @@ const STRINGS = {
     // TR pollen names
     cypress:"Zypresse", plane:"Platane",
     s_cypress:"Jan–Apr", s_plane:"Mär–Mai",
+    // medication tracker
+    med_title: "Medikamente heute",
+    med_antihistamine: "Antihistaminikum",
+    med_eyedrops: "Augentropfen",
+    med_nasal: "Nasenspray",
+    med_cortisone: "Cortison",
+    med_history: "Letzte Medikamenten-Einträge",
+    med_effectiveness: "Medikamenten-Wirksamkeit",
+    med_eff_hint: "Ø Symptomreduktion an Tagen mit Medikament vs. ohne",
+    med_none_today: "Heute kein Medikament genommen",
+    med_reduction: "Reduktion",
+    // trend chart
+    trend_title: "Pollentrend (7 Tage)",
+    trend_note: "Basiert auf gespeichertem Verlauf · letzte 7 Tage",
+    trend_no_data: "Noch nicht genug Verlaufsdaten (mind. 3 Tage)",
+    trend_level: "Stufe",
+    // cross-allergy
+    cross_title: "Kreuzallergie-Hinweis",
+    cross_high: "hoch",
+    cross_mid: "mittel",
+    cross_birch: "Birke ist {lv} – Vorsicht bei Kreuzallergenen:",
+    cross_grass: "Gräser sind {lv} – mögliche Kreuzreaktionen:",
+    cross_mugwort: "Beifuß ist {lv} – Vorsicht bei Kreuzallergenen:",
+    cross_ragweed: "Ambrosia ist {lv} – mögliche Kreuzreaktionen:",
+    cross_alder: "Erle ist {lv} – mögliche Kreuzreaktionen:",
+    cross_hazel: "Hasel ist {lv} – mögliche Kreuzreaktionen:",
   },
   en: {
     // days
@@ -967,6 +1063,32 @@ const STRINGS = {
     // TR pollen names
     cypress:"Cypress", plane:"Plane tree",
     s_cypress:"Jan–Apr", s_plane:"Mar–May",
+    // medication tracker
+    med_title: "Medication today",
+    med_antihistamine: "Antihistamine",
+    med_eyedrops: "Eye drops",
+    med_nasal: "Nasal spray",
+    med_cortisone: "Cortisone",
+    med_history: "Recent medication entries",
+    med_effectiveness: "Medication effectiveness",
+    med_eff_hint: "Avg. symptom reduction on medicated days vs. unmedicated",
+    med_none_today: "No medication taken today",
+    med_reduction: "Reduction",
+    // trend chart
+    trend_title: "Pollen trend (7 days)",
+    trend_note: "Based on stored history · last 7 days",
+    trend_no_data: "Not enough history data yet (need 3+ days)",
+    trend_level: "Level",
+    // cross-allergy
+    cross_title: "Cross-allergy alert",
+    cross_high: "high",
+    cross_mid: "moderate",
+    cross_birch: "Birch is {lv} – watch out for cross-allergens:",
+    cross_grass: "Grass is {lv} – possible cross-reactions:",
+    cross_mugwort: "Mugwort is {lv} – watch out for cross-allergens:",
+    cross_ragweed: "Ragweed is {lv} – possible cross-reactions:",
+    cross_alder: "Alder is {lv} – possible cross-reactions:",
+    cross_hazel: "Hazel is {lv} – possible cross-reactions:",
   },
   tr: {
     today:"Bugün", tomorrow:"Yarın", dayafter:"Öbür gün",
@@ -1092,6 +1214,32 @@ const STRINGS = {
     s_tree:"Şub–May",
     s_birch:"Mar–May", s_alder:"Şub–Nis",
     rain_label:"Yağış",
+    // medication tracker
+    med_title:"Bugün ilaç",
+    med_antihistamine:"Antihistamin",
+    med_eyedrops:"Göz damlası",
+    med_nasal:"Burun spreyi",
+    med_cortisone:"Kortizon",
+    med_history:"Son ilaç kayıtları",
+    med_effectiveness:"İlaç etkinliği",
+    med_eff_hint:"İlaçlı günlerde ort. semptom azalması",
+    med_none_today:"Bugün ilaç alınmadı",
+    med_reduction:"Azalma",
+    // trend chart
+    trend_title:"Polen trendi (7 gün)",
+    trend_note:"Kayıtlı geçmişe göre · son 7 gün",
+    trend_no_data:"Henüz yeterli veri yok (en az 3 gün gerekli)",
+    trend_level:"Seviye",
+    // cross-allergy
+    cross_title:"Çapraz alerji uyarısı",
+    cross_high:"yüksek",
+    cross_mid:"orta",
+    cross_birch:"Huş {lv} – çapraz alerjenlere dikkat:",
+    cross_grass:"Çim {lv} – olası çapraz reaksiyonlar:",
+    cross_mugwort:"Pelin {lv} – çapraz alerjenlere dikkat:",
+    cross_ragweed:"Ambrosia {lv} – olası çapraz reaksiyonlar:",
+    cross_alder:"Kızılağaç {lv} – olası çapraz reaksiyonlar:",
+    cross_hazel:"Fındık {lv} – olası çapraz reaksiyonlar:",
   }
 };
 
@@ -1227,7 +1375,7 @@ const DAYS      = ["today","tomorrow","dayafter_to"];
 function DAY_NAMES() { return [t("today"), t("tomorrow"), t("dayafter")]; }
 function MONTHS_ARR() { return t("months").split(","); }
 
-const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev", lang:"p_lang" };
+const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev", lang:"p_lang", meds:"p_meds" };
 
 // Koordinaten je DWD-Region für Wetter-API
 const REGION_COORDS = {
@@ -1261,6 +1409,8 @@ let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
 let severity  = JSON.parse(localStorage.getItem("p_sev")  || "{}");
 let draft     = {niesen:0,augen:0,atmung:0,muedigkeit:0};
+let medications = JSON.parse(localStorage.getItem("p_meds") || "{}");
+let medDraft  = {antihistamine:false,eyedrops:false,nasal:false,cortisone:false};
 let symSaved  = !!symptoms[new Date().toISOString().slice(0,10)];
 let openSections = new Set(JSON.parse(localStorage.getItem("p_open") || '["pollen"]'));
 
@@ -1509,6 +1659,9 @@ function _renderInner() {
       </div>`;
     })()}
 
+    <!-- CROSS-ALLERGY ALERTS -->
+    ${renderCrossAllergyAlerts(pol, activeDay)}
+
     <!-- WEATHER CARD -->
     ${weather ? (() => {
       const w = weather.current;
@@ -1640,6 +1793,17 @@ function _renderInner() {
       <div style="padding:8px 14px 10px;text-align:right">
         <button class="card-action" onclick="event.stopPropagation();resetFilter()" style="font-size:.78rem">${t("select_all")}</button>
       </div>
+      </div>
+    </div>
+
+    <!-- POLLEN TREND CHART -->
+    <div class="card">
+      <div class="card-head collapsible" onclick="toggleSection('trend')">
+        <span class="card-title">📈 ${t("trend_title")}</span>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="collapsible-body" id="trend-body">
+        ${renderTrendChart()}
       </div>
     </div>`}
 
@@ -1977,6 +2141,8 @@ function saveSym() {
   setTimeout(() => { _symSaveDebounce = false; }, 1200);
   symptoms[todayISO()] = {...draft};
   localStorage.setItem(LS.syms, JSON.stringify(symptoms));
+  // Also save medications
+  saveMeds();
   symSaved = true;
   render();
 }
@@ -2323,6 +2489,230 @@ function notifPromptNo() {
   showToast("💡 " + t("notif_prompt_hint"), 5000);
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// MEDICATION TRACKER
+// ─────────────────────────────────────────────────────────────────────────────
+const MED_TYPES = [
+  {key:"antihistamine", icon:"💊"},
+  {key:"eyedrops",      icon:"👁"},
+  {key:"nasal",         icon:"👃"},
+  {key:"cortisone",     icon:"💉"},
+];
+
+function toggleMed(key) {
+  medDraft[key] = !medDraft[key];
+  const btn = document.querySelector(`.med-toggle[data-med="${key}"]`);
+  if (btn) btn.classList.toggle("on", medDraft[key]);
+}
+
+function saveMeds() {
+  medications[todayISO()] = {...medDraft};
+  localStorage.setItem(LS.meds, JSON.stringify(medications));
+}
+
+function renderMedTracker() {
+  const today = todayISO();
+  const saved = medications[today];
+  if (saved) medDraft = {...medDraft, ...saved};
+
+  const rows = MED_TYPES.map(m => `
+    <div class="med-row">
+      <div class="med-icon">${m.icon}</div>
+      <div class="med-label">${t("med_"+m.key)}</div>
+      <div class="med-toggle${medDraft[m.key]?" on":""}" data-med="${m.key}" onclick="toggleMed('${m.key}')"></div>
+    </div>`).join("");
+
+  // History last 5 days
+  const hist = Object.entries(medications).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,5);
+  const histHtml = hist.length ? `
+    <div style="padding:8px 14px 10px;border-top:1px solid var(--border)">
+      <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:6px">${t("med_history")}</div>
+      ${hist.map(([d,m])=>{
+        const taken = MED_TYPES.filter(mt => m[mt.key]);
+        const dateStr = new Date(d+"T12:00:00").toLocaleDateString(lang==="de"?"de-DE":"en-GB",{day:"2-digit",month:"2-digit"});
+        return `<div class="med-hist-row">
+          <span style="width:42px;color:var(--text3);flex-shrink:0">${dateStr}</span>
+          ${taken.length ? taken.map(mt=>`<span class="med-pill">${mt.icon} ${t("med_"+mt.key)}</span>`).join("") : `<span style="color:var(--text3);font-size:.72rem">${t("med_none_today")}</span>`}
+        </div>`;
+      }).join("")}
+    </div>` : "";
+
+  // Effectiveness analysis
+  const effHtml = renderMedEffectiveness();
+
+  return rows + histHtml + effHtml;
+}
+
+function renderMedEffectiveness() {
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
+  const cutoffStr = cutoff.toISOString().slice(0,10);
+  const symEntries = Object.entries(symptoms).filter(([d]) => d >= cutoffStr);
+  if (symEntries.length < 5) return "";
+
+  const totalSym = s => (s.niesen||0)+(s.augen||0)+(s.atmung||0)+(s.muedigkeit||0);
+  const results = [];
+
+  for (const m of MED_TYPES) {
+    const withMed = [], withoutMed = [];
+    for (const [date, sym] of symEntries) {
+      const med = medications[date];
+      const score = totalSym(sym);
+      if (med && med[m.key]) withMed.push(score);
+      else withoutMed.push(score);
+    }
+    if (withMed.length < 2 || withoutMed.length < 2) continue;
+    const avgWith = withMed.reduce((a,b)=>a+b,0)/withMed.length;
+    const avgWithout = withoutMed.reduce((a,b)=>a+b,0)/withoutMed.length;
+    if (avgWithout === 0) continue;
+    const reduction = Math.round(((avgWithout - avgWith) / avgWithout) * 100);
+    results.push({ m, reduction, nWith: withMed.length, nWithout: withoutMed.length });
+  }
+
+  if (!results.length) return "";
+  const maxReduction = Math.max(...results.map(r => Math.abs(r.reduction)), 1);
+
+  return `
+    <div style="padding:8px 14px 10px;border-top:1px solid var(--border)">
+      <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:6px">${t("med_effectiveness")}</div>
+      ${results.map(({m, reduction, nWith, nWithout}) => {
+        const pct = Math.max(0, Math.round((Math.abs(reduction)/maxReduction)*100));
+        const isPositive = reduction > 0;
+        return `<div class="med-eff-row">
+          <div class="med-eff-name">${m.icon} ${t("med_"+m.key)}</div>
+          <div class="med-eff-bar"><div class="med-eff-fill" style="width:${pct}%;background:${isPositive?"var(--accent)":"#b91c1c"}"></div></div>
+          <div class="med-eff-lbl">${isPositive?"-":"+"} ${Math.abs(reduction)}%</div>
+        </div>`;
+      }).join("")}
+      <div style="font-size:.65rem;color:var(--text3);margin-top:4px">${t("med_eff_hint")}</div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POLLEN TREND CHART (SVG, last 7 days from history)
+// ─────────────────────────────────────────────────────────────────────────────
+function renderTrendChart() {
+  const allDays = Object.keys(history).sort().slice(-7);
+  if (allDays.length < 3) return `<div style="padding:12px 14px;font-size:.82rem;color:var(--text3)">${t("trend_no_data")}</div>`;
+
+  const W = 280, H = 90, PAD_L = 24, PAD_R = 8, PAD_T = 8, PAD_B = 20;
+  const plotW = W - PAD_L - PAD_R, plotH = H - PAD_T - PAD_B;
+  const n = allDays.length;
+
+  // Colors for top pollen types
+  const colors = ["#16a34a","#eab308","#b91c1c","#3b82f6","#a855f7","#f97316","#06b6d4","#ec4899"];
+
+  // Get top 3 filtered pollen by avg level
+  const pollenAvgs = POLLEN.filter(p => filter.includes(p.key)).map(p => {
+    let sum = 0, count = 0;
+    for (const d of allDays) {
+      const sc = lv(history[d]?.[p.key] ?? "-1").sc;
+      if (sc >= 0) { sum += sc; count++; }
+    }
+    return { p, avg: count ? sum/count : 0 };
+  }).sort((a,b)=>b.avg-a.avg).slice(0,3).filter(x=>x.avg>0);
+
+  if (!pollenAvgs.length) return `<div style="padding:12px 14px;font-size:.82rem;color:var(--text3)">${t("trend_no_data")}</div>`;
+
+  // Build SVG lines
+  const lines = pollenAvgs.map(({p}, ci) => {
+    const points = allDays.map((d, i) => {
+      const sc = lv(history[d]?.[p.key] ?? "-1").sc;
+      const x = PAD_L + (i / (n-1)) * plotW;
+      const y = PAD_T + plotH - (sc / 3) * plotH;
+      return {x, y, sc};
+    });
+    const pathD = points.map((pt,i) => `${i===0?"M":"L"}${pt.x.toFixed(1)},${pt.y.toFixed(1)}`).join(" ");
+    const dots = points.map(pt => `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="3" fill="${colors[ci]}" />`).join("");
+    return `<path d="${pathD}" fill="none" stroke="${colors[ci]}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />${dots}`;
+  });
+
+  // X-axis labels (dates)
+  const xLabels = allDays.map((d, i) => {
+    const x = PAD_L + (i / (n-1)) * plotW;
+    const dt = new Date(d+"T12:00:00");
+    const label = dt.toLocaleDateString(lang==="de"?"de-DE":"en-GB",{day:"2-digit",month:"2-digit"});
+    return `<text x="${x.toFixed(1)}" y="${H-2}" text-anchor="middle" font-size="8" fill="var(--text3)">${label}</text>`;
+  });
+
+  // Y-axis grid lines + labels
+  const yLines = [0,1,2,3].map(lev => {
+    const y = PAD_T + plotH - (lev/3)*plotH;
+    return `<line x1="${PAD_L}" x2="${W-PAD_R}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--border)" stroke-width=".5" stroke-dasharray="3,3" />
+    <text x="${PAD_L-4}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="7" fill="var(--text3)">${lev}</text>`;
+  });
+
+  const legend = pollenAvgs.map(({p}, ci) =>
+    `<div class="trend-leg-item"><div class="trend-leg-dot" style="background:${colors[ci]}"></div>${p.icon} ${t(p.key)}</div>`
+  ).join("");
+
+  return `
+    <div class="trend-chart-wrap">
+      <svg class="trend-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+        ${yLines.join("")}
+        ${lines.join("")}
+        ${xLabels.join("")}
+      </svg>
+      <div class="trend-legend">${legend}</div>
+      <div class="trend-note">${t("trend_note")}</div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CROSS-ALLERGY ALERTS
+// ─────────────────────────────────────────────────────────────────────────────
+const CROSS_DATA = [
+  { keys: ["Birke","birch"],    trigger: "cross_birch",
+    de: ["🍎 Apfel","🍐 Birne","🍒 Kirsche","🥜 Haselnuss","🥕 Karotte","🫛 Soja","🥝 Kiwi","🍑 Pfirsich"],
+    en: ["🍎 Apple","🍐 Pear","🍒 Cherry","🥜 Hazelnut","🥕 Carrot","🫛 Soy","🥝 Kiwi","🍑 Peach"],
+    tr: ["🍎 Elma","🍐 Armut","🍒 Kiraz","🥜 Fındık","🥕 Havuç","🫛 Soya","🥝 Kivi","🍑 Şeftali"] },
+  { keys: ["Erle","alder"],     trigger: "cross_alder",
+    de: ["🍎 Apfel","🍐 Birne","🥜 Haselnuss","🥕 Karotte","🍒 Kirsche"],
+    en: ["🍎 Apple","🍐 Pear","🥜 Hazelnut","🥕 Carrot","🍒 Cherry"],
+    tr: ["🍎 Elma","🍐 Armut","🥜 Fındık","🥕 Havuç","🍒 Kiraz"] },
+  { keys: ["Hasel"],            trigger: "cross_hazel",
+    de: ["🥜 Haselnuss","🥜 Walnuss","🥜 Mandel","🍎 Apfel","🍐 Birne"],
+    en: ["🥜 Hazelnut","🥜 Walnut","🥜 Almond","🍎 Apple","🍐 Pear"],
+    tr: ["🥜 Fındık","🥜 Ceviz","🥜 Badem","🍎 Elma","🍐 Armut"] },
+  { keys: ["Graeser","grass"],  trigger: "cross_grass",
+    de: ["🍅 Tomate","🥔 Kartoffel","🌶 Paprika","🫛 Erdnuss","🫛 Soja","🌾 Weizen"],
+    en: ["🍅 Tomato","🥔 Potato","🌶 Pepper","🥜 Peanut","🫛 Soy","🌾 Wheat"],
+    tr: ["🍅 Domates","🥔 Patates","🌶 Biber","🥜 Yer fıstığı","🫛 Soya","🌾 Buğday"] },
+  { keys: ["Beifuss","mugwort"], trigger: "cross_mugwort",
+    de: ["🥬 Sellerie","🥕 Karotte","🌶 Paprika","🧅 Zwiebel","🫛 Senf","🌿 Kamille","🧄 Knoblauch"],
+    en: ["🥬 Celery","🥕 Carrot","🌶 Pepper","🧅 Onion","🫛 Mustard","🌿 Chamomile","🧄 Garlic"],
+    tr: ["🥬 Kereviz","🥕 Havuç","🌶 Biber","🧅 Soğan","🫛 Hardal","🌿 Papatya","🧄 Sarımsak"] },
+  { keys: ["Ambrosia","ragweed"], trigger: "cross_ragweed",
+    de: ["🍈 Melone","🍌 Banane","🥒 Gurke","🍉 Wassermelone","🌿 Kamille"],
+    en: ["🍈 Melon","🍌 Banana","🥒 Cucumber","🍉 Watermelon","🌿 Chamomile"],
+    tr: ["🍈 Kavun","🍌 Muz","🥒 Salatalık","🍉 Karpuz","🌿 Papatya"] },
+];
+// Build lookup: pollen key → { trigger, foods() }
+const CROSS_ALLERGIES = {};
+for (const c of CROSS_DATA) for (const k of c.keys) CROSS_ALLERGIES[k] = { trigger: c.trigger, foods: () => c[lang] || c.en };
+
+function renderCrossAllergyAlerts(pol, dayIdx) {
+  if (!pol || db?.pollen_available === false) return "";
+  const alerts = [];
+  for (const p of POLLEN) {
+    if (!filter.includes(p.key)) continue;
+    const sc = lv(pol?.[p.key]?.[DAYS[dayIdx]]??"-1").sc;
+    if (sc < 2) continue; // only show at mid or high
+    const cross = CROSS_ALLERGIES[p.key];
+    if (!cross) continue;
+    alerts.push({ p, cross, sc });
+  }
+  if (!alerts.length) return "";
+  const lvlWord = sc => sc >= 3 ? t("cross_high") : t("cross_mid");
+  return alerts.map(({p, cross, sc}) => `
+    <div class="cross-alert${sc >= 3 ? " cross-high" : ""}">
+      <div class="cross-alert-title">⚠️ ${t("cross_title")}</div>
+      <div>${t(cross.trigger).replace("{lv}", lvlWord(sc))}</div>
+      <div class="cross-foods">
+        ${cross.foods().map(f => `<span class="cross-food">${f}</span>`).join("")}
+      </div>
+    </div>`).join("");
+}
+
 function refreshDrawer() {
   const el = document.getElementById("drawer-content");
   if (!el) return;
@@ -2332,6 +2722,8 @@ function refreshDrawer() {
   // Symptom tracker
   const ts = symptoms[todayISO()];
   if (ts) draft = {niesen:ts.niesen, augen:ts.augen, atmung:ts.atmung, muedigkeit:ts.muedigkeit||0};
+  const ms = medications[todayISO()];
+  if (ms) medDraft = {antihistamine:!!ms.antihistamine, eyedrops:!!ms.eyedrops, nasal:!!ms.nasal, cortisone:!!ms.cortisone};
 
   el.innerHTML = `
     <!-- SYMPTOM TRACKER -->
@@ -2351,6 +2743,11 @@ function refreshDrawer() {
           </div>
         </div>`).join("")}
       ${symSaved ? "" : `<button class="sym-save" onclick="saveSym()">${t("save")}</button>`}
+      <!-- MEDICATION TRACKER -->
+      <div style="border-top:1px solid var(--border);padding:8px 14px 4px">
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:2px">💊 ${t("med_title")}</div>
+      </div>
+      ${renderMedTracker()}
       ${renderSymHistory()}
       ${renderCorrelation()}
       ${renderForecastAccuracy()}
@@ -2646,10 +3043,11 @@ function toggleDrawerSec(id) {
 // ─────────────────────────────────────────────────────────────────────────────
 function exportData() {
   const data = {
-    version: 1,
+    version: 2,
     exported: new Date().toISOString(),
     symptoms: JSON.parse(localStorage.getItem(LS.syms) || "{}"),
     history:  JSON.parse(localStorage.getItem(LS.hist) || "{}"),
+    medications: JSON.parse(localStorage.getItem(LS.meds) || "{}"),
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
   const url  = URL.createObjectURL(blob);
@@ -2694,8 +3092,10 @@ function importData(e) {
       }
       if (data.symptoms) localStorage.setItem(LS.syms, JSON.stringify(data.symptoms));
       if (data.history)  localStorage.setItem(LS.hist, JSON.stringify(data.history));
+      if (data.medications) localStorage.setItem(LS.meds, JSON.stringify(data.medications));
       symptoms = JSON.parse(localStorage.getItem(LS.syms) || "{}");
       history  = JSON.parse(localStorage.getItem(LS.hist) || "{}");
+      medications = JSON.parse(localStorage.getItem(LS.meds) || "{}");
       showToast(t("data_import_ok"));
       render();
     } catch { showToast(t("data_import_err")); }
