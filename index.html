@@ -2508,6 +2508,7 @@ function toggleMed(key) {
   medDraft[key] = !medDraft[key];
   const btn = document.querySelector(`.med-toggle[data-med="${key}"]`);
   if (btn) btn.classList.toggle("on", medDraft[key]);
+  saveMeds();
 }
 
 function saveMeds() {
