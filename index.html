@@ -2506,9 +2506,9 @@ const MED_TYPES = [
 
 function toggleMed(key) {
   medDraft[key] = !medDraft[key];
-  const btn = document.querySelector(`.med-toggle[data-med="${key}"]`);
-  if (btn) btn.classList.toggle("on", medDraft[key]);
   saveMeds();
+  const wrap = document.getElementById("med-tracker-wrap");
+  if (wrap) wrap.innerHTML = renderMedTracker();
 }
 
 function saveMeds() {
@@ -2753,7 +2753,7 @@ function refreshDrawer() {
       <div style="border-top:1px solid var(--border);padding:8px 14px 4px">
         <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:2px">💊 ${t("med_title")}</div>
       </div>
-      ${renderMedTracker()}
+      <div id="med-tracker-wrap">${renderMedTracker()}</div>
       ${renderSymHistory()}
       ${renderCorrelation()}
       ${renderForecastAccuracy()}
