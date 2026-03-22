@@ -4,8 +4,8 @@
   "description": "Täglicher Pollenflug-Alert für Deutschland",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#111114",
-  "theme_color": "#111114",
+  "background_color": "#f6f6f7",
+  "theme_color": "#16a34a",
   "orientation": "portrait-primary",
   "icons": [
     {
