@@ -768,6 +768,8 @@ const STRINGS = {
     temp:"Temp", wind:"Wind", humidity:"Feuchte", rain:"Regen", uv:"UV max",
     all_pollen:"Alle Pollen", select_all:"Alle auswählen",
     tap_hint:"Zeile antippen = für dein Risiko ein/ausschließen",
+    profile_hint:"Pollen für dein persönliches Risiko konfigurieren:",
+    profile_link:"Allergie-Profil öffnen",
     history_title:"Verlauf – letzte", days:"Tage",
     week_history_title:"Wöchentlicher Verlauf",
     wh_no_data:"Noch keine Verlaufsdaten. Wird täglich aufgebaut.",
@@ -942,6 +944,8 @@ const STRINGS = {
     temp:"Temp", wind:"Wind", humidity:"Humidity", rain:"Rain", uv:"UV max",
     all_pollen:"All Pollen", select_all:"Select all",
     tap_hint:"Tap a row to include/exclude from your risk",
+    profile_hint:"Configure pollen for your personal risk:",
+    profile_link:"Open allergy profile",
     history_title:"History – last", days:"days",
     week_history_title:"Weekly Overview",
     wh_no_data:"No history yet. Updates daily.",
@@ -1109,6 +1113,8 @@ const STRINGS = {
     temp:"Sıcaklık", wind:"Rüzgar", humidity:"Nem", rain:"Yağış", uv:"UV maks",
     all_pollen:"Tüm Polenler", select_all:"Tümünü seç",
     tap_hint:"Riski dahil etmek/çıkarmak için satıra dokun",
+    profile_hint:"Kişisel riskiniz için polenleri yapılandırın:",
+    profile_link:"Alerji profilini aç",
     history_title:"Geçmiş – son", days:"gün",
     week_history_title:"Haftalık Özet",
     wh_no_data:"Henüz geçmiş yok. Her gün güncellenir.",
@@ -1763,7 +1769,6 @@ function _renderInner() {
         <span class="collapse-arrow">▼</span>
       </div>
       <div class="collapsible-body" id="pollen-body">
-      <div style="font-size:.71rem;color:var(--text3);padding:7px 14px 4px">${t("tap_hint")}</div>
       <table class="ptable">
         <thead>
           <tr>
@@ -1778,7 +1783,7 @@ function _renderInner() {
             const vals = DAYS.map(d=>pol?.[p.key]?.[d]??"-1");
             if (vals.every(v => v === "-1")) return ""; // no data at all for this type → hide row
             const lvls = vals.map(lv);
-            return `<tr class="${!on?"dim":"active-row"}" onclick="toggleFilter('${p.key}')" style="cursor:pointer">
+            return `<tr class="${!on?"dim":"active-row"}">
               <td>
                 <span class="picon">${p.icon}</span><span class="pname">${t(p.key)}</span>
                 <span class="ps ${inSeason?"on":"off"}">${inSeason?"🌱 "+t("s_"+p.key):"💤 "+t("s_"+p.key)}</span>
@@ -1791,8 +1796,8 @@ function _renderInner() {
           }).join("")}
         </tbody>
       </table>
-      <div style="padding:8px 14px 10px;text-align:right">
-        <button class="card-action" onclick="event.stopPropagation();resetFilter()" style="font-size:.78rem">${t("select_all")}</button>
+      <div style="padding:8px 14px 10px;font-size:.72rem;color:var(--text3);text-align:center">
+        💡 ${t("profile_hint")} <a href="#" onclick="event.preventDefault();event.stopPropagation();openDrawer();setTimeout(()=>toggleDrawerSec('dprofile'),100)" style="color:var(--accent);text-decoration:underline;cursor:pointer">${t("profile_link")}</a>
       </div>
       </div>
     </div>
