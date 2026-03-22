@@ -1572,6 +1572,7 @@ function render() {
         <button onclick="location.reload()" style="margin-top:12px;padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);cursor:pointer;font-size:.84rem">↻ Reload</button>
       </div>`;
   }
+  refreshDrawer();
 }
 function _renderInner() {
   const reg   = region();
@@ -1809,7 +1810,6 @@ function _renderInner() {
 
   `;
   _open.forEach(id => toggleSection(id, false));
-  refreshDrawer();
   renderSrcBar();
 }
 
@@ -3147,7 +3147,10 @@ function setSeverity(key, level) {
     btn.style.background   = active ? "color-mix(in srgb,var(--accent) 15%,var(--card))" : "transparent";
     btn.style.color        = active ? "var(--text)" : "var(--text3)";
   });
-  render();
+  // Re-render main page without refreshing drawer (keeps drawer sections open)
+  try { _renderInner(); } catch(e) { console.error("render() error:", e); }
+  _open.forEach(id => toggleSection(id, false));
+  renderSrcBar();
 }
 
 // LOAD
