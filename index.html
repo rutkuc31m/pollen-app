@@ -863,7 +863,7 @@ const STRINGS = {
     pred_tomorrow: "Morgen erwartet",
     based_on_history: "aus Verlauf",
     // allergy severity
-    severity_off: "Keine", severity_mild: "Leicht", severity_strong: "Stark",
+    severity_off: "Keine", severity_mild: "Betroffen", severity_strong: "Stark",
     allergy_profile: "Allergieprofil",
     // PWA
     pwa_install: "App installieren",
@@ -1039,7 +1039,7 @@ const STRINGS = {
     pred_tomorrow: "Expected tomorrow",
     based_on_history: "from history",
     // allergy severity
-    severity_off: "None", severity_mild: "Mild", severity_strong: "Strong",
+    severity_off: "None", severity_mild: "Affected", severity_strong: "Severe",
     allergy_profile: "Allergy profile",
     // PWA
     pwa_install: "Install app",
@@ -1193,7 +1193,7 @@ const STRINGS = {
     data_import_err:"Geçersiz dosya",
     data_export_hint:"Semptomlar ve geçmiş (JSON)",
     allergy_profile:"Alerji profili",
-    severity_off:"Yok", severity_mild:"Hafif", severity_strong:"Şiddetli",
+    severity_off:"Yok", severity_mild:"Etkilenen", severity_strong:"Şiddetli",
     pwa_install:"Uygulamayı yükle",
     hero_good_day:"Bugün iyi bir gün", hero_bad_day:"Bugün kötü bir gün", hero_ok_day:"Bugün orta bir gün",
     hero_allergen_suffix:" alerjisi için",
@@ -1464,7 +1464,7 @@ function personalRisk(pol, dayIdx) {
     if (!filter.includes(p.key)) continue;
     const l = lv(pol?.[p.key]?.[DAYS[dayIdx]]??"-1");
     const sev = severity[p.key] || "mild";
-    const sc = sev === "strong" ? l.sc : Math.floor(l.sc * 0.7); // mild = 70%
+    const sc = sev === "strong" ? l.sc : Math.floor(l.sc * 0.7);
     if (sc>0) drivers.push({...p, pillCls:["risk-none","risk-low","risk-mid","risk-high"][sc]});
     if (sc>max) max=sc;
   }
@@ -2862,17 +2862,19 @@ function refreshDrawer() {
       <div style="padding:8px 14px 12px">
         ${POLLEN.map(p => {
           const sev = severity[p.key] || (filter.includes(p.key) ? "mild" : "off");
-          return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-            <span style="font-size:1rem;width:22px;text-align:center">${p.icon}</span>
-            <span style="flex:1;font-size:.8rem">${t(p.key)}</span>
+          return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+            <span style="font-size:.9rem;width:18px;text-align:center">${p.icon}</span>
+            <span style="min-width:50px;font-size:.75rem">${t(p.key)}</span>
+            <div style="display:flex;gap:3px;flex:1;justify-content:flex-end">
             ${["off","mild","strong"].map(s => `
               <button data-sev-key="${p.key}" data-sev-val="${s}" onclick="setSeverity('${p.key}','${s}')" style="
-                padding:2px 8px;border-radius:12px;font-size:.68rem;cursor:pointer;
+                padding:2px 8px;border-radius:12px;font-size:.68rem;cursor:pointer;white-space:nowrap;
                 border:1px solid ${sev===s?'var(--accent)':'var(--border)'};
                 background:${sev===s?'color-mix(in srgb,var(--accent) 15%,var(--card))':'transparent'};
                 color:${sev===s?'var(--text)':'var(--text3)'}">
                 ${t("severity_"+s)}
               </button>`).join("")}
+            </div>
           </div>`;
         }).join("")}
       </div>
