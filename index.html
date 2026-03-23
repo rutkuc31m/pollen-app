@@ -1609,10 +1609,18 @@ function _renderInner() {
       const top = getTopCorrelation();
       if (!top) return "";
       const str = top.r >= 0.7 ? t("corr_strong") : t("corr_moderate");
-      return `<div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--accent) 10%,var(--card));border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);font-size:.78rem;color:var(--text2)">
-        <span style="font-size:1rem">💡</span>
-        <span>${top.p.icon} <strong>${t(top.p.key)}</strong>: ${str} (r=${top.r.toFixed(2)})</span>
-      </div>`;
+      const pct = Math.round(top.r * 100);
+      const barColor = top.r >= 0.7 ? "var(--accent)" : "#f59e0b";
+      return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--accent) 10%,var(--card));border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);font-size:.78rem;color:var(--text2)">'
+        + '<span style="font-size:1rem">💡</span>'
+        + '<span>' + top.p.icon + ' <strong>' + t(top.p.key) + '</strong>: ' + str + '</span>'
+        + '<span style="display:inline-flex;align-items:center;gap:4px;margin-left:auto;white-space:nowrap">'
+        + '<span style="width:40px;height:6px;border-radius:3px;background:var(--border);overflow:hidden;display:inline-block">'
+        + '<span style="display:block;height:100%;width:' + pct + '%;border-radius:3px;background:' + barColor + '"></span>'
+        + '</span>'
+        + '<span style="font-size:.68rem;color:var(--text3)">' + pct + '%</span>'
+        + '</span>'
+        + '</div>';
     })()}
 
     <!-- CROSS-ALLERGY ALERTS -->
