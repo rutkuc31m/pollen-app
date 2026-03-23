@@ -766,8 +766,8 @@ const STRINGS = {
     effect_humid:"Hohe Luftfeuchte hemmt Pollen",
     effect_rain_light:"Leichter Regen reduziert Pollen",
     effect_neutral:"Wetter hat geringen Einfluss",
-    corr_title:"Mögliche Auslöser (Symptom-Korrelation)",
-    corr_hint:"Ø Symptom-Score an Pollentagen vs. pollenfreien Tagen",
+    corr_title:"Deine Auslöser",
+    corr_hint:"Vergleich deiner Symptome an Tagen mit vs. ohne Pollenbelastung",
     geo_error:"Standort konnte nicht ermittelt werden.",
     geo_unsupported:"Geolocation wird nicht unterstützt.",
     n_label:"Niesen", a_label:"Augen", at_label:"Atmung", m_label:"Müdigkeit",
@@ -843,6 +843,7 @@ const STRINGS = {
     corr_insufficient: "Zu wenig Daten", corr_no_link: "Kein Zusammenhang",
     corr_n_days: "Tage", corr_basis: "Ø Datenbasis",
     corr_r_val: "r", corr_strong: "Starker Zusammenhang mit Symptomen", corr_moderate: "Möglicher Zusammenhang mit Symptomen",
+    corr_strong_short: "Starker Auslöser", corr_moderate_short: "Wahrscheinlicher Auslöser", corr_weak_short: "Schwacher Zusammenhang",
     notif_title:"Tägliche Benachrichtigung", notif_enable:"Aktivieren", notif_on:"aktiv", notif_enabled:"Benachrichtigungen aktiviert", notif_denied:"Zugriff verweigert", notif_unsupported:"Nicht unterstützt", notif_blocked:"Gesperrt – in Browser-Einstellungen freigeben", notif_ios_hint:"Auf dem Startbildschirm installieren für Benachrichtigungen (iOS 16.4+)",
     notif_prompt_title:"Pollenwarnung aktivieren?", notif_prompt_body:"Wenn du die App öffnest und Pollenbelastung vorliegt, erhältst du eine Benachrichtigung.", notif_prompt_yes:"Ja, aktivieren", notif_prompt_no:"Nein danke", notif_prompt_hint:"Du kannst Benachrichtigungen jederzeit im Menü unter Daten aktivieren.",
     // accuracy
@@ -942,8 +943,8 @@ const STRINGS = {
     effect_humid:"High humidity reduces pollen",
     effect_rain_light:"Light rain reduces pollen",
     effect_neutral:"Weather has little effect",
-    corr_title:"Likely triggers (symptom correlation)",
-    corr_hint:"Avg. symptom score on pollen days vs. pollen-free days",
+    corr_title:"Your triggers",
+    corr_hint:"Compares your symptoms on days with vs. without pollen exposure",
     geo_error:"Could not determine location.",
     geo_unsupported:"Geolocation is not supported.",
     n_label:"Sneezing", a_label:"Eyes", at_label:"Breathing", m_label:"Fatigue",
@@ -1019,6 +1020,7 @@ const STRINGS = {
     corr_insufficient: "Not enough data", corr_no_link: "No correlation",
     corr_n_days: "days", corr_basis: "Avg. data basis",
     corr_r_val: "r", corr_strong: "Strong correlation with symptoms", corr_moderate: "Possible correlation with symptoms",
+    corr_strong_short: "Strong trigger", corr_moderate_short: "Likely trigger", corr_weak_short: "Weak correlation",
     notif_title:"Daily notification", notif_enable:"Enable", notif_on:"active", notif_enabled:"Notifications enabled", notif_denied:"Permission denied", notif_unsupported:"Not supported", notif_blocked:"Blocked – allow in browser settings", notif_ios_hint:"Add to home screen to enable notifications (iOS 16.4+)",
     notif_prompt_title:"Enable pollen alerts?", notif_prompt_body:"When you open the app and pollen levels are elevated, you'll get a notification.", notif_prompt_yes:"Yes, enable", notif_prompt_no:"No thanks", notif_prompt_hint:"You can enable notifications anytime in the menu under Data.",
     // accuracy
@@ -1111,8 +1113,8 @@ const STRINGS = {
     effect_humid:"Yüksek nem poleni engeller",
     effect_rain_light:"Hafif yağmur poleni azaltır",
     effect_neutral:"Havanın etkisi az",
-    corr_title:"Olası tetikleyiciler (semptom korelasyonu)",
-    corr_hint:"Polen günlerindeki ort. semptom skoru",
+    corr_title:"Tetikleyicilerin",
+    corr_hint:"Polenli günlerdeki semptomların polensiz günlerle karşılaştırması",
     geo_error:"Konum belirlenemedi.",
     geo_unsupported:"Coğrafi konum desteklenmiyor.",
     n_label:"Hapşırık", a_label:"Gözler", at_label:"Nefes", m_label:"Yorgunluk",
@@ -1169,6 +1171,7 @@ const STRINGS = {
     corr_insufficient:"Yetersiz veri", corr_no_link:"İlişki yok",
     corr_n_days:"gün", corr_basis:"Ort. veri tabanı",
     corr_r_val:"r", corr_strong:"Semptomlarla güçlü korelasyon", corr_moderate:"Semptomlarla olası korelasyon",
+    corr_strong_short:"Güçlü tetikleyici", corr_moderate_short:"Olası tetikleyici", corr_weak_short:"Zayıf ilişki",
     notif_title:"Günlük bildirim", notif_enable:"Etkinleştir", notif_on:"aktif", notif_enabled:"Bildirimler etkinleştirildi", notif_denied:"İzin reddedildi", notif_unsupported:"Desteklenmiyor", notif_blocked:"Engellendi – tarayıcı ayarlarından izin ver", notif_ios_hint:"Bildirimler için ana ekrana ekle (iOS 16.4+)",
     notif_prompt_title:"Polen uyarılarını etkinleştir?", notif_prompt_body:"Uygulamayı açtığında polen yükü yüksekse bir bildirim alırsın.", notif_prompt_yes:"Evet, etkinleştir", notif_prompt_no:"Hayır teşekkürler", notif_prompt_hint:"Bildirimleri menüdeki Veri bölümünden istediğin zaman etkinleştirebilirsin.",
     accuracy_title:"Tahmin Doğruluğu (DWD)", accuracy_days:"gün veri", accuracy_na:"Henüz yeterli veri yok (>7 gün gerekli)",
@@ -2211,26 +2214,24 @@ function renderCorrelation() {
       <div class="corr-title">${t("corr_title")}</div>
       ${results.map(({p, r, n, insufficient}) => {
         if (insufficient) {
-          return `
-            <div class="corr-row">
-              <div class="corr-name">${p.icon} ${t(p.key)}</div>
-              <div class="corr-no-data">${t("corr_insufficient")} (${n}/5 ${t("corr_n_days")})</div>
-            </div>`;
+          return '<div class="corr-row">'
+            + '<div class="corr-name">' + p.icon + ' ' + t(p.key) + '</div>'
+            + '<div class="corr-no-data">' + t("corr_insufficient") + ' (' + n + '/5 ' + t("corr_n_days") + ')</div>'
+            + '</div>';
         }
-        const pct = Math.round((r/maxR)*100);
-        const fillCls = r >= 0.5 ? "corr-fill-high" : r >= 0.3 ? "corr-fill-mid" : "corr-fill-low";
-        const label = r < 0.2 ? t("corr_no_link") : `${t("corr_r_val")}=${r.toFixed(2)}`;
-        return `
-          <div class="corr-row">
-            <div class="corr-name">${p.icon} ${t(p.key)}</div>
-            ${r < 0.2
-              ? `<div class="corr-no-data">${label}</div>`
-              : `<div class="corr-track"><div class="corr-fill ${fillCls}" style="width:${pct}%"></div></div>`}
-            <div class="corr-r-label">${r < 0.2 ? "" : `${t("corr_r_val")}=${r.toFixed(2)}`}</div>
-          </div>
-          <div class="corr-n-label" style="padding-left:70px;margin-top:-3px">n = ${n} ${t("corr_n_days")}</div>`;
+        var pct = Math.round(r * 100);
+        var barColor = r >= 0.6 ? "var(--accent)" : r >= 0.4 ? "#f59e0b" : "var(--text3)";
+        var strength = r >= 0.7 ? t("corr_strong_short") : r >= 0.4 ? t("corr_moderate_short") : t("corr_weak_short");
+        return '<div class="corr-row" style="flex-wrap:wrap;gap:4px 8px">'
+          + '<div class="corr-name">' + p.icon + ' ' + t(p.key) + '</div>'
+          + '<div style="display:flex;align-items:center;gap:6px;flex:1;min-width:120px">'
+          + '<div class="corr-track"><div class="corr-fill" style="width:' + pct + '%;background:' + barColor + '"></div></div>'
+          + '<span style="font-size:.75rem;font-weight:600;color:' + barColor + ';min-width:32px">' + pct + '%</span>'
+          + '</div>'
+          + '<div style="width:100%;font-size:.68rem;color:var(--text3);padding-left:2px">' + strength + ' · ' + n + ' ' + t("corr_n_days") + '</div>'
+          + '</div>';
       }).join("")}
-      <div style="font-size:.68rem;color:var(--text3);margin-top:6px">${t("corr_hint")} · ${t("corr_days")}</div>
+      <div style="font-size:.68rem;color:var(--text3);margin-top:8px;line-height:1.4">${t("corr_hint")} · ${t("corr_days")}</div>
     </div>`;
 }
 
