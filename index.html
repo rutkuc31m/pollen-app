@@ -1243,7 +1243,7 @@ let POLLEN = [
 ];
 
 // ── GLOBAL POLLEN SOURCES ────────────────────────────────────────────────────
-const POLLEN_DE = POLLEN; // keep reference
+const POLLEN_DE = POLLEN;
 
 const POLLEN_EU = [
   { key:"birch",   icon:"🍃", mo:[2,3,4]      },  // Birkenblatt
@@ -1401,6 +1401,14 @@ let medications = JSON.parse(localStorage.getItem(LS.meds) || "{}");
 let medDraft  = {antihistamine:false,eyedrops:false,nasal:false,cortisone:false};
 let symSaved  = !!symptoms[new Date().toISOString().slice(0,10)];
 let openSections = new Set(JSON.parse(localStorage.getItem(LS.open) || '["pollen","profile"]'));
+
+const SYM_KEYS = [["niesen","🤧"],["augen","👁"],["atmung","💨"],["muedigkeit","😴"]];
+function sumSymptoms(s) { return (s.niesen||0)+(s.augen||0)+(s.atmung||0)+(s.muedigkeit||0); }
+function loadFilterFor(pollenList, lsKey) {
+  let f = JSON.parse(localStorage.getItem(lsKey) || "null") ?? pollenList.map(p => p.key);
+  f = f.filter(k => pollenList.some(p => p.key === k));
+  return f.length ? f : pollenList.map(p => p.key);
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME
@@ -2005,7 +2013,7 @@ function setDay(i) { activeDay=i; render(); }
 
 function setSym(key, val) {
   draft[key] = val;
-  const map = {niesen:t("niesen"), augen:t("augen"), atmung:t("atmung"), muedigkeit:t("muedigkeit")};
+  const map = Object.fromEntries(SYM_KEYS.map(([k])=>[k,t(k)]));
   document.querySelectorAll(".sym-row").forEach(row => {
     const lb = row.querySelector(".sym-label");
     if (lb?.textContent === map[key]) {
@@ -2188,62 +2196,47 @@ function pearsonR(xs, ys) {
 // ─────────────────────────────────────────────────────────────────────────────
 // SYMPTOM–POLLEN CORRELATION (improved)
 // ─────────────────────────────────────────────────────────────────────────────
-function getTopCorrelation() {
+function calcCorrelations(minDays) {
   const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
   const cutoffStr = cutoff.toISOString().slice(0,10);
   const symEntries = Object.entries(symptoms).filter(([d]) => d >= cutoffStr);
-  if (symEntries.length < 5) return null;
-  let best = null;
-  for (const p of POLLEN.filter(p => filter.includes(p.key))) {
-    const polS = [], symS = [];
-    let polD = 0, freeD = 0;
+  if (symEntries.length < minDays) return null;
+  const filteredPollen = POLLEN.filter(p => filter.includes(p.key));
+  if (!filteredPollen.length) return null;
+  const results = [];
+  for (const p of filteredPollen) {
+    const polScores = [], symScores = [];
+    let pollenDays = 0, pollenFreeDays = 0;
     for (const [date, sym] of symEntries) {
       const hist = history[date]; if (!hist) continue;
-      const pl = lv(hist[p.key] ?? "-1").sc;
-      polS.push(pl); symS.push((sym.niesen||0)+(sym.augen||0)+(sym.atmung||0)+(sym.muedigkeit||0));
-      if (pl >= 1) polD++; else freeD++;
+      const polLevel = lv(hist[p.key] ?? "-1").sc;
+      polScores.push(polLevel); symScores.push(sumSymptoms(sym));
+      if (polLevel >= 1) pollenDays++; else pollenFreeDays++;
     }
-    if (polS.length < 5 || polD < 3 || freeD < 3) continue;
-    const r = pearsonR(polS, symS);
+    const n = polScores.length;
+    if (n < 5) { results.push({ p, r: 0, n, insufficient: true, pollenDays, pollenFreeDays }); continue; }
+    if (pollenDays < 3 || pollenFreeDays < 3) continue;
+    const r = pearsonR(polScores, symScores);
+    if (r < 0.1) continue;
+    results.push({ p, r, n, insufficient: false, pollenDays, pollenFreeDays });
+  }
+  return results;
+}
+
+function getTopCorrelation() {
+  const results = calcCorrelations(5);
+  if (!results) return null;
+  let best = null;
+  for (const { p, r, insufficient } of results) {
+    if (insufficient) continue;
     if (r >= 0.4 && (!best || r > best.r)) best = { p, r };
   }
   return best;
 }
 
 function renderCorrelation() {
-  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
-  const cutoffStr = cutoff.toISOString().slice(0,10);
-  const symEntries = Object.entries(symptoms).filter(([d]) => d >= cutoffStr);
-  const totalDays = symEntries.length;
-  if (totalDays < 3) return ""; // need at least 3 days
-  const filteredPollen = POLLEN.filter(p => filter.includes(p.key));
-  if (!filteredPollen.length) return "";
-
-  const results = [];
-  for (const p of filteredPollen) {
-    const polScores = [], symScores = [];
-    let pollenDays = 0, pollenFreeDays = 0;
-    for (const [date, sym] of symEntries) {
-      const hist = history[date];
-      if (!hist) continue;
-      const polLevel = lv(hist[p.key] ?? "-1").sc;
-      const symScore = (sym.niesen || 0) + (sym.augen || 0) + (sym.atmung || 0) + (sym.muedigkeit || 0);
-      polScores.push(polLevel);
-      symScores.push(symScore);
-      if (polLevel >= 1) pollenDays++; else pollenFreeDays++;
-    }
-    const n = polScores.length;
-    if (n < 5) {
-      // Not enough data — show placeholder
-      results.push({ p, r: 0, n, insufficient: true, pollenDays, pollenFreeDays });
-      continue;
-    }
-    // Only compute if we have both pollen days AND pollen-free days
-    if (pollenDays < 3 || pollenFreeDays < 3) continue;
-    const r = pearsonR(polScores, symScores);
-    if (r < 0.1) continue; // skip if no meaningful correlation
-    results.push({ p, r, n, insufficient: false, pollenDays, pollenFreeDays });
-  }
+  const results = calcCorrelations(3);
+  if (!results || !results.length) return "";
 
   if (!results.length) return "";
   const meaningful = results.filter(x => !x.insufficient);
@@ -2445,7 +2438,7 @@ function renderMedEffectiveness() {
   const symEntries = Object.entries(symptoms).filter(([d]) => d >= cutoffStr);
   if (symEntries.length < 5) return "";
 
-  const totalSym = s => (s.niesen||0)+(s.augen||0)+(s.atmung||0)+(s.muedigkeit||0);
+  const totalSym = sumSymptoms;
   const results = [];
 
   for (const m of MED_TYPES) {
@@ -2629,7 +2622,7 @@ function refreshDrawer() {
     </div>
     <div class="dsec-body open" id="dsym-body">
       <div class="sym-date">${new Date().toLocaleDateString(lang==="de"?"de-DE":"en-GB",{weekday:"long",day:"2-digit",month:"long"})}</div>
-      ${[["niesen","🤧",t("niesen")],["augen","👁",t("augen")],["atmung","💨",t("atmung")],["muedigkeit","😴",t("muedigkeit")]].map(([k,ic,lb])=>`
+      ${SYM_KEYS.map(([k,ic])=>{ const lb=t(k); return `
         <div class="sym-row">
           <div class="sym-icon">${ic}</div>
           <div class="sym-label">${lb}</div>
@@ -2637,7 +2630,7 @@ function refreshDrawer() {
             ${[0,1,2,3,4,5].map(v=>`
               <button class="sym-btn${draft[k]===v?" on":""}" onclick="setSym('${k}',${v})" title="${v}: ${t("sym_hints")[v]}">${v===0?"–":v}</button>`).join("")}
           </div>
-        </div>`).join("")}
+        </div>`}).join("")}
       ${symSaved ? "" : `<button class="sym-save" onclick="saveSym()">${t("save")}</button>`}
       <!-- MEDICATION TRACKER -->
       <div style="border-top:1px solid var(--border);padding:8px 14px 4px">
@@ -2655,7 +2648,7 @@ function refreshDrawer() {
         if (tomorrowRisk === 0) return "";
         const symEntries = Object.entries(symptoms).sort((a,b)=>a[0].localeCompare(b[0]));
         if (symEntries.length < 3) return "";
-        const totalSym = e => (e[1].niesen||0)+(e[1].augen||0)+(e[1].atmung||0)+(e[1].muedigkeit||0);
+        const totalSym = e => sumSymptoms(e[1]);
         const avg = arr => arr.reduce((s,v)=>s+v,0)/arr.length;
         const highDays = symEntries.filter(e => {
           const d = e[0];
@@ -3113,9 +3106,7 @@ async function fetchTRCity(city) {
   };
   rKey = "tr--1";
 
-  filter = (JSON.parse(localStorage.getItem(LS.filter + "_tr") || "null") ?? POLLEN_TR.map(p => p.key))
-    .filter(k => POLLEN_TR.some(p => p.key === k));
-  if (!filter.length) filter = POLLEN_TR.map(p => p.key);
+  filter = loadFilterFor(POLLEN_TR, LS.filter + "_tr");
 
   render();
   loadWeather();
@@ -3306,17 +3297,12 @@ async function init() {
   if (resolvedMode === "de") {
     appMode = "de";
     POLLEN  = POLLEN_DE;
-    // Restore filter for DE
-    filter = JSON.parse(localStorage.getItem(LS.filter) || "null") || POLLEN.map(p => p.key);
-    filter = filter.filter(k => POLLEN.some(p => p.key === k));
-    if (!filter.length) filter = POLLEN.map(p => p.key);
+    filter = loadFilterFor(POLLEN, LS.filter);
     await loadDE();
   } else if (resolvedMode === "tr") {
     appMode = "tr";
     POLLEN  = POLLEN_TR;
-    filter = (JSON.parse(localStorage.getItem(LS.filter + "_tr") || "null") ?? POLLEN_TR.map(p=>p.key))
-      .filter(k => POLLEN_TR.some(p => p.key === k));
-    if (!filter.length) filter = POLLEN_TR.map(p => p.key);
+    filter = loadFilterFor(POLLEN_TR, LS.filter + "_tr");
     try { await loadTR(); } catch(e) {
       document.getElementById("page").innerHTML =
         `<div class="center">${t("no_data")}<br><small>${t("check_conn")}</small></div>`;
@@ -3369,7 +3355,6 @@ function setDataSource(mode) {
 // ─────────────────────────────────────────────────────────────────────────────
 // INIT STATIC HTML WITH I18N
 // ─────────────────────────────────────────────────────────────────────────────
-document.getElementById("drawer-head-title").textContent = t("menu");
 const geoBtn = document.getElementById("geo-btn");
 if (geoBtn) geoBtn.title = t("geo_title");
 document.querySelector(".offline-pill").textContent = t("offline");
