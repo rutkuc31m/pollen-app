@@ -3030,10 +3030,8 @@ function setSeverity(key, level) {
     btn.style.background   = active ? "color-mix(in srgb,var(--accent) 15%,var(--card))" : "transparent";
     btn.style.color        = active ? "var(--text)" : "var(--text3)";
   });
-  // Re-render main page without refreshing drawer (keeps drawer sections open)
-  const _prevOpen = new Set(openSections);
+  // Re-render main page (openSections is already preserved, _renderInner uses it)
   try { _renderInner(); } catch(e) { console.error("render() error:", e); }
-  _prevOpen.forEach(id => toggleSection(id, false));
   renderSrcBar();
 }
 
