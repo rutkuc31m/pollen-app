@@ -663,7 +663,7 @@
 <div class="topbar">
   <div class="topbar-inner">
     <button class="icon-btn" onclick="openDrawer()" aria-label="Menü">☰</button>
-    <div class="logo">🌿 <em>Pollen</em>flug</div>
+    <div class="logo">🌿 <em>Pollen</em></div>
     <span class="offline-pill" id="offline-pill">Offline</span>
     <button id="pwa-install-btn" onclick="pwaDoPwaInstall()" aria-label="App installieren">⬇ App</button>
     <div style="display:flex;gap:2px">
@@ -697,7 +697,7 @@ function setLang(newLang) {
   lang = newLang;
   localStorage.setItem("p_lang", lang);
   document.documentElement.lang = lang;
-  document.querySelector(".logo").innerHTML = `🌿 <em>Pollen</em>${lang==="de"?"flug":lang==="tr"?"":""}`;
+  document.querySelector(".logo").innerHTML = `🌿 <em>Pollen</em>`;
   ["de","en","tr"].forEach(l => {
     const btn = document.getElementById("lang-btn-" + l);
     if (!btn) return;
