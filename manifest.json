@@ -1,7 +1,7 @@
 {
   "name": "Pollenflug",
   "short_name": "Pollen",
-  "description": "Tägliche Pollenflug-Vorhersage für Deutschland, Europa, Türkiye und USA.",
+  "description": "Tägliche Pollenflug-Vorhersage für Deutschland und weltweit.",
   "id": "/",
   "lang": "de",
   "dir": "ltr",

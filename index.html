@@ -12,7 +12,7 @@
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="icon" href="./apple-touch-icon.png" type="image/png">
-  <meta name="description" content="Tägliche Pollenflug-Vorhersage für Deutschland, Europa, Türkiye und USA. Allergierisiko, Kreuzallergien, Symptom-Tracker und Medikamenten-Tracking.">
+  <meta name="description" content="Tägliche Pollenflug-Vorhersage für Deutschland und weltweit. Allergierisiko, Kreuzallergien, Symptom-Tracker und Medikamenten-Tracking.">
   <link rel="canonical" href="https://pollenapp.xyz">
   <meta property="og:title" content="Pollenflug – Pollen-App">
   <meta property="og:description" content="Tägliche Pollenflug-Vorhersage mit Allergierisiko, Kreuzallergien, Symptom-Tracker und Medikamenten-Tracking.">
@@ -818,10 +818,8 @@ const STRINGS = {
     reloc_btn: "Standort aktualisieren",
     datasource_title: "Datenquelle",
     datasource_auto: "Mein Standort",
-    ds_de: "🇩🇪 Deutschland – DWD",
-    ds_eu: "🇪🇺 Europa – Open-Meteo",
-    ds_tr: "🇹🇷 Türkiye – Open-Meteo",
-    ds_us: "🇺🇸 USA / Amerika – Open-Meteo",
+    ds_de: "🇩🇪 DWD (Deutschland)",
+    ds_om: "🌍 Open-Meteo (Welt)",
     pollen_unavailable: "Pollendaten für diesen Standort nicht verfügbar. Wetterdaten werden angezeigt.",
     pollen_unavailable_short: "Keine Pollendaten verfügbar",
     // EU/US pollen names
@@ -997,10 +995,8 @@ const STRINGS = {
     reloc_btn: "Update location",
     datasource_title: "Data source",
     datasource_auto: "My location",
-    ds_de: "🇩🇪 Germany – DWD",
-    ds_eu: "🇪🇺 Europe – Open-Meteo",
-    ds_tr: "🇹🇷 Turkey – Open-Meteo",
-    ds_us: "🇺🇸 USA / Americas – Open-Meteo",
+    ds_de: "🇩🇪 DWD (Germany)",
+    ds_om: "🌍 Open-Meteo (World)",
     pollen_unavailable: "Pollen data not available for this location. Showing weather data only.",
     pollen_unavailable_short: "No pollen data available",
     // EU/US pollen names
@@ -1164,10 +1160,8 @@ const STRINGS = {
     reloc_btn:"Konumu güncelle",
     datasource_title:"Veri kaynağı",
     datasource_auto:"Konumum",
-    ds_de:"🇩🇪 Almanya – DWD",
-    ds_eu:"🇪🇺 Avrupa – Open-Meteo",
-    ds_tr:"🇹🇷 Türkiye – Open-Meteo",
-    ds_us:"🇺🇸 ABD / Amerika – Open-Meteo",
+    ds_de:"🇩🇪 DWD (Almanya)",
+    ds_om:"🌍 Open-Meteo (Dünya)",
     pollen_unavailable:"Bu konum için polen verisi mevcut değil. Sadece hava durumu gösteriliyor.",
     pollen_unavailable_short:"Polen verisi mevcut değil",
     data_title:"Veri",
@@ -1263,37 +1257,11 @@ const POLLEN_EU = [
   { key:"olive",   icon:"🫒", mo:[3,4,5,6]    },  // Olive – perfekt
 ];
 
-const POLLEN_US = [
-  { key:"tree",    icon:"🌳", mo:[2,3,4,5]    },
-  { key:"grass",   icon:"🌾", mo:[4,5,6,7,8]  },
-  { key:"ragweed", icon:"🌿", mo:[7,8,9,10]   },
-];
+const POLLEN_OM = POLLEN_EU;  // Open-Meteo global = EU pollen set
 
-const POLLEN_TR = [
-  {key:"olive",   icon:"🫒", mo:[3,4,5,6]},
-  {key:"grass",   icon:"🌾", mo:[4,5,6,7,8]},
-  {key:"mugwort", icon:"🌿", mo:[7,8,9]},
-  {key:"ragweed", icon:"🌿", mo:[8,9,10]},
-];
-
-const TR_CITIES = [
-  {name:"İstanbul",    lat:41.0082, lon:28.9784},
-  {name:"Ankara",      lat:39.9208, lon:32.8541},
-  {name:"İzmir",       lat:38.4192, lon:27.1287},
-  {name:"Antalya",     lat:36.8969, lon:30.7133},
-  {name:"Bursa",       lat:40.1885, lon:29.0610},
-  {name:"Adana",       lat:37.0000, lon:35.3213},
-  {name:"Konya",       lat:37.8746, lon:32.4932},
-  {name:"Trabzon",     lat:41.0053, lon:39.7228},
-  {name:"Erzurum",     lat:39.9043, lon:41.2679},
-  {name:"Diyarbakır",  lat:37.9144, lon:40.2306},
-];
-
-// Open-Meteo Air Quality variable names per mode
+// Open-Meteo Air Quality variable names
 const OM_VARS = {
-  eu: ["alder_pollen","birch_pollen","grass_pollen","mugwort_pollen","ragweed_pollen","olive_pollen"],
-  us: ["tree_pollen","grass_pollen","ragweed_pollen"],
-  tr: ["grass_pollen","mugwort_pollen","ragweed_pollen","olive_pollen"],
+  om: ["alder_pollen","birch_pollen","grass_pollen","mugwort_pollen","ragweed_pollen","olive_pollen"],
 };
 
 // Open-Meteo variable name → internal pollen key
@@ -1399,12 +1367,11 @@ const REGION_COORDS = {
 // ─────────────────────────────────────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────────────────────────────────────
-let appMode      = "de";   // "de" | "eu" | "us" | "tr"
+let appMode      = "de";   // "de" | "om"
 let geoInfo      = null;   // { country_code, latitude, longitude, city, country }
 let db           = null;
 let weather      = null;   // { current, daily, fetchedAt }
 let _weatherAC   = null;   // AbortController for loadWeather()
-let _trCityAC    = null;   // AbortController for fetchTRCity()
 let rKey      = localStorage.getItem(LS.region)  || "30-32";
 let filter    = JSON.parse(localStorage.getItem(LS.filter) || "null") || POLLEN.map(p=>p.key);
 let activeDay = 0;
@@ -2109,7 +2076,8 @@ async function loadWeather() {
   } catch(e) {}
 
   const tz    = appMode === "de" ? "Europe%2FBerlin" : "auto";
-  const isUS  = appMode === "us";
+  const cc = (geoInfo?.country_code || "").toUpperCase();
+  const isUS  = cc === "US" || cc === "CA";
   const units = isUS
     ? "&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch"
     : "";
@@ -2909,9 +2877,7 @@ function renderSrcBar() {
   el.innerHTML = `
     <select class="src-sel" id="src-sel" onchange="setDataSource(this.value)">
       <option value="de"${current==="de"?" selected":""}>${t("ds_de")}</option>
-      <option value="eu"${current==="eu"?" selected":""}>${t("ds_eu")}</option>
-      <option value="tr"${current==="tr"?" selected":""}>${t("ds_tr")}</option>
-      <option value="us"${current==="us"?" selected":""}>${t("ds_us")}</option>
+      <option value="om"${current==="om"?" selected":""}>${t("ds_om")}</option>
     </select>
     <button class="src-share-btn" onclick="shareUrl()" title="Share">🔗</button>
   `;
@@ -3062,98 +3028,6 @@ function setSeverity(key, level) {
 
 // LOAD
 // ─────────────────────────────────────────────────────────────────────────────
-async function loadTR() {
-  const userLat = geoInfo?.latitude  ?? 41.0082;
-  const userLon = geoInfo?.longitude ?? 28.9784;
-
-  // Find nearest city to user's coordinates
-  let nearest = TR_CITIES[0];
-  let minDist = Infinity;
-  TR_CITIES.forEach(c => {
-    const d = Math.hypot(c.lat - userLat, c.lon - userLon);
-    if (d < minDist) { minDist = d; nearest = c; }
-  });
-
-  renderTRBar(nearest);
-  await fetchTRCity(nearest);
-}
-
-function renderTRBar(selected) {
-  document.getElementById("regionbar-inner").innerHTML =
-    `<select id="tr-city-sel" style="flex:1;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 8px;font-size:.85rem;cursor:pointer">
-      ${TR_CITIES.map(c => `<option value="${escapeHtml(c.name)}"${c.name === selected.name ? " selected" : ""}>${escapeHtml(c.name)}</option>`).join("")}
-    </select>
-    <button class="geo-btn" onclick="relocateTR()" title="${t("reloc_btn")}">📍</button>`;
-  document.getElementById("tr-city-sel").addEventListener("change", e => {
-    const city = TR_CITIES.find(c => c.name === e.target.value);
-    if (city) { renderTRBar(city); fetchTRCity(city); }
-  });
-}
-
-async function fetchTRCity(city) {
-  if (_trCityAC) _trCityAC.abort();
-  _trCityAC = new AbortController();
-  const { signal } = _trCityAC;
-
-  const vars = OM_VARS.tr;
-  const url = `https://air-quality-api.open-meteo.com/v1/air-quality`
-    + `?latitude=${city.lat}&longitude=${city.lon}`
-    + `&hourly=${vars.join(",")}`
-    + `&forecast_days=5&timezone=auto`;
-
-  let raw = null;
-  let pollenAvailable = false;
-
-  try {
-    const res = await fetch(url, { signal });
-    const json = await res.json();
-    if (!json.error && json.hourly) {
-      pollenAvailable = vars.some(v => json.hourly[v]?.some(x => x !== null));
-      raw = json;
-      localStorage.setItem(LS.cache + "_tr", JSON.stringify({raw, ts: Date.now(), city: city.name}));
-    }
-  } catch(e) {
-    if (e.name === "AbortError") return; // newer city selected, discard this result
-    const cached = localStorage.getItem(LS.cache + "_tr");
-    if (cached) {
-      const c = JSON.parse(cached);
-      raw = c.raw;
-      pollenAvailable = vars.some(v => raw.hourly?.[v]?.some(x => x !== null));
-      const pill = document.getElementById("offline-pill");
-      pill.textContent = t("offline");
-      pill.classList.add("show");
-    }
-  }
-
-  const { pollen, dates } = parseOpenMeteoPollen(raw, vars, pollenAvailable);
-
-  // Update geoInfo coords so weather fetches for correct city
-  if (geoInfo) { geoInfo.latitude = city.lat; geoInfo.longitude = city.lon; }
-  else { geoInfo = { latitude: city.lat, longitude: city.lon }; }
-
-  db = {
-    last_update: dates[0] ?? todayISO(),
-    next_update: "",
-    pollen_available: pollenAvailable,
-    regions: [{ region_id:"tr", partregion_id:-1, region_name: city.name, partregion_name:"", pollen }],
-  };
-  rKey = "tr--1";
-
-  filter = loadFilterFor(POLLEN_TR, LS.filter + "_tr");
-
-  render();
-  loadWeather();
-}
-
-function relocateTR() {
-  if (!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition(pos => {
-    if (geoInfo) { geoInfo.latitude = pos.coords.latitude; geoInfo.longitude = pos.coords.longitude; }
-    else { geoInfo = { latitude: pos.coords.latitude, longitude: pos.coords.longitude }; }
-    loadTR();
-  });
-}
-
 async function loadDE() {
   try {
     const res = await fetch("./data.json?v="+Date.now());
@@ -3227,7 +3101,7 @@ async function loadDE() {
 async function loadGlobal() {
   const lat = geoInfo.latitude;
   const lon = geoInfo.longitude;
-  const vars = OM_VARS[appMode];
+  const vars = OM_VARS.om;
   const locName = [geoInfo.city, geoInfo.country].filter(Boolean).join(", ");
 
   // Regionbar: location name + relocate button
@@ -3305,7 +3179,11 @@ async function init() {
   if (urlLang && ["de","en","tr"].includes(urlLang)) setLang(urlLang);
 
   // Manual override takes priority; URL mode overrides auto-detection
-  const manualMode = urlMode && ["de","eu","us","tr"].includes(urlMode) ? urlMode : localStorage.getItem(LS.mode);
+  let storedMode = localStorage.getItem(LS.mode);
+  if (storedMode && ["eu","us","tr"].includes(storedMode)) { storedMode = "om"; localStorage.setItem(LS.mode, "om"); }
+  const manualMode = urlMode && ["de","om"].includes(urlMode) ? urlMode
+    : (urlMode && ["eu","us","tr"].includes(urlMode)) ? "om"
+    : storedMode;
 
   // Only fetch geoInfo once per session; reuse if already set
   if (!geoInfo) {
@@ -3324,12 +3202,7 @@ async function init() {
   }
 
   const autoCC = (geoInfo.country_code || "DE").toUpperCase();
-  const resolvedMode = manualMode ?? (
-    autoCC === "DE" ? "de" :
-    autoCC === "TR" ? "tr" :
-    (autoCC === "US" || autoCC === "CA" || autoCC === "MX") ? "us" :
-    "eu"
-  );
+  const resolvedMode = manualMode ?? (autoCC === "DE" ? "de" : "om");
 
   if (resolvedMode === "de") {
     appMode = "de";
@@ -3337,18 +3210,9 @@ async function init() {
     DAYS = ["today","tomorrow","dayafter_to"];
     filter = loadFilterFor(POLLEN, LS.filter);
     await loadDE();
-  } else if (resolvedMode === "tr") {
-    appMode = "tr";
-    POLLEN  = POLLEN_TR;
-    DAYS = ["today","tomorrow","dayafter_to","day3","day4"];
-    filter = loadFilterFor(POLLEN_TR, LS.filter + "_tr");
-    try { await loadTR(); } catch(e) {
-      document.getElementById("page").innerHTML =
-        `<div class="center">${t("no_data")}<br><small>${t("check_conn")}</small></div>`;
-    }
   } else {
-    appMode = resolvedMode; // "eu" or "us"
-    POLLEN  = appMode === "us" ? POLLEN_US : POLLEN_EU;
+    appMode = "om";
+    POLLEN  = POLLEN_OM;
     DAYS = ["today","tomorrow","dayafter_to","day3","day4"];
     try {
       await loadGlobal();
