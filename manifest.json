@@ -1,7 +1,10 @@
 {
   "name": "Pollenflug",
   "short_name": "Pollen",
-  "description": "Täglicher Pollenflug-Alert für Deutschland",
+  "description": "Tägliche Pollenflug-Vorhersage für Deutschland, Europa, Türkiye und USA.",
+  "id": "/",
+  "lang": "de",
+  "dir": "ltr",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f6f6f7",
@@ -17,7 +20,13 @@
       "src": "./icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     },
     {
       "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%2316a34a'/%3E%3Ctext x='96' y='130' font-size='100' text-anchor='middle'%3E%F0%9F%8C%BF%3C/text%3E%3C/svg%3E",

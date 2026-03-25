@@ -366,7 +366,7 @@
     .swipe-dot.active { background: var(--accent); }
 
     /* ── WEEK WEATHER ────────────────────────────────── */
-    .week-strip { padding: 0 14px 12px; display: flex; gap: 4px; justify-content: center; }
+    .week-strip { padding: 0 14px 12px; display: flex; gap: 4px; justify-content: center; overflow-x: auto; }
     .week-day {
       flex: 1 1 0; min-width: 0; text-align: center;
       padding: 7px 3px; border-radius: 9px; background: var(--card2);
@@ -640,10 +640,10 @@
 <body>
 
 <div id="drawer-overlay" onclick="closeDrawer()"></div>
-<div id="drawer">
+<div id="drawer" role="dialog" aria-modal="true" aria-label="Menü">
   <div id="drawer-head">
     <span id="drawer-head-title">Menü</span>
-    <button onclick="closeDrawer()">✕</button>
+    <button onclick="closeDrawer()" aria-label="Menü schließen" id="drawer-close-btn">✕</button>
   </div>
   <div id="drawer-content"></div>
 </div>
@@ -671,12 +671,12 @@
       <button class="icon-btn" id="lang-btn-en" onclick="setLang('en')" style="font-size:.7rem;font-weight:700;width:auto;padding:4px 10px;border-radius:0;border-right:none">EN</button>
       <button class="icon-btn" id="lang-btn-tr" onclick="setLang('tr')" style="font-size:.7rem;font-weight:700;width:auto;padding:4px 10px;border-radius:0 6px 6px 0">TR</button>
     </div>
-    <button class="icon-btn" id="refresh-btn" onclick="doRefresh()" title="Aktualisieren" style="font-size:.95rem">↻</button>
-    <button class="icon-btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
+    <button class="icon-btn" id="refresh-btn" onclick="doRefresh()" title="Aktualisieren" aria-label="Aktualisieren" style="font-size:.95rem">↻</button>
+    <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" aria-label="Design wechseln">🌙</button>
   </div>
   <div class="regionbar">
     <div class="regionbar-inner" id="regionbar-inner">
-      <select id="region-sel"><option>Lade Regionen…</option></select>
+      <select id="region-sel" aria-label="Region wählen"><option>Lade Regionen…</option></select>
       <button class="geo-btn" id="geo-btn" onclick="geoLocate()">📍</button>
     </div>
     <div class="src-bar" id="src-bar"></div>
@@ -2092,6 +2092,13 @@ async function loadWeather() {
   const coords = appMode === "de"
     ? (REGION_COORDS[rKey] || {lat:52.37,lon:9.73})
     : {lat: geoInfo?.latitude ?? 52.37, lon: geoInfo?.longitude ?? 9.73};
+  const wCacheKey = `p_weather_${coords.lat}_${coords.lon}`;
+  // Use cached weather if < 15 min old
+  try {
+    const cached = JSON.parse(localStorage.getItem(wCacheKey));
+    if (cached && (Date.now() - cached.fetchedAt) < 900000) { weather = cached; render(); return; }
+  } catch(e) {}
+
   const tz    = appMode === "de" ? "Europe%2FBerlin" : "auto";
   const isUS  = appMode === "us";
   const units = isUS
@@ -2122,9 +2129,11 @@ async function loadWeather() {
       units: isUS ? {temp:"°F", wind:"mph", rain:"in"} : {temp:"°C", wind:"km/h", rain:"mm"},
       fetchedAt: Date.now(),
     };
+    try { localStorage.setItem(wCacheKey, JSON.stringify(weather)); } catch(e) {}
   } catch(e) {
-    if (e.name === "AbortError") return; // newer request already in flight
-    weather = null;
+    if (e.name === "AbortError") return;
+    // Offline fallback: try cached weather regardless of age
+    try { const cached = JSON.parse(localStorage.getItem(wCacheKey)); if (cached) { weather = cached; } else { weather = null; } } catch(e2) { weather = null; }
   }
   render();
 }
@@ -2328,13 +2337,17 @@ function showToast(msg, duration=3000) {
   setTimeout(() => el.classList.remove("show"), duration);
 }
 
+let _drawerOpener = null;
 function openDrawer() {
+  _drawerOpener = document.activeElement;
   document.getElementById("drawer").classList.add("open");
   document.getElementById("drawer-overlay").classList.add("show");
+  document.getElementById("drawer-close-btn")?.focus();
 }
 function closeDrawer() {
   document.getElementById("drawer").classList.remove("open");
   document.getElementById("drawer-overlay").classList.remove("show");
+  if (_drawerOpener) { _drawerOpener.focus(); _drawerOpener = null; }
 }
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
 
