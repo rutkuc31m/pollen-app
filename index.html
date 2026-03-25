@@ -12,6 +12,15 @@
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="icon" href="./apple-touch-icon.png" type="image/png">
+  <meta name="description" content="Tägliche Pollenflug-Vorhersage für Deutschland, Europa, Türkiye und USA. Allergierisiko, Kreuzallergien, Symptom-Tracker und Medikamenten-Tracking.">
+  <link rel="canonical" href="https://pollenapp.xyz">
+  <meta property="og:title" content="Pollenflug – Pollen-App">
+  <meta property="og:description" content="Tägliche Pollenflug-Vorhersage mit Allergierisiko, Kreuzallergien, Symptom-Tracker und Medikamenten-Tracking.">
+  <meta property="og:url" content="https://pollenapp.xyz">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Pollenflug – Pollen-App">
+  <meta name="twitter:description" content="Tägliche Pollenflug-Vorhersage mit Allergierisiko, Symptom-Tracker und Medikamenten-Tracking.">
   <title>Pollenflug</title>
   <style>
     /* ── TOKENS ─────────────────────────────────────── */
@@ -22,7 +31,7 @@
       --border:  #e4e4e7;
       --text:    #09090b;
       --text2:   #71717a;
-      --text3:   #a1a1aa;
+      --text3:   #737380;
       --accent:  #16a34a;
       --accent-subtle: #f0fdf4;
       --r:       13px;
@@ -658,9 +667,9 @@
     <span class="offline-pill" id="offline-pill">Offline</span>
     <button id="pwa-install-btn" onclick="pwaDoPwaInstall()" aria-label="App installieren">⬇ App</button>
     <div style="display:flex;gap:2px">
-      <button class="icon-btn" id="lang-btn-de" onclick="setLang('de')" style="font-size:.68rem;font-weight:700;width:auto;padding:0 6px;border-radius:6px 0 0 6px;border-right:none">DE</button>
-      <button class="icon-btn" id="lang-btn-en" onclick="setLang('en')" style="font-size:.68rem;font-weight:700;width:auto;padding:0 6px;border-radius:0;border-right:none">EN</button>
-      <button class="icon-btn" id="lang-btn-tr" onclick="setLang('tr')" style="font-size:.68rem;font-weight:700;width:auto;padding:0 6px;border-radius:0 6px 6px 0">TR</button>
+      <button class="icon-btn" id="lang-btn-de" onclick="setLang('de')" style="font-size:.7rem;font-weight:700;width:auto;padding:4px 10px;border-radius:6px 0 0 6px;border-right:none">DE</button>
+      <button class="icon-btn" id="lang-btn-en" onclick="setLang('en')" style="font-size:.7rem;font-weight:700;width:auto;padding:4px 10px;border-radius:0;border-right:none">EN</button>
+      <button class="icon-btn" id="lang-btn-tr" onclick="setLang('tr')" style="font-size:.7rem;font-weight:700;width:auto;padding:4px 10px;border-radius:0 6px 6px 0">TR</button>
     </div>
     <button class="icon-btn" id="refresh-btn" onclick="doRefresh()" title="Aktualisieren" style="font-size:.95rem">↻</button>
     <button class="icon-btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
@@ -3262,7 +3271,11 @@ async function relocate() {
   init();
 }
 
+let _initRunning = false;
 async function init() {
+  if (_initRunning) return;
+  _initRunning = true;
+  try {
   // URL params can override mode and lang (from shared links)
   const urlParams = new URLSearchParams(location.search);
   const urlMode = urlParams.get("mode");
@@ -3340,6 +3353,7 @@ async function init() {
       render();
     }
   }
+  } finally { _initRunning = false; }
 }
 
 function setDataSource(mode) {
