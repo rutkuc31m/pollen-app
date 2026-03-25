@@ -181,7 +181,7 @@
     }
 
     /* ── 3-DAY STRIP ─────────────────────────────────── */
-    .days-strip { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 12px; }
+    .days-strip { display: grid; gap: 8px; margin-bottom: 12px; }
     .day-card {
       background: var(--card); border: 1px solid var(--border);
       border-radius: var(--r); box-shadow: var(--sh);
@@ -1312,7 +1312,7 @@ const OM_THR = {
 
 // Shared parser for Open-Meteo Air Quality hourly data → pollen levels
 function parseOpenMeteoPollen(raw, vars, pollenAvailable) {
-  const dayKeys = ["today", "tomorrow", "dayafter_to"];
+  const dayKeys = ["today", "tomorrow", "dayafter_to", "day3", "day4"];
   const pollen = {};
   const dates = [];
   if (pollenAvailable && raw?.hourly?.time) {
@@ -1328,7 +1328,7 @@ function parseOpenMeteoPollen(raw, vars, pollenAvailable) {
         byDate[date][key] = Math.max(byDate[date][key] ?? 0, val);
       }
     });
-    dates.push(...Object.keys(byDate).sort().slice(0, 3));
+    dates.push(...Object.keys(byDate).sort().slice(0, 5));
     for (const p of POLLEN) {
       pollen[p.key] = {};
       dayKeys.forEach((dk, di) => {
@@ -1365,8 +1365,17 @@ const RISK = [
   { get label(){ return t("risk3"); }, cls:"risk-high" },
 ];
 
-const DAYS      = ["today","tomorrow","dayafter_to"];
-function DAY_NAMES() { return [t("today"), t("tomorrow"), t("dayafter")]; }
+let DAYS = ["today","tomorrow","dayafter_to"];
+function DAY_NAMES() {
+  const base = [t("today"), t("tomorrow"), t("dayafter")];
+  if (DAYS.length <= 3) return base;
+  const wk = lang==="de" ? ["So","Mo","Di","Mi","Do","Fr","Sa"] : lang==="tr" ? ["Pz","Pt","Sa","Ça","Pe","Cu","Ct"] : ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  for (let i = 3; i < DAYS.length; i++) {
+    const d = new Date(); d.setDate(d.getDate() + i);
+    base.push(wk[d.getDay()]);
+  }
+  return base;
+}
 function MONTHS_ARR() { return t("months").split(","); }
 
 const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", cache_ts:"p_cache_ts", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev", lang:"p_lang", meds:"p_meds", notifDate:"p_notif_date", notifAsked:"p_notif_asked" };
@@ -1716,7 +1725,7 @@ function _renderInner() {
     })() : ""}
 
     <!-- 3-DAY STRIP -->
-    <div class="days-strip">
+    <div class="days-strip" style="grid-template-columns:repeat(${DAYS.length},1fr)">
       ${DAY_NAMES().map((n,i)=>{
         const sc = dayScores[i];
         const cl = ["risk-none","risk-low","risk-mid","risk-high"][sc];
@@ -1743,7 +1752,7 @@ function _renderInner() {
       }).join("")}
     </div>
     <div class="swipe-dots">
-      ${[0,1,2].map(i=>`<div class="swipe-dot${i===activeDay?" active":""}"></div>`).join("")}
+      ${DAYS.map((_,i)=>`<div class="swipe-dot${i===activeDay?" active":""}"></div>`).join("")}
     </div>
 
     ${db.pollen_available === false ? `
@@ -1790,8 +1799,8 @@ function _renderInner() {
       <div class="card-head">
         <span class="card-title">${t("all_pollen")} · ${DAY_NAMES()[activeDay]}</span>
       </div>
-      <div>
-      <table class="ptable">
+      <div style="overflow-x:auto">
+      <table class="ptable" style="min-width:${DAYS.length > 3 ? '500px' : 'auto'}">
         <thead>
           <tr>
             <th>Pollen</th>
@@ -3090,7 +3099,7 @@ async function fetchTRCity(city) {
   const url = `https://air-quality-api.open-meteo.com/v1/air-quality`
     + `?latitude=${city.lat}&longitude=${city.lon}`
     + `&hourly=${vars.join(",")}`
-    + `&forecast_days=3&timezone=auto`;
+    + `&forecast_days=5&timezone=auto`;
 
   let raw = null;
   let pollenAvailable = false;
@@ -3229,7 +3238,7 @@ async function loadGlobal() {
   const url = `https://air-quality-api.open-meteo.com/v1/air-quality`
     + `?latitude=${lat}&longitude=${lon}`
     + `&hourly=${vars.join(",")}`
-    + `&forecast_days=3&timezone=auto`;
+    + `&forecast_days=5&timezone=auto`;
 
   let raw = null;
   let pollenAvailable = false;
@@ -3325,11 +3334,13 @@ async function init() {
   if (resolvedMode === "de") {
     appMode = "de";
     POLLEN  = POLLEN_DE;
+    DAYS = ["today","tomorrow","dayafter_to"];
     filter = loadFilterFor(POLLEN, LS.filter);
     await loadDE();
   } else if (resolvedMode === "tr") {
     appMode = "tr";
     POLLEN  = POLLEN_TR;
+    DAYS = ["today","tomorrow","dayafter_to","day3","day4"];
     filter = loadFilterFor(POLLEN_TR, LS.filter + "_tr");
     try { await loadTR(); } catch(e) {
       document.getElementById("page").innerHTML =
@@ -3338,6 +3349,7 @@ async function init() {
   } else {
     appMode = resolvedMode; // "eu" or "us"
     POLLEN  = appMode === "us" ? POLLEN_US : POLLEN_EU;
+    DAYS = ["today","tomorrow","dayafter_to","day3","day4"];
     try {
       await loadGlobal();
     } catch(e) {
@@ -3457,7 +3469,7 @@ document.addEventListener("touchend", e => {
     const dx = e.changedTouches[0].clientX - swipe_startX;
     const dy = e.changedTouches[0].clientY - swipe_startY;
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-      if (dx < 0 && activeDay < 2) setDay(activeDay + 1);
+      if (dx < 0 && activeDay < DAYS.length - 1) setDay(activeDay + 1);
       if (dx > 0 && activeDay > 0) setDay(activeDay - 1);
     }
   }
