@@ -115,8 +115,9 @@
       transition: background .15s, color .15s;
     }
     .src-tab + .src-tab { border-left: 1px solid var(--border); }
-    .src-tab.active { background: var(--accent); color: #fff; font-weight: 600; }
+    .src-tab.active { background: color-mix(in srgb, var(--accent) 18%, var(--card2)); color: var(--accent); font-weight: 700; }
     .src-tab .di { filter: grayscale(1) brightness(10); }
+    .src-tab.active .di { filter: none; }
     .src-share-btn {
       flex-shrink: 0; padding: 5px 9px; border-radius: 8px;
       border: 1px solid var(--border); background: var(--card2);
