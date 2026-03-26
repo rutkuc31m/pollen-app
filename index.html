@@ -2845,15 +2845,6 @@ function refreshDrawer() {
     </div>
 
 
-    <!-- SEASON OVERVIEW (DE only, lazy-rendered on open) -->
-    ${appMode === "de" ? `
-    <div class="dsec-head" onclick="toggleDrawerSec('ds2025')" id="ds2025-head">
-      <span><span class="di">📊</span> ${t("season_overview_title")}</span>
-      <span class="dsec-arrow">▼</span>
-    </div>
-    <div class="dsec-body" id="ds2025-body" data-lazy-season="1">
-      <div style="padding:10px 14px;font-size:.8rem;color:var(--text3)">Wird beim Öffnen geladen…</div>
-    </div>` : ""}
 
     <!-- DATA EXPORT/IMPORT -->
     <div class="dsec-head" onclick="toggleDrawerSec('ddata')" id="ddata-head">
