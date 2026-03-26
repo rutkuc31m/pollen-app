@@ -331,9 +331,14 @@
       flex: 1; padding: 6px 2px; border-radius: 7px;
       border: 1px solid var(--border); background: var(--card2);
       color: var(--text); font-size: .78rem; cursor: pointer;
-      transition: all .1s;
+      transition: background .2s, color .2s, border-color .2s, transform .15s, box-shadow .2s;
     }
-    .sym-btn.on { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+    .sym-btn:active { transform: scale(.88); }
+    .sym-btn.on {
+      background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700;
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 40%, transparent);
+      transform: scale(1.08);
+    }
     [data-theme="dark"] .sym-btn.on { color: #000; }
     .sym-save {
       display: block; margin: 10px 14px;
@@ -599,14 +604,18 @@
     .med-toggle {
       width: 40px; height: 22px; border-radius: 11px;
       border: 1px solid var(--border); background: var(--card2);
-      cursor: pointer; position: relative; transition: all .15s;
+      cursor: pointer; position: relative;
+      transition: background .25s, border-color .25s, box-shadow .25s;
       flex-shrink: 0;
     }
-    .med-toggle.on { background: var(--accent); border-color: var(--accent); }
+    .med-toggle.on {
+      background: var(--accent); border-color: var(--accent);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 40%, transparent);
+    }
     .med-toggle::after {
       content: ""; position: absolute; top: 2px; left: 2px;
       width: 16px; height: 16px; border-radius: 50%;
-      background: #fff; transition: transform .15s;
+      background: #fff; transition: transform .25s cubic-bezier(.34,1.56,.64,1);
     }
     .med-toggle.on::after { transform: translateX(18px); }
     .med-hist-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-size: .76rem; }
