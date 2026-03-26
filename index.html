@@ -84,7 +84,6 @@
       flex-shrink: 0;
     }
     .icon-btn:hover { background: var(--border); }
-    #theme-btn { filter: grayscale(1) brightness(10); }
     .offline-pill {
       font-size: .7rem; background: #f97316; color: #fff;
       padding: 2px 9px; border-radius: 20px; display: none;
@@ -684,7 +683,7 @@
       <button class="icon-btn" id="lang-btn-tr" onclick="setLang('tr')" style="font-size:.7rem;font-weight:700;width:auto;padding:4px 10px;border-radius:0 6px 6px 0">TR</button>
     </div>
     <button class="icon-btn" id="refresh-btn" onclick="doRefresh()" title="Aktualisieren" aria-label="Aktualisieren" style="font-size:.95rem">↻</button>
-    <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" aria-label="Design wechseln">🌙</button>
+    <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" aria-label="Design wechseln"><span class="di">🌙</span></button>
   </div>
   <div class="regionbar">
     <div class="regionbar-inner" id="regionbar-inner">
@@ -1437,7 +1436,7 @@ function loadFilterFor(pollenList, lsKey) {
 // ─────────────────────────────────────────────────────────────────────────────
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
-  document.getElementById("theme-btn").textContent = theme==="dark" ? "☀️" : "🌙";
+  document.getElementById("theme-btn").innerHTML = `<span class="di">${theme==="dark" ? "☀️" : "🌙"}</span>`;
   document.getElementById("theme-meta").content = theme==="dark" ? "#18181b" : "#ffffff";
 }
 function doRefresh() {
