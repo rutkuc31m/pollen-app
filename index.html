@@ -3384,8 +3384,17 @@ async function init() {
       // Validate: need at least lat/lon to be usable
       if (json.latitude && json.longitude) {
         geoInfo = { ...json, country_code: json.country_code || "DE" };
+        // Falls ipwho.is kein city liefert → Nominatim Reverse Geocoding
+        if (!geoInfo.city) {
+          try {
+            const nc = new AbortController(); setTimeout(() => nc.abort(), 4000);
+            const nr = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${json.latitude}&lon=${json.longitude}&format=json`, { signal: nc.signal });
+            const nj = await nr.json();
+            geoInfo.city = nj.address?.city || nj.address?.town || nj.address?.village || nj.address?.county || "";
+          } catch {}
+        }
       } else {
-        geoInfo = { country_code:"DE", latitude:52.37, longitude:9.73, city:"", country:"Germany", _ipFallback: true };
+        geoInfo = { country_code:"DE", latitude:52.37, longitude:9.73, city:"Hannover", country:"Germany", _ipFallback: true };
       }
     } catch {
       geoInfo = { country_code:"DE", latitude:52.37, longitude:9.73, city:"Hannover", country:"Germany", _ipFallback: true };
