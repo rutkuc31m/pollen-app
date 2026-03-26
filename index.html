@@ -384,7 +384,7 @@
       flex-shrink: 0; padding: 7px 10px; border-radius: 8px;
       border: 1px solid var(--border); background: var(--card2);
       color: var(--text2); cursor: pointer; font-size: .84rem;
-      white-space: nowrap;
+      white-space: nowrap; filter: grayscale(1) brightness(10);
     }
     .geo-btn:hover { background: var(--border); }
     .geo-btn:disabled { opacity: .5; cursor: not-allowed; }
@@ -3212,7 +3212,7 @@ async function loadGlobal() {
          oninput="omCitySearch(this.value)"
          onfocus="this.dataset.prev=this.value; this.value=''"
          onblur="if(!this.value.trim()){this.value=this.dataset.prev||''}" autocomplete="off" autocorrect="off" spellcheck="false">
-       <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.8rem;pointer-events:none">📍</span>
+       <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.75rem;pointer-events:none;filter:grayscale(1) brightness(10)">🔍</span>
        <div id="om-city-results" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:200;overflow:hidden;box-shadow:var(--sh)"></div>
      </div>
      <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}">📍</button>${srcTabsHTML()}`;
