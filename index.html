@@ -103,19 +103,16 @@
       padding: 7px 12px; font-size: .84rem; outline: none; cursor: pointer;
     }
     .regionbar select:focus { border-color: var(--accent); }
-    .src-bar {
-      max-width: 640px; margin: 4px auto 0;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .src-tabs { display: flex; flex: 1; gap: 0; }
+    .src-bar { display: none; }
+    .src-tabs { display: flex; gap: 0; flex-shrink: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
     .src-tab {
-      flex: 1; padding: 5px 8px; font-size: .78rem; font-weight: 500;
-      background: none; border: none; color: var(--text2);
-      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;
-      border-bottom: 2px solid transparent; margin-bottom: -1px;
-      transition: color .15s, border-color .15s;
+      padding: 5px 10px; font-size: .78rem; font-weight: 500;
+      background: var(--card2); border: none; color: var(--text2);
+      cursor: pointer; display: flex; align-items: center; gap: 4px;
+      transition: background .15s, color .15s;
     }
-    .src-tab.active { color: var(--text); border-bottom-color: var(--accent); font-weight: 700; }
+    .src-tab + .src-tab { border-left: 1px solid var(--border); }
+    .src-tab.active { background: color-mix(in srgb, var(--accent) 15%, var(--card2)); color: var(--accent); font-weight: 700; }
     .src-tab .di { filter: grayscale(1) brightness(10); }
     .src-tab.active .di { filter: none; }
     .src-share-btn {
@@ -2967,21 +2964,15 @@ function showS25Tip(e, name) {
   _s25TipTimer = setTimeout(() => tip.classList.remove("show"), 1400);
 }
 
+function srcTabsHTML() {
+  const current = appMode;
+  return `<div class="src-tabs">
+    <button class="src-tab${current==="de"?" active":""}" onclick="setDataSource('de')"><span class="di">🇩🇪</span> DWD</button>
+    <button class="src-tab${current==="om"?" active":""}" onclick="setDataSource('om')"><span class="di">🌍</span> Open-Meteo</button>
+  </div>`;
+}
 function renderSrcBar() {
-  const el = document.getElementById("src-bar");
-  if (!el) return;
-  const current = appMode; // always reflect actual active mode
-  el.innerHTML = `
-    <div class="src-tabs">
-      <button class="src-tab${current==="de"?" active":""}" onclick="setDataSource('de')">
-        <span class="di">🇩🇪</span> DWD
-      </button>
-      <button class="src-tab${current==="om"?" active":""}" onclick="setDataSource('om')">
-        <span class="di">🌍</span> Open-Meteo
-      </button>
-    </div>
-    <button class="src-share-btn" onclick="shareUrl()" title="Share">🔗</button>
-  `;
+  // src-tabs are now injected into regionbar-inner — nothing to do here
 }
 
 function toggleDrawerSec(id) {
@@ -3164,7 +3155,7 @@ async function loadDE() {
 
   // Restore DE regionbar (dropdown + geo button)
   document.getElementById("regionbar-inner").innerHTML =
-    `<select id="region-sel"></select><button class="geo-btn" id="geo-btn" onclick="geoLocate()" title="${t("geo_title")}">📍</button>`;
+    `<select id="region-sel" style="flex:1"></select><button class="geo-btn" id="geo-btn" onclick="geoLocate()" title="${t("geo_title")}">📍</button>${srcTabsHTML()}`;
   const sel = document.getElementById("region-sel");
   const groups = {};
   for (const r of db.regions) {
@@ -3224,7 +3215,7 @@ async function loadGlobal() {
        <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.8rem;pointer-events:none">📍</span>
        <div id="om-city-results" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:200;overflow:hidden;box-shadow:var(--sh)"></div>
      </div>
-     <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}">📍</button>`;
+     <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}">📍</button>${srcTabsHTML()}`;
 
   const url = `https://air-quality-api.open-meteo.com/v1/air-quality`
     + `?latitude=${lat}&longitude=${lon}`
