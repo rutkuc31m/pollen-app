@@ -104,17 +104,6 @@
     }
     .regionbar select:focus { border-color: var(--accent); }
     .src-bar { display: none; }
-    .src-tabs { display: flex; gap: 0; flex-shrink: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-    .src-tab {
-      padding: 5px 10px; font-size: .78rem; font-weight: 500;
-      background: var(--card2); border: none; color: var(--text2);
-      cursor: pointer; display: flex; align-items: center; gap: 4px;
-      transition: background .15s, color .15s;
-    }
-    .src-tab + .src-tab { border-left: 1px solid var(--border); }
-    .src-tab.active { background: color-mix(in srgb, var(--accent) 15%, var(--card2)); color: var(--accent); font-weight: 700; }
-    .src-tab .di { filter: grayscale(1) brightness(10); }
-    .src-tab.active .di { filter: none; }
     .src-share-btn {
       flex-shrink: 0; padding: 5px 9px; border-radius: 8px;
       border: 1px solid var(--border); background: var(--card2);
@@ -2981,16 +2970,8 @@ function showS25Tip(e, name) {
   _s25TipTimer = setTimeout(() => tip.classList.remove("show"), 1400);
 }
 
-function srcTabsHTML() {
-  const current = appMode;
-  return `<div class="src-tabs">
-    <button class="src-tab${current==="de"?" active":""}" onclick="setDataSource('de')"><span class="di">🇩🇪</span> DWD</button>
-    <button class="src-tab${current==="om"?" active":""}" onclick="setDataSource('om')"><span class="di">🌍</span> Open-Meteo</button>
-  </div>`;
-}
-function renderSrcBar() {
-  // src-tabs are now injected into regionbar-inner — nothing to do here
-}
+function srcTabsHTML() { return ""; }
+function renderSrcBar() {}
 
 function toggleDrawerSec(id) {
   const body = document.getElementById(id+"-body");
@@ -3297,7 +3278,7 @@ async function omCitySearch(query) {
       if (!data.results?.length) { results.style.display = "none"; return; }
       results.innerHTML = data.results.map(r => {
         const label = [r.name, r.admin1, r.country].filter(Boolean).join(", ");
-        return `<div onclick="omCitySelect(${r.latitude},${r.longitude},'${escapeHtml(r.name)}','${escapeHtml(r.country||"")}')"
+        return `<div onclick="omCitySelect(${r.latitude},${r.longitude},'${escapeHtml(r.name)}','${escapeHtml(r.country||"")}','${escapeHtml(r.country_code||"")}')"
           style="padding:8px 12px;font-size:.84rem;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text)"
           onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">
           📍 ${escapeHtml(label)}
@@ -3308,14 +3289,22 @@ async function omCitySearch(query) {
   }, 350);
 }
 
-function omCitySelect(lat, lon, city, country) {
+function omCitySelect(lat, lon, city, country, country_code) {
   const results = document.getElementById("om-city-results");
   if (results) results.style.display = "none";
   const input = document.getElementById("om-city-input");
   if (input) input.value = [city, country].filter(Boolean).join(", ");
-  geoInfo = { latitude: lat, longitude: lon, city, country, country_code: "", _manual: true };
+  const cc = (country_code || "").toUpperCase();
+  const inDE = cc === "DE" || (!cc && lat >= 47.3 && lat <= 55.1 && lon >= 5.9 && lon <= 15.1);
+  geoInfo = { latitude: lat, longitude: lon, city, country, country_code: cc, _manual: true };
   weather = null;
-  loadGlobal();
+  if (inDE) {
+    localStorage.setItem(LS.mode, "de");
+    init();
+  } else {
+    localStorage.setItem(LS.mode, "om");
+    loadGlobal();
+  }
 }
 
 async function relocate() {
