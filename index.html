@@ -754,6 +754,14 @@ const STRINGS = {
     region:"Region", geo_title:"Nächste Region automatisch wählen",
     weather_title:"Wetter",
     temp:"Temp", wind:"Wind", humidity:"Feuchte", rain:"Regen", uv:"UV max",
+    feels_like:"Gefühlt", wind_dir:"Windrichtung",
+    sunrise:"Sonnenaufgang", sunset:"Sonnenuntergang",
+    moon_title:"Mondphase",
+    moon_new:"Neumond", moon_waxing_crescent:"Zunehmend", moon_first_quarter:"Erstes Viertel",
+    moon_waxing_gibbous:"Zunehmend gibbös", moon_full:"Vollmond",
+    moon_waning_gibbous:"Abnehmend gibbös", moon_last_quarter:"Letztes Viertel", moon_waning_crescent:"Abnehmend",
+    air_quality_title:"Luftqualität",
+    aqi_good:"Gut", aqi_fair:"Mäßig", aqi_moderate:"Erhöht", aqi_poor:"Schlecht", aqi_very_poor:"Sehr schlecht", aqi_hazardous:"Extrem",
     all_pollen:"Alle Pollen", select_all:"Alle auswählen",
     tap_hint:"Zeile antippen = für dein Risiko ein/ausschließen",
     profile_hint:"Pollen für dein persönliches Risiko konfigurieren:",
@@ -935,6 +943,14 @@ const STRINGS = {
     region:"Region", geo_title:"Auto-detect nearest region",
     weather_title:"Weather",
     temp:"Temp", wind:"Wind", humidity:"Humidity", rain:"Rain", uv:"UV max",
+    feels_like:"Feels like", wind_dir:"Wind direction",
+    sunrise:"Sunrise", sunset:"Sunset",
+    moon_title:"Moon phase",
+    moon_new:"New moon", moon_waxing_crescent:"Waxing crescent", moon_first_quarter:"First quarter",
+    moon_waxing_gibbous:"Waxing gibbous", moon_full:"Full moon",
+    moon_waning_gibbous:"Waning gibbous", moon_last_quarter:"Last quarter", moon_waning_crescent:"Waning crescent",
+    air_quality_title:"Air quality",
+    aqi_good:"Good", aqi_fair:"Fair", aqi_moderate:"Moderate", aqi_poor:"Poor", aqi_very_poor:"Very poor", aqi_hazardous:"Hazardous",
     all_pollen:"All Pollen", select_all:"Select all",
     tap_hint:"Tap a row to include/exclude from your risk",
     profile_hint:"Configure pollen for your personal risk:",
@@ -1109,6 +1125,14 @@ const STRINGS = {
     region:"Bölge", geo_title:"En yakın bölgeyi otomatik seç",
     weather_title:"Hava Durumu",
     temp:"Sıcaklık", wind:"Rüzgar", humidity:"Nem", rain:"Yağış", uv:"UV maks",
+    feels_like:"Hissedilen", wind_dir:"Rüzgar yönü",
+    sunrise:"Gün doğumu", sunset:"Gün batımı",
+    moon_title:"Ay evresi",
+    moon_new:"Yeni ay", moon_waxing_crescent:"Hilal (büyüyen)", moon_first_quarter:"İlk dördün",
+    moon_waxing_gibbous:"Şişen (büyüyen)", moon_full:"Dolunay",
+    moon_waning_gibbous:"Şişen (küçülen)", moon_last_quarter:"Son dördün", moon_waning_crescent:"Hilal (küçülen)",
+    air_quality_title:"Hava kalitesi",
+    aqi_good:"İyi", aqi_fair:"Orta", aqi_moderate:"Yüksek", aqi_poor:"Kötü", aqi_very_poor:"Çok kötü", aqi_hazardous:"Tehlikeli",
     all_pollen:"Tüm Polenler", select_all:"Tümünü seç",
     tap_hint:"Riski dahil etmek/çıkarmak için satıra dokun",
     profile_hint:"Kişisel riskiniz için polenleri yapılandırın:",
@@ -1393,6 +1417,7 @@ let appMode      = "de";   // "de" | "om"
 let geoInfo      = null;   // { country_code, latitude, longitude, city, country }
 let db           = null;
 let weather      = null;   // { current, daily, fetchedAt }
+let airQuality   = null;   // { aqi, pm10, pm2_5 }
 let _weatherAC   = null;   // AbortController for loadWeather()
 let rKey      = localStorage.getItem(LS.region)  || "30-32";
 let filter    = JSON.parse(localStorage.getItem(LS.filter) || "null") || POLLEN.map(p=>p.key);
@@ -1447,6 +1472,38 @@ function lv(v)  { return LV[String(v)] ?? {cls:"b-none",sc:0,label:String(v),rc:
 function lvBar(sc, size="sm") {
   if (sc === 0) return `<span style="color:var(--text3);font-size:.85rem;line-height:1">–</span>`;
   return `<span class="lv-bars ${size}">${[1,2,3,4].map(i=>`<span class="b${i<=sc?" on":""}"></span>`).join("")}</span>`;
+}
+function windDirText(deg) {
+  if (deg === null || deg === undefined) return "–";
+  const dirs = lang==="de"?["N","NO","O","SO","S","SW","W","NW"]:lang==="tr"?["K","KD","D","GD","G","GB","B","KB"]:["N","NE","E","SE","S","SW","W","NW"];
+  return dirs[Math.round(deg / 45) % 8];
+}
+function moonPhase() {
+  const known = new Date(2000, 0, 6);
+  const diff = (new Date() - known) / 86400000;
+  const f = ((diff % 29.53058867) + 29.53058867) % 29.53058867 / 29.53058867;
+  if (f < 0.025 || f > 0.975) return { icon:"🌑", name:t("moon_new") };
+  if (f < 0.25)  return { icon:"🌒", name:t("moon_waxing_crescent") };
+  if (f < 0.275) return { icon:"🌓", name:t("moon_first_quarter") };
+  if (f < 0.5)   return { icon:"🌔", name:t("moon_waxing_gibbous") };
+  if (f < 0.525) return { icon:"🌕", name:t("moon_full") };
+  if (f < 0.75)  return { icon:"🌖", name:t("moon_waning_gibbous") };
+  if (f < 0.775) return { icon:"🌗", name:t("moon_last_quarter") };
+  return { icon:"🌘", name:t("moon_waning_crescent") };
+}
+function aqiLabel(aqi) {
+  if (aqi === null) return "–";
+  if (aqi <= 20)  return t("aqi_good");
+  if (aqi <= 40)  return t("aqi_fair");
+  if (aqi <= 60)  return t("aqi_moderate");
+  if (aqi <= 80)  return t("aqi_poor");
+  if (aqi <= 100) return t("aqi_very_poor");
+  return t("aqi_hazardous");
+}
+function fmtTime(isoStr) {
+  if (!isoStr) return "–";
+  const d = new Date(isoStr);
+  return d.toLocaleTimeString(lang==="de"?"de-DE":lang==="tr"?"tr-TR":"en-GB", {hour:"2-digit",minute:"2-digit"});
 }
 function rk(r)  { return `${r.region_id}-${r.partregion_id}`; }
 function region(){ return db.regions.find(r=>rk(r)===rKey) ?? db.regions[0]; }
@@ -1785,6 +1842,126 @@ function _renderInner() {
           <div style="padding:10px 14px;display:flex;flex-direction:column;gap:5px">${bars}</div>
         </div>
       </div>`;
+    })() : ""}
+
+    ${activeTab === "weather" && weather ? (() => {
+      const d = weather.daily[activeDay] ?? weather.daily[0];
+      const rows = [];
+
+      // ── Beste Zeit draußen ────────────────────────────────
+      if (db && appMode === "de") {
+        const btPol = (db.regions.find(r=>rk(r)===rKey) ?? db.regions[0])?.pollen;
+        if (btPol) {
+          const bt = calcBestTimes(btPol, activeDay);
+          rows.push(`<div class="card">
+            <div class="card-head"><span class="card-title"><span class="di">🕐</span> ${t("besttime_title")}</span></div>
+            ${bt ? `
+              <div class="time-windows">
+                ${bt.good.length
+                  ? bt.good.map(w=>`<div class="time-win good">✓ ${w}</div>`).join("")
+                  : `<div class="time-win none">⚠ ${t("besttime_none")}</div>`}
+                ${bt.avoid ? `<div class="time-win warn">⚠ ${t("besttime_avoid")}: ${bt.avoid}</div>` : ""}
+              </div>
+              <div class="time-note">${t("besttime_note")}</div>`
+            : `<div style="padding:10px 14px;font-size:.82rem;color:var(--text2)">${t("besttime_note")}</div>`}
+          </div>`);
+        }
+      }
+
+      // ── Temperaturkurve (stündlich) ──────────────────────
+      if (weather.hourlyTemp && weather.hourlyTime) {
+        const dayDate = new Date(); dayDate.setDate(dayDate.getDate() + activeDay);
+        const dayStr = dayDate.toISOString().slice(0,10);
+        const pts = [];
+        weather.hourlyTime.forEach((ts, i) => {
+          if (!ts.startsWith(dayStr)) return;
+          pts.push({ h: parseInt(ts.slice(11,13)), v: weather.hourlyTemp[i] });
+        });
+        if (pts.length >= 2) {
+          const min = Math.min(...pts.map(p=>p.v)), max = Math.max(...pts.map(p=>p.v));
+          const range = max - min || 1;
+          const W = 100, H = 40;
+          const px = (i) => (i / (pts.length-1)) * W;
+          const py = (v) => H - ((v - min) / range) * H;
+          const path = pts.map((p,i) => `${i===0?"M":"L"}${px(i).toFixed(1)},${py(p.v).toFixed(1)}`).join(" ");
+          const area = path + ` L${W},${H} L0,${H} Z`;
+          const labels = pts.filter((_,i) => i % 3 === 0).map(p =>
+            `<div style="flex:1;text-align:center;font-size:.6rem;color:var(--text3)">${String(p.h).padStart(2,"0")}h</div>`).join("");
+          rows.push(`<div class="card">
+            <div class="card-head"><span class="card-title">🌡 ${t("temp")}</span></div>
+            <div style="padding:10px 16px 6px">
+              <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:44px;overflow:visible">
+                <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#bae6fd" stop-opacity=".25"/><stop offset="100%" stop-color="#bae6fd" stop-opacity="0"/></linearGradient></defs>
+                <path d="${area}" fill="url(#tg)"/>
+                <path d="${path}" fill="none" stroke="#bae6fd" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+                ${pts.map((p,i)=> i%3===0?`<text x="${px(i).toFixed(1)}" y="${(py(p.v)-3).toFixed(1)}" text-anchor="middle" font-size="5.5" fill="#a1a1aa">${p.v}°</text>`:"").join("")}
+              </svg>
+              <div style="display:flex;margin-top:2px">${labels}</div>
+            </div>
+          </div>`);
+        }
+      }
+
+      // ── Sonnenauf/-untergang + Mondphase ─────────────────
+      const moon = moonPhase();
+      const sunRow = `<div class="card">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:14px 16px;gap:8px;text-align:center">
+          <div>
+            <div style="font-size:1.3rem" class="di">🌅</div>
+            <div style="font-size:1rem;font-weight:700;margin:4px 0 2px">${fmtTime(d.sunrise)}</div>
+            <div style="font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("sunrise")}</div>
+          </div>
+          <div>
+            <div style="font-size:1.3rem">${moon.icon}</div>
+            <div style="font-size:.82rem;font-weight:600;margin:4px 0 2px">${moon.name}</div>
+            <div style="font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("moon_title")}</div>
+          </div>
+          <div>
+            <div style="font-size:1.3rem" class="di">🌇</div>
+            <div style="font-size:1rem;font-weight:700;margin:4px 0 2px">${fmtTime(d.sunset)}</div>
+            <div style="font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("sunset")}</div>
+          </div>
+        </div>
+      </div>`;
+      rows.push(sunRow);
+
+      // ── Gefühlte Temp + Windrichtung ──────────────────────
+      const extraRow = `<div class="card">
+        <div style="display:grid;grid-template-columns:1fr 1fr;padding:14px 16px;gap:8px;text-align:center">
+          <div>
+            <div style="font-size:1.3rem" class="di">🌡</div>
+            <div style="font-size:1.1rem;font-weight:700;margin:4px 0 2px">${d.apparentTemp !== null ? d.apparentTemp + weather.units.temp : "–"}</div>
+            <div style="font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("feels_like")}</div>
+          </div>
+          <div>
+            <div style="font-size:1.3rem;transform:rotate(${d.windDir ?? 0}deg);display:inline-block">↑</div>
+            <div style="font-size:1.1rem;font-weight:700;margin:4px 0 2px">${windDirText(d.windDir)} ${d.windDir !== null ? `<span style="font-size:.75rem;color:var(--text3)">${d.windDir}°</span>` : ""}</div>
+            <div style="font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("wind_dir")}</div>
+          </div>
+        </div>
+      </div>`;
+      rows.push(extraRow);
+
+      // ── Luftqualität ──────────────────────────────────────
+      if (airQuality) {
+        const aqi = airQuality.aqi;
+        const aqiPct = aqi !== null ? Math.min(100, Math.round(aqi)) : 0;
+        const aqiCol = aqi <= 20 ? "#e0f2fe" : aqi <= 40 ? "#bae6fd" : aqi <= 60 ? "#7cb8d4" : aqi <= 80 ? "#4a7a93" : "#1e3a4a";
+        rows.push(`<div class="card">
+          <div class="card-head"><span class="card-title">💨 ${t("air_quality_title")}</span></div>
+          <div style="padding:10px 16px 14px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <span style="font-size:1.2rem;font-weight:700;color:${aqiCol}">${aqi ?? "–"} <span style="font-size:.75rem;font-weight:400;color:var(--text2)">${aqiLabel(aqi)}</span></span>
+              ${airQuality.pm25 !== null ? `<span style="font-size:.75rem;color:var(--text3)">PM2.5: ${airQuality.pm25} · PM10: ${airQuality.pm10}</span>` : ""}
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+              <div style="width:${aqiPct}%;height:100%;background:${aqiCol};border-radius:3px;transition:width .4s"></div>
+            </div>
+          </div>
+        </div>`);
+      }
+
+      return rows.join("");
     })() : ""}
 
     ${activeTab === "pollen" ? `
@@ -2132,32 +2309,38 @@ async function loadWeather() {
     ? "&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch"
     : "";
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}`
-    + `&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code`
-    + `&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,uv_index_max,precipitation_probability_max,weathercode`
-    + `&hourly=precipitation_probability`
+    + `&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code,apparent_temperature`
+    + `&daily=temperature_2m_max,apparent_temperature_max,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant,uv_index_max,precipitation_probability_max,weathercode,sunrise,sunset`
+    + `&hourly=precipitation_probability,temperature_2m`
     + `&timezone=${tz}&forecast_days=7${units}`;
   try {
     const res = await fetch(url, { signal });
     const data = await res.json();
     weather = {
       current: {
-        temp:     Math.round(data.current.temperature_2m),
-        humidity: data.current.relative_humidity_2m,
-        rain:     data.current.precipitation,
-        wind:     Math.round(data.current.wind_speed_10m),
-        code:     data.current.weather_code,
+        temp:         Math.round(data.current.temperature_2m),
+        apparentTemp: Math.round(data.current.apparent_temperature),
+        humidity:     data.current.relative_humidity_2m,
+        rain:         data.current.precipitation,
+        wind:         Math.round(data.current.wind_speed_10m),
+        code:         data.current.weather_code,
       },
       daily: data.daily.time.map((_, i) => ({
-        tempMax:  Math.round(data.daily.temperature_2m_max[i]),
-        rain:     Math.round((data.daily.precipitation_sum[i] ?? 0) * 10) / 10,
-        wind:     Math.round(data.daily.wind_speed_10m_max[i]),
-        uv:       data.daily.uv_index_max ? Math.round(data.daily.uv_index_max[i]) : null,
-        rainProb: data.daily.precipitation_probability_max?.[i] ?? null,
-        weatherCode: data.daily.weathercode?.[i] ?? null,
+        tempMax:      Math.round(data.daily.temperature_2m_max[i]),
+        apparentTemp: data.daily.apparent_temperature_max ? Math.round(data.daily.apparent_temperature_max[i]) : null,
+        rain:         Math.round((data.daily.precipitation_sum[i] ?? 0) * 10) / 10,
+        wind:         Math.round(data.daily.wind_speed_10m_max[i]),
+        windDir:      data.daily.wind_direction_10m_dominant?.[i] ?? null,
+        uv:           data.daily.uv_index_max ? Math.round(data.daily.uv_index_max[i]) : null,
+        rainProb:     data.daily.precipitation_probability_max?.[i] ?? null,
+        weatherCode:  data.daily.weathercode?.[i] ?? null,
+        sunrise:      data.daily.sunrise?.[i] ?? null,
+        sunset:       data.daily.sunset?.[i] ?? null,
       })),
       units: isUS ? {temp:"°F", wind:"mph", rain:"in"} : {temp:"°C", wind:"km/h", rain:"mm"},
       hourlyRainProb: data.hourly?.precipitation_probability ?? null,
-      hourlyTime: data.hourly?.time ?? null,
+      hourlyTemp:     data.hourly?.temperature_2m ?? null,
+      hourlyTime:     data.hourly?.time ?? null,
       fetchedAt: Date.now(),
     };
     try { localStorage.setItem(wCacheKey, JSON.stringify(weather)); } catch(e) {}
@@ -2166,6 +2349,17 @@ async function loadWeather() {
     // Offline fallback: try cached weather regardless of age
     try { const cached = JSON.parse(localStorage.getItem(wCacheKey)); if (cached) { weather = cached; } else { weather = null; } } catch(e2) { weather = null; }
   }
+  // Air quality (parallel, non-blocking)
+  try {
+    const aqUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${coords.lat}&longitude=${coords.lon}&current=european_aqi,pm10,pm2_5`;
+    const aqRes = await fetch(aqUrl, { signal });
+    const aqData = await aqRes.json();
+    airQuality = {
+      aqi:  aqData.current?.european_aqi ?? null,
+      pm10: aqData.current?.pm10 ? Math.round(aqData.current.pm10) : null,
+      pm25: aqData.current?.pm2_5 ? Math.round(aqData.current.pm2_5) : null,
+    };
+  } catch { airQuality = null; }
   render();
 }
 
