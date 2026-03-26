@@ -690,7 +690,7 @@
   <div class="regionbar">
     <div class="regionbar-inner" id="regionbar-inner">
       <select id="region-sel" aria-label="Region wählen"><option>Lade Regionen…</option></select>
-      <button class="geo-btn" id="geo-btn" onclick="geoLocate()"><span class="di">📍</span></button>
+      <button class="geo-btn" onclick="geoLocate()"><span class="di">📍</span></button>
     </div>
     <div class="src-bar" id="src-bar"></div>
   </div>
@@ -2839,7 +2839,7 @@ function refreshDrawer() {
     </div>
 
     <!-- POLLEN NEARBY (DE only) -->
-    ${appMode === "de" ? `<div class="dsec-head" onclick="toggleDrawerSec('dnearby')" id="dnearby-head">` : `<div class="dsec-head" style="display:none" id="dnearby-head">`}
+    <div class="dsec-head" ${appMode === "de" ? `onclick="toggleDrawerSec('dnearby')"` : `style="display:none"`} id="dnearby-head">
       <span>${t("nearby_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
