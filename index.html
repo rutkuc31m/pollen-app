@@ -107,15 +107,15 @@
       max-width: 640px; margin: 4px auto 0;
       display: flex; align-items: center; gap: 6px;
     }
-    .src-tabs { display: flex; flex: 1; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+    .src-tabs { display: flex; flex: 1; gap: 0; }
     .src-tab {
       flex: 1; padding: 5px 8px; font-size: .78rem; font-weight: 500;
-      background: var(--card2); border: none; color: var(--text2);
+      background: none; border: none; color: var(--text2);
       cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;
-      transition: background .15s, color .15s;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: color .15s, border-color .15s;
     }
-    .src-tab + .src-tab { border-left: 1px solid var(--border); }
-    .src-tab.active { background: color-mix(in srgb, var(--accent) 18%, var(--card2)); color: var(--accent); font-weight: 700; }
+    .src-tab.active { color: var(--text); border-bottom-color: var(--accent); font-weight: 700; }
     .src-tab .di { filter: grayscale(1) brightness(10); }
     .src-tab.active .di { filter: none; }
     .src-share-btn {
