@@ -384,7 +384,7 @@
       flex-shrink: 0; padding: 7px 10px; border-radius: 8px;
       border: 1px solid var(--border); background: var(--card2);
       color: var(--text2); cursor: pointer; font-size: .84rem;
-      white-space: nowrap; filter: grayscale(1) brightness(10);
+      white-space: nowrap;
     }
     .geo-btn:hover { background: var(--border); }
     .geo-btn:disabled { opacity: .5; cursor: not-allowed; }
@@ -484,7 +484,7 @@
     .tips-group + .tips-group { padding-top: 4px; }
     .tips-group-title { font-size: .67rem; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
     .tips-group-title .di, .dsec-head .di, .drawer-label-icon, .cross-food .di,
-    div.di, .wd-icon.di { filter: grayscale(1) brightness(10); }
+    div.di, .wd-icon.di, .geo-btn .di { filter: grayscale(1) brightness(10); }
     .tip-row { display: flex; align-items: baseline; gap: 7px; font-size: .82rem; padding: 2px 0; }
     .tip-ok   { color: #0891b2; font-weight: 700; flex-shrink: 0; }
     .tip-no   { color: #b91c1c; font-weight: 700; flex-shrink: 0; }
@@ -701,7 +701,7 @@
   <div class="regionbar">
     <div class="regionbar-inner" id="regionbar-inner">
       <select id="region-sel" aria-label="Region wählen"><option>Lade Regionen…</option></select>
-      <button class="geo-btn" id="geo-btn" onclick="geoLocate()">📍</button>
+      <button class="geo-btn" id="geo-btn" onclick="geoLocate()"><span class="di">📍</span></button>
     </div>
     <div class="src-bar" id="src-bar"></div>
   </div>
@@ -2258,10 +2258,10 @@ function geoLocate() {
       render();
       loadWeather();
     }
-    btn.disabled = false; btn.textContent = "📍";
+    btn.disabled = false; btn.innerHTML = '<span class="di">📍</span>';
   }, () => {
     showToast(t("geo_error"));
-    btn.disabled = false; btn.textContent = "📍";
+    btn.disabled = false; btn.innerHTML = '<span class="di">📍</span>';
   }, { timeout: 8000 });
 }
 
@@ -3155,7 +3155,7 @@ async function loadDE() {
 
   // Restore DE regionbar (dropdown + geo button)
   document.getElementById("regionbar-inner").innerHTML =
-    `<select id="region-sel" style="flex:1"></select><button class="geo-btn" id="geo-btn" onclick="geoLocate()" title="${t("geo_title")}">📍</button>${srcTabsHTML()}`;
+    `<select id="region-sel" style="flex:1"></select><button class="geo-btn" id="geo-btn" onclick="geoLocate()" title="${t("geo_title")}"><span class="di">📍</span></button>${srcTabsHTML()}`;
   const sel = document.getElementById("region-sel");
   const groups = {};
   for (const r of db.regions) {
@@ -3215,7 +3215,7 @@ async function loadGlobal() {
        <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.75rem;pointer-events:none;filter:grayscale(1) brightness(10)">🔍</span>
        <div id="om-city-results" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:200;overflow:hidden;box-shadow:var(--sh)"></div>
      </div>
-     <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}">📍</button>${srcTabsHTML()}`;
+     <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}"><span class="di">📍</span></button>${srcTabsHTML()}`;
 
   const url = `https://air-quality-api.open-meteo.com/v1/air-quality`
     + `?latitude=${lat}&longitude=${lon}`
