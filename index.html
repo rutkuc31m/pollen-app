@@ -1747,7 +1747,7 @@ function _renderInner() {
       return `
       <div class="card" style="margin-bottom:12px">
         <div class="card-head">
-          <span class="card-title">${t("weather_title")}</span>
+          <span class="card-title"><span class="di">🌤</span> ${t("weather_title")}</span>
           <span style="font-size:.72rem;color:var(--text3)">${fetchedStr ? `${t("dwd_stand")} ${fetchedStr} · ` : ""}Open-Meteo</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:12px 14px 6px;text-align:center">
@@ -1788,7 +1788,7 @@ function _renderInner() {
       </div>
       ${weather.daily.length > 3 ? `
       <div class="card" style="margin-bottom:12px">
-        <div class="card-head"><span class="card-title">${t("week_title")||"7 Tage"}</span></div>
+        <div class="card-head"><span class="card-title"><span class="di">📅</span> ${t("week_title")||"7 Tage"}</span></div>
         ${weather.daily.map((wd, i) => {
           const dt = new Date(); dt.setDate(dt.getDate() + i);
           const dayName = i===0 ? t("today") : wkNames[dt.getDay() === 0 ? 6 : dt.getDay() - 1];
@@ -1999,7 +1999,7 @@ function _renderInner() {
     <!-- POLLEN LIST -->
     <div class="card">
       <div class="card-head" style="gap:8px">
-        <span class="card-title" style="flex:1">${t("all_pollen")}</span>
+        <span class="card-title" style="flex:1"><span class="di">🌿</span> ${t("all_pollen")}</span>
         <select onchange="setDay(parseInt(this.value))" style="background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:5px 10px;font-size:.8rem;outline:none;cursor:pointer;flex-shrink:0">
           ${DAY_NAMES().map((n,i)=>`<option value="${i}" ${i===activeDay?"selected":""}>${n}, ${dStr(i)}</option>`).join("")}
         </select>
