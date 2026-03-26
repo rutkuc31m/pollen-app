@@ -277,13 +277,13 @@
     }
     .wh-cell.wh-today { outline: 2px solid var(--accent); outline-offset: -1px; }
     .wh-cell.wh-future { opacity: .3; }
-    .wh-cell[data-sc="0"] { background: color-mix(in srgb, #65a30d 18%, var(--card)); color: #65a30d; }
-    .wh-cell[data-sc="1"] { background: color-mix(in srgb, #65a30d 35%, var(--card)); color: #3f6212; }
+    .wh-cell[data-sc="0"] { background: color-mix(in srgb, #06b6d4 18%, var(--card)); color: #0891b2; }
+    .wh-cell[data-sc="1"] { background: color-mix(in srgb, #06b6d4 35%, var(--card)); color: #0891b2; }
     .wh-cell[data-sc="2"] { background: color-mix(in srgb, #c2410c 45%, var(--card)); color: #7c2d12; }
     .wh-cell[data-sc="3"] { background: color-mix(in srgb, #b91c1c 55%, var(--card)); color: #7f1d1d; }
-    [data-theme="dark"] .wh-cell[data-sc="0"] { color: #86efac; }
-    [data-theme="dark"] .wh-cell[data-sc="1"] { color: #bef264; }
-    [data-theme="dark"] .wh-cell[data-sc="2"] { color: #fde68a; }
+    [data-theme="dark"] .wh-cell[data-sc="0"] { color: #22d3ee; }
+    [data-theme="dark"] .wh-cell[data-sc="1"] { color: #22d3ee; }
+    [data-theme="dark"] .wh-cell[data-sc="2"] { color: #fb923c; }
     [data-theme="dark"] .wh-cell[data-sc="3"] { color: #fca5a5; }
     .wh-date { font-size: .6rem; line-height: 1; }
     .wh-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; margin-top: 2px; }
@@ -302,11 +302,11 @@
       background: var(--border);
       position: relative;
     }
-    .s25-cell[data-v="1"] { background: color-mix(in srgb,#65a30d 45%,var(--card)); }
+    .s25-cell[data-v="1"] { background: color-mix(in srgb,#06b6d4 45%,var(--card)); }
     .s25-cell[data-v="2"] { background: color-mix(in srgb,#c2410c 58%,var(--card)); }
     .s25-cell[data-v="3"] { background: color-mix(in srgb,#b91c1c 68%,var(--card)); }
-    [data-theme="dark"] .s25-cell[data-v="1"] { background: #365314; }
-    [data-theme="dark"] .s25-cell[data-v="2"] { background: #713f12; }
+    [data-theme="dark"] .s25-cell[data-v="1"] { background: #083344; }
+    [data-theme="dark"] .s25-cell[data-v="2"] { background: #431407; }
     [data-theme="dark"] .s25-cell[data-v="3"] { background: #7f1d1d; }
     .s25-note { padding: 8px 0 0; font-size: .65rem; color: var(--text3); font-style: italic; }
     .s25-tip {
@@ -481,7 +481,7 @@
     .tips-group { padding: 10px 14px 6px; }
     .tips-group + .tips-group { padding-top: 4px; }
     .tips-group-title { font-size: .67rem; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
-    .tips-group-title .di, .dsec-head .di, .drawer-label-icon { filter: grayscale(1) brightness(10); }
+    .tips-group-title .di, .dsec-head .di, .drawer-label-icon, .cross-food .di { filter: grayscale(1) brightness(10); }
     .tip-row { display: flex; align-items: baseline; gap: 7px; font-size: .82rem; padding: 2px 0; }
     .tip-ok   { color: #0891b2; font-weight: 700; flex-shrink: 0; }
     .tip-no   { color: #b91c1c; font-weight: 700; flex-shrink: 0; }
@@ -503,7 +503,7 @@
       background: #e0f9ff; color: #0891b2; font-size: .82rem; line-height: 1.4;
       border: 1px solid #a5f3fc;
     }
-    [data-theme="dark"] .escape-box { background: #083344; color: #22d3ee; border-color: #164e63; }
+    [data-theme="dark"] .escape-box { background: #083344; color: #22d3ee; border-color: color-mix(in srgb, #22d3ee 20%, transparent); }
 
     /* ── TOAST ───────────────────────────────────────── */
     #toast {
@@ -1667,7 +1667,7 @@ function _renderInner() {
       if (!top) return "";
       const str = top.r >= 0.7 ? t("corr_strong") : t("corr_moderate");
       const pct = Math.round(top.r * 100);
-      const barColor = top.r >= 0.7 ? "var(--accent)" : "#f59e0b";
+      const barColor = top.r >= 0.7 ? "var(--accent)" : "#c2410c";
       return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--accent) 10%,var(--card));border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);font-size:.78rem;color:var(--text2)">'
         + '<span style="font-size:1rem">💡</span>'
         + '<span><span class="picon">' + top.p.icon + '</span> <strong>' + t(top.p.key) + '</strong>: ' + str + '</span>'
@@ -2070,7 +2070,7 @@ function renderSeason2025() {
 function renderSymHistory() {
   const entries = Object.entries(symptoms).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,5);
   if (!entries.length) return "";
-  const sc = v => !v?"#3f3f46":["#3f3f46","#65a30d","#65a30d","#a16207","#b91c1c","#b91c1c"][v]??"#b91c1c";
+  const sc = v => !v?"#3f3f46":["#3f3f46","#0891b2","#0891b2","#c2410c","#b91c1c","#b91c1c"][v]??"#b91c1c";
   return `
     <div class="sym-hist">
       <div class="sym-hist-title">${t("saved_entries")}</div>
@@ -2341,7 +2341,7 @@ function renderCorrelation() {
             + '</div>';
         }
         var pct = Math.round(r * 100);
-        var barColor = r >= 0.6 ? "var(--accent)" : r >= 0.4 ? "#f59e0b" : "var(--text3)";
+        var barColor = r >= 0.6 ? "var(--accent)" : r >= 0.4 ? "#c2410c" : "var(--text3)";
         var strength = r >= 0.7 ? t("corr_strong_short") : r >= 0.4 ? t("corr_moderate_short") : t("corr_weak_short");
         return '<div class="corr-row" style="flex-wrap:wrap;gap:4px 8px">'
           + '<div class="corr-name"><span class="picon">' + p.icon + '</span> ' + t(p.key) + '</div>'
@@ -2921,8 +2921,8 @@ function refreshDrawer() {
     <div class="dsec-body" id="dlegend-body">
       <div class="legend">
         <div class="li"><div class="ld" style="background:#71717a"></div>${t("risk0")}</div>
-        <div class="li"><div class="ld" style="background:#65a30d"></div>${t("lv_low")}</div>
-        <div class="li"><div class="ld" style="background:#a16207"></div>${t("lv_mid")}</div>
+        <div class="li"><div class="ld" style="background:#0891b2"></div>${t("lv_low")}</div>
+        <div class="li"><div class="ld" style="background:#c2410c"></div>${t("lv_mid")}</div>
         <div class="li"><div class="ld" style="background:#b91c1c"></div>${t("lv_high")}</div>
       </div>
       <div style="padding:8px 14px 12px;border-top:1px solid var(--border);font-size:.79rem;color:var(--text2);line-height:1.55">
