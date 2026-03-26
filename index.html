@@ -726,7 +726,7 @@ function setLang(newLang) {
   const tabPollen = document.getElementById("tab-pollen");
   const tabWeather = document.getElementById("tab-weather");
   if (tabPollen) tabPollen.innerHTML = `<span class="tab-icon">🌿</span> ` + t("tab_pollen");
-  if (tabWeather) tabWeather.textContent = "🌤 " + t("tab_weather");
+  if (tabWeather) tabWeather.innerHTML = `<span class="tab-icon">🌤</span> ` + t("tab_weather");
 }
 
 const STRINGS = {
