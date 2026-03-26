@@ -2900,7 +2900,7 @@ function refreshDrawer() {
           if (!supported) {
             const hint = isIOS ? t("notif_ios_hint") : t("notif_unsupported");
             return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:6px;border-top:1px solid var(--border)">
-              <span style="font-size:.76rem;color:var(--text2)">🔔 ${t("notif_title")}</span>
+              <span style="font-size:.76rem;color:var(--text2)"><span class="di">🔔</span> ${t("notif_title")}</span>
               <span style="font-size:.72rem;color:var(--text2);opacity:.7;text-align:right;max-width:60%">${hint}</span>
             </div>`;
           }
@@ -2913,7 +2913,7 @@ function refreshDrawer() {
           else
             right = `<span style="font-size:.72rem;color:var(--text2);opacity:.7">${t("notif_blocked")}</span>`;
           return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:6px;border-top:1px solid var(--border)">
-            <span style="font-size:.76rem;color:var(--text2)">🔔 ${t("notif_title")}</span>
+            <span style="font-size:.76rem;color:var(--text2)"><span class="di">🔔</span> ${t("notif_title")}</span>
             ${right}
           </div>`;
         })()}
