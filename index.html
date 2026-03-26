@@ -2916,9 +2916,9 @@ function refreshDrawer() {
         }).map(e => totalSym(e));
         if (highDays.length < 2) return "";
         const avgHigh = avg(highDays);
-        const predicted = Math.round(Math.min(20, avgHigh * ([0,0.4,0.7,1][tomorrowRisk])) * 10)/10;
+        const predicted = Math.round(Math.min(12, avgHigh * ([0,0.4,0.7,1][tomorrowRisk])) * 10)/10;
         return `<div style="padding:8px 14px 10px;border-top:1px solid var(--border);font-size:.79rem;color:var(--text2)">
-          <span class="di">🔮</span> ${t("pred_tomorrow")}: <strong style="color:var(--accent)">${predicted}/20</strong>
+          <span class="di">🔮</span> ${t("pred_tomorrow")}: <strong style="color:var(--accent)">${predicted}/12</strong>
           <span style="opacity:.6;font-size:.7rem"> (${t("based_on_history")})</span>
         </div>`;
       })()}
