@@ -631,30 +631,19 @@
 
     /* ── CROSS-ALLERGY ALERT ────────────────────────── */
     .cross-alert {
-      margin-bottom: 10px; padding: 10px 13px; border-radius: 10px;
-      background: color-mix(in srgb, #f59e0b 10%, var(--card));
-      border: 1px solid color-mix(in srgb, #f59e0b 25%, transparent);
-      font-size: .82rem; color: var(--text); line-height: 1.45;
+      margin-bottom: 8px; padding: 8px 12px; border-radius: 10px;
+      background: color-mix(in srgb, var(--accent) 8%, var(--card));
+      border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+      font-size: .8rem; color: var(--text2); line-height: 1.4;
+      display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 6px;
     }
-    [data-theme="dark"] .cross-alert {
-      background: color-mix(in srgb, #f59e0b 8%, var(--card));
-    }
-    .cross-alert.cross-high {
-      background: color-mix(in srgb, #ef4444 10%, var(--card));
-      border-color: color-mix(in srgb, #ef4444 25%, transparent);
-    }
-    [data-theme="dark"] .cross-alert.cross-high {
-      background: color-mix(in srgb, #ef4444 8%, var(--card));
-    }
-    .cross-high .cross-food {
-      background: color-mix(in srgb, #ef4444 15%, var(--card));
-    }
-    .cross-alert-title { font-weight: 600; margin-bottom: 4px; }
-    .cross-foods { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+    .cross-alert-title { font-weight: 600; color: var(--accent); white-space: nowrap; }
+    .cross-alert-desc { flex: 1; min-width: 0; }
+    .cross-foods { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; width: 100%; }
     .cross-food {
-      display: inline-block; padding: 2px 8px; border-radius: 8px;
-      font-size: .74rem; background: color-mix(in srgb, #f59e0b 15%, var(--card));
-      color: var(--text2);
+      display: inline-block; padding: 1px 7px; border-radius: 20px;
+      font-size: .72rem; background: color-mix(in srgb, var(--accent) 12%, var(--card));
+      color: var(--accent); font-weight: 500;
     }
   </style>
 </head>
@@ -2700,9 +2689,9 @@ function renderCrossAllergyAlerts(pol, dayIdx) {
   if (!alerts.length) return "";
   const lvlWord = sc => sc >= 3 ? t("cross_high") : t("cross_mid");
   return alerts.map(({p, cross, sc}) => `
-    <div class="cross-alert${sc >= 3 ? " cross-high" : ""}">
-      <div class="cross-alert-title">⚠️ ${t("cross_title")}</div>
-      <div>${t(cross.trigger).replace("{lv}", lvlWord(sc))}</div>
+    <div class="cross-alert">
+      <span class="cross-alert-title">⚠ ${t("cross_title")}</span>
+      <span class="cross-alert-desc">${t(cross.trigger).replace("{lv}", lvlWord(sc))}</span>
       <div class="cross-foods">
         ${cross.foods().map(f => `<span class="cross-food">${f}</span>`).join("")}
       </div>
