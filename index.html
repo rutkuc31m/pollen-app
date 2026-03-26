@@ -3158,7 +3158,7 @@ async function loadDE() {
        <input id="de-city-input" type="text" value="${escapeHtml(deCityName)}"
          placeholder="${escapeHtml(t('city_search_placeholder'))}"
          style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px 6px 28px;font-size:.85rem;outline:none;font-family:inherit"
-         oninput="deCitySearch(this.value)"
+         oninput="citySearch(this.value,'de-city-results')"
          onfocus="this.dataset.prev=this.value; this.value=''"
          onblur="if(!this.value.trim()){this.value=this.dataset.prev||''}" autocomplete="off" autocorrect="off" spellcheck="false">
        <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.75rem;pointer-events:none;filter:grayscale(1) brightness(10)">🔍</span>
@@ -3197,7 +3197,7 @@ async function loadGlobal() {
        <input id="om-city-input" type="text" value="${escapeHtml(locName)}"
          placeholder="${escapeHtml(t('city_search_placeholder'))}"
          style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px 6px 28px;font-size:.85rem;outline:none;font-family:inherit"
-         oninput="omCitySearch(this.value)"
+         oninput="citySearch(this.value,'om-city-results')"
          onfocus="this.dataset.prev=this.value; this.value=''"
          onblur="if(!this.value.trim()){this.value=this.dataset.prev||''}" autocomplete="off" autocorrect="off" spellcheck="false">
        <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.75rem;pointer-events:none;filter:grayscale(1) brightness(10)">🔍</span>
@@ -3255,61 +3255,21 @@ async function loadGlobal() {
   loadWeather();
 }
 
-let _deCityTimer = null;
-async function deCitySearch(query) {
-  const results = document.getElementById("de-city-results");
+// ── Universelle Stadtsuche (DE + OM, kein country_code Filter) ──────────────
+let _cityTimer = null;
+async function citySearch(query, resultsId) {
+  const results = document.getElementById(resultsId);
   if (!results) return;
-  clearTimeout(_deCityTimer);
+  clearTimeout(_cityTimer);
   if (query.length < 2) { results.style.display = "none"; return; }
-  _deCityTimer = setTimeout(async () => {
+  _cityTimer = setTimeout(async () => {
     try {
-      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=6&language=${lang}&format=json&country_code=DE`);
-      const data = await res.json();
-      if (!data.results?.length) { results.style.display = "none"; return; }
-      results.innerHTML = data.results.map(r => {
-        const label = [r.name, r.admin1].filter(Boolean).join(", ");
-        return `<div onclick="deCitySelect(${r.latitude},${r.longitude},'${escapeHtml(r.name)}')"
-          style="padding:8px 12px;font-size:.84rem;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text)"
-          onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">
-          📍 ${escapeHtml(label)}
-        </div>`;
-      }).join("");
-      results.style.display = "block";
-    } catch { results.style.display = "none"; }
-  }, 350);
-}
-function deCitySelect(lat, lon, city) {
-  const results = document.getElementById("de-city-results");
-  if (results) results.style.display = "none";
-  const input = document.getElementById("de-city-input");
-  if (input) input.value = city;
-  // Find nearest DWD region
-  let best = null, bestDist = Infinity;
-  for (const [key, c] of Object.entries(REGION_COORDS)) {
-    const d = Math.hypot(c.lat - lat, c.lon - lon);
-    if (d < bestDist) { bestDist = d; best = key; }
-  }
-  if (best) {
-    rKey = best; localStorage.setItem(LS.region, rKey);
-  }
-  geoInfo = { ...geoInfo, city, latitude: lat, longitude: lon, country_code: "DE" };
-  weather = null; render(); loadWeather();
-}
-
-let _omCityTimer = null;
-async function omCitySearch(query) {
-  const results = document.getElementById("om-city-results");
-  if (!results) return;
-  clearTimeout(_omCityTimer);
-  if (query.length < 2) { results.style.display = "none"; return; }
-  _omCityTimer = setTimeout(async () => {
-    try {
-      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=${lang}&format=json`);
+      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=6&language=${lang}&format=json`);
       const data = await res.json();
       if (!data.results?.length) { results.style.display = "none"; return; }
       results.innerHTML = data.results.map(r => {
         const label = [r.name, r.admin1, r.country].filter(Boolean).join(", ");
-        return `<div onclick="omCitySelect(${r.latitude},${r.longitude},'${escapeHtml(r.name)}','${escapeHtml(r.country||"")}','${escapeHtml(r.country_code||"")}')"
+        return `<div onclick="citySelect(${r.latitude},${r.longitude},'${escapeHtml(r.name)}','${escapeHtml(r.country||"")}','${escapeHtml(r.country_code||"")}','${resultsId}')"
           style="padding:8px 12px;font-size:.84rem;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text)"
           onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">
           📍 ${escapeHtml(label)}
@@ -3320,16 +3280,24 @@ async function omCitySearch(query) {
   }, 350);
 }
 
-function omCitySelect(lat, lon, city, country, country_code) {
-  const results = document.getElementById("om-city-results");
+function citySelect(lat, lon, city, country, country_code, resultsId) {
+  const results = document.getElementById(resultsId);
   if (results) results.style.display = "none";
-  const input = document.getElementById("om-city-input");
+  // Input-Feld befüllen (egal ob DE oder OM input)
+  const input = document.getElementById("de-city-input") || document.getElementById("om-city-input");
   if (input) input.value = [city, country].filter(Boolean).join(", ");
   const cc = (country_code || "").toUpperCase();
   const inDE = cc === "DE" || (!cc && lat >= 47.3 && lat <= 55.1 && lon >= 5.9 && lon <= 15.1);
   geoInfo = { latitude: lat, longitude: lon, city, country, country_code: cc, _manual: true };
   weather = null;
   if (inDE) {
+    // DWD: nächste Region finden
+    let best = null, bestDist = Infinity;
+    for (const [key, c] of Object.entries(REGION_COORDS)) {
+      const d = Math.hypot(c.lat - lat, c.lon - lon);
+      if (d < bestDist) { bestDist = d; best = key; }
+    }
+    if (best) { rKey = best; localStorage.setItem(LS.region, rKey); }
     localStorage.setItem(LS.mode, "de");
     init();
   } else {
