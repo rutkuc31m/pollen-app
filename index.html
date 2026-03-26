@@ -2115,7 +2115,7 @@ async function loadWeather() {
   // Use cached weather if < 15 min old
   try {
     const cached = JSON.parse(localStorage.getItem(wCacheKey));
-    if (cached && (Date.now() - cached.fetchedAt) < 900000) { weather = cached; render(); return; }
+    if (cached && (Date.now() - cached.fetchedAt) < 900000 && cached.hourlyRainProb) { weather = cached; render(); return; }
   } catch(e) {}
 
   const tz    = appMode === "de" ? "Europe%2FBerlin" : "auto";
