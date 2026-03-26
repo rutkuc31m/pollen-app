@@ -1917,8 +1917,8 @@ function _renderInner() {
           const area = path + ` L${px(pts[pts.length-1].h).toFixed(1)},${H} L${px(pts[0].h).toFixed(1)},${H} Z`;
           const valLabels = pts.filter(p => p.h % 6 === 0).map(p =>
             `<text x="${px(p.h).toFixed(1)}" y="${(py(p.v)-5).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="600" fill="#e2e8f0">${Math.round(p.v)}°</text>`).join("");
-          const axisLabels = [0,3,6,9,12,15,18,21,23].map(h =>
-            `<text x="${px(h).toFixed(1)}" y="${H+13}" text-anchor="${h===0?"start":h===23?"end":"middle"}" font-size="9" fill="var(--text3)">${h===23?"00":String(h).padStart(2,"0")}</text>`).join("");
+          const axisLabels = [0,3,6,9,12,15,18,21].map(h =>
+            `<text x="${px(h).toFixed(1)}" y="${H+12}" text-anchor="${h===0?"start":"middle"}" font-size="7.5" fill="var(--text3)">${String(h).padStart(2,"0")}</text>`).join("");
           rows.push(`<div class="card">
             <div class="card-head"><span class="card-title"><span class="di">🌡</span> ${t("temp")}</span></div>
             <div style="padding:10px 0 10px">
