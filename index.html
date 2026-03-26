@@ -820,6 +820,7 @@ const STRINGS = {
     datasource_auto: "Mein Standort",
     ds_de: "🇩🇪 DWD (nur Deutschland)",
     ds_om: "🌍 Open-Meteo (Welt)",
+    rain_prob_title: "Regenwahrscheinlichkeit",
     pollen_unavailable: "Pollendaten für diesen Standort nicht verfügbar. Wetterdaten werden angezeigt.",
     pollen_unavailable_short: "Keine Pollendaten verfügbar",
     // EU/US pollen names
@@ -997,6 +998,7 @@ const STRINGS = {
     datasource_auto: "My location",
     ds_de: "🇩🇪 DWD (Germany only)",
     ds_om: "🌍 Open-Meteo (World)",
+    rain_prob_title: "Rain probability",
     pollen_unavailable: "Pollen data not available for this location. Showing weather data only.",
     pollen_unavailable_short: "No pollen data available",
     // EU/US pollen names
@@ -1162,6 +1164,7 @@ const STRINGS = {
     datasource_auto:"Konumum",
     ds_de:"🇩🇪 DWD (sadece Almanya)",
     ds_om:"🌍 Open-Meteo (Dünya)",
+    rain_prob_title:"Yağış olasılığı",
     pollen_unavailable:"Bu konum için polen verisi mevcut değil. Sadece hava durumu gösteriliyor.",
     pollen_unavailable_short:"Polen verisi mevcut değil",
     data_title:"Veri",
@@ -1722,6 +1725,35 @@ function _renderInner() {
       ${DAYS.map((_,i)=>`<div class="swipe-dot${i===activeDay?" active":""}"></div>`).join("")}
     </div>
 
+    ${(() => {
+      if (!weather?.hourlyRainProb || !weather?.hourlyTime) return "";
+      // Filter hourly entries for the active day, every 3h
+      const dayDate = new Date(); dayDate.setDate(dayDate.getDate() + activeDay);
+      const dayStr = dayDate.toISOString().slice(0,10);
+      const slots = [];
+      weather.hourlyTime.forEach((ts, i) => {
+        if (!ts.startsWith(dayStr)) return;
+        const h = parseInt(ts.slice(11,13));
+        if (h % 3 !== 0) return;
+        slots.push({ h, prob: weather.hourlyRainProb[i] ?? 0 });
+      });
+      if (!slots.length) return "";
+      const bars = slots.map(s => {
+        const col = s.prob > 60 ? "#3b82f6" : s.prob > 30 ? "#93c5fd" : "#bfdbfe";
+        return `<div style="display:flex;align-items:center;gap:6px;font-size:.72rem">
+          <span style="color:var(--text3);width:2.2em;flex-shrink:0">${String(s.h).padStart(2,"0")}h</span>
+          <div style="flex:1;height:6px;border-radius:3px;background:var(--border);overflow:hidden">
+            <div style="width:${s.prob}%;height:100%;border-radius:3px;background:${col};transition:width .3s"></div>
+          </div>
+          <span style="color:var(--text2);width:2.5em;text-align:right;flex-shrink:0">${s.prob}%</span>
+        </div>`;
+      }).join("");
+      return `<div style="background:var(--card);border-radius:var(--r);padding:10px 14px;margin-bottom:10px;border:1px solid var(--border)">
+        <div style="font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:8px">🌧 ${t("rain_prob_title")}</div>
+        <div style="display:flex;flex-direction:column;gap:5px">${bars}</div>
+      </div>`;
+    })()}
+
     ${db.pollen_available === false ? `
     <!-- POLLEN UNAVAILABLE NOTICE -->
     <div style="margin-bottom:10px;padding:10px 14px;border-radius:10px;background:color-mix(in srgb,#71717a 10%,var(--card));border:1px solid color-mix(in srgb,#71717a 25%,transparent);font-size:.82rem;color:var(--text2);line-height:1.5;text-align:center">
@@ -2084,6 +2116,7 @@ async function loadWeather() {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}`
     + `&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code`
     + `&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,uv_index_max,precipitation_probability_max`
+    + `&hourly=precipitation_probability`
     + `&timezone=${tz}&forecast_days=7${units}`;
   try {
     const res = await fetch(url, { signal });
@@ -2104,6 +2137,8 @@ async function loadWeather() {
         rainProb: data.daily.precipitation_probability_max?.[i] ?? null,
       })),
       units: isUS ? {temp:"°F", wind:"mph", rain:"in"} : {temp:"°C", wind:"km/h", rain:"mm"},
+      hourlyRainProb: data.hourly?.precipitation_probability ?? null,
+      hourlyTime: data.hourly?.time ?? null,
       fetchedAt: Date.now(),
     };
     try { localStorage.setItem(wCacheKey, JSON.stringify(weather)); } catch(e) {}
