@@ -2,7 +2,7 @@
 // SERVICE WORKER · Pollenflug PWA
 // Cache-first for static assets, Network-first for data.json
 // ─────────────────────────────────────────────────────────────────────────────
-const CACHE_VERSION = "pollen-v9";
+const CACHE_VERSION = "pollen-v10";
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const DATA_CACHE    = `${CACHE_VERSION}-data`;
 
