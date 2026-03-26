@@ -119,6 +119,26 @@
       color: var(--text2); cursor: pointer; font-size: .84rem;
     }
 
+    /* ── TABS ────────────────────────────────────────── */
+    .tab-bar {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+    }
+    .tab-bar-inner {
+      max-width: 640px; margin: 0 auto;
+      display: flex; gap: 0;
+    }
+    .tab-btn {
+      flex: 1; padding: 10px 0; font-size: .88rem; font-weight: 600;
+      border: none; background: none; color: var(--text2);
+      cursor: pointer; border-bottom: 2px solid transparent;
+      transition: color .15s, border-color .15s;
+      font-family: inherit;
+    }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-btn:hover:not(.active) { color: var(--text); }
+
     /* ── PAGE ────────────────────────────────────────── */
     .page { max-width: 640px; margin: 0 auto; padding: 14px 14px 80px; }
 
@@ -681,6 +701,12 @@
     </div>
     <div class="src-bar" id="src-bar"></div>
   </div>
+  <div class="tab-bar">
+    <div class="tab-bar-inner">
+      <button class="tab-btn active" id="tab-pollen" onclick="setTab('pollen')">🌿 Pollen</button>
+      <button class="tab-btn" id="tab-weather" onclick="setTab('weather')">🌤 Wetter</button>
+    </div>
+  </div>
 </div>
 
 <div class="page" id="page">
@@ -719,6 +745,10 @@ function setLang(newLang) {
   if (db) { render(); renderSrcBar(); }
   const cityInput = document.getElementById("om-city-input");
   if (cityInput) cityInput.placeholder = t("city_search_placeholder");
+  const tabPollen = document.getElementById("tab-pollen");
+  const tabWeather = document.getElementById("tab-weather");
+  if (tabPollen) tabPollen.textContent = "🌿 " + t("tab_pollen");
+  if (tabWeather) tabWeather.textContent = "🌤 " + t("tab_weather");
 }
 
 const STRINGS = {
@@ -822,6 +852,8 @@ const STRINGS = {
     datasource_auto: "Mein Standort",
     ds_de: "🇩🇪 DWD (nur Deutschland)",
     ds_om: "🌍 Open-Meteo (Welt)",
+    tab_pollen: "Pollen",
+    tab_weather: "Wetter",
     city_search_placeholder: "Stadt suchen…",
     rain_prob_title: "Regenwahrscheinlichkeit",
     pollen_unavailable: "Pollendaten für diesen Standort nicht verfügbar. Wetterdaten werden angezeigt.",
@@ -1001,6 +1033,8 @@ const STRINGS = {
     datasource_auto: "My location",
     ds_de: "🇩🇪 DWD (Germany only)",
     ds_om: "🌍 Open-Meteo (World)",
+    tab_pollen: "Pollen",
+    tab_weather: "Weather",
     city_search_placeholder: "Search city…",
     rain_prob_title: "Rain probability",
     pollen_unavailable: "Pollen data not available for this location. Showing weather data only.",
@@ -1168,6 +1202,8 @@ const STRINGS = {
     datasource_auto:"Konumum",
     ds_de:"🇩🇪 DWD (sadece Almanya)",
     ds_om:"🌍 Open-Meteo (Dünya)",
+    tab_pollen:"Polen",
+    tab_weather:"Hava Durumu",
     city_search_placeholder:"Şehir ara…",
     rain_prob_title:"Yağış olasılığı",
     pollen_unavailable:"Bu konum için polen verisi mevcut değil. Sadece hava durumu gösteriliyor.",
@@ -1383,6 +1419,7 @@ let _weatherAC   = null;   // AbortController for loadWeather()
 let rKey      = localStorage.getItem(LS.region)  || "30-32";
 let filter    = JSON.parse(localStorage.getItem(LS.filter) || "null") || POLLEN.map(p=>p.key);
 let activeDay = 0;
+let activeTab = "pollen"; // "pollen" | "weather"
 let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
 let severity  = JSON.parse(localStorage.getItem(LS.sev)  || "{}");
@@ -1619,6 +1656,9 @@ function _renderInner() {
     </div>`;
     })()}
 
+    <!-- TAB: POLLEN -->
+    ${activeTab === "pollen" ? `
+
     <!-- CORRELATION INSIGHT CHIP -->
     ${(() => {
       if (activeDay !== 0 || db.pollen_available === false) return "";
@@ -1642,8 +1682,11 @@ function _renderInner() {
     <!-- CROSS-ALLERGY ALERTS -->
     ${renderCrossAllergyAlerts(pol, activeDay)}
 
+    ` : `<!-- TAB: WEATHER -->`}
+
     <!-- WEATHER CARD -->
-    ${weather ? (() => {
+    ${activeTab === "weather" && !weather ? `<div class="card" style="padding:20px 14px;text-align:center;color:var(--text2);font-size:.85rem">⏳ ${t("locating")}</div>` : ""}
+    ${activeTab === "weather" && weather ? (() => {
       const w = weather.current;
       const effect = calcPollenEffect(activeDay);
       const d = weather.daily[activeDay] ?? weather.daily[0];
@@ -1711,11 +1754,12 @@ function _renderInner() {
                      onclick="setDay(${i})">
           <div class="dc-label" style="${isToday?"font-weight:700":""}">${n}</div>
           <div class="dc-date">${dStr(i)}</div>
-          ${db.pollen_available !== false ? `
+          ${activeTab === "pollen" && db.pollen_available !== false ? `
           <div class="dc-ring ${cl}" style="font-size:.85rem;font-weight:700">${["✓","!","!!","‼"][sc]}</div>
           <div class="dc-sub" style="font-size:.7rem">${ri.label}</div>` : ""}
-          ${wd ? `
-          <div style="font-size:.66rem;color:var(--text3);margin-top:3px">${wd.tempMax}${weather.units.temp} · ${wd.wind}${weather.units.wind}</div>
+          ${activeTab === "weather" && wd ? `
+          <div style="font-size:1.1rem;margin-top:4px">${wmoIcon(wd.weatherCode ?? 0)}</div>
+          <div style="font-size:.72rem;font-weight:700;margin-top:2px">${wd.tempMax}${weather.units.temp}</div>
           ${wd.rainProb !== null ? `
           <div style="margin-top:3px;display:flex;align-items:center;gap:3px">
             <div style="flex:1;height:3px;border-radius:2px;background:var(--border);overflow:hidden">
@@ -1765,6 +1809,9 @@ function _renderInner() {
       </div>`;
     })()}
 
+    ` /* end weather tab */ : ""}
+
+    ${activeTab === "pollen" ? `
     ${db.pollen_available === false ? `
     <!-- POLLEN UNAVAILABLE NOTICE -->
     <div style="margin-bottom:10px;padding:10px 14px;border-radius:10px;background:color-mix(in srgb,#71717a 10%,var(--card));border:1px solid color-mix(in srgb,#71717a 25%,transparent);font-size:.82rem;color:var(--text2);line-height:1.5;text-align:center">
@@ -1853,9 +1900,12 @@ function _renderInner() {
         ${renderTrendChart()}
       </div>
     </div>`}
+    ` /* end pollen tab */ : ""}
 
   `;
   renderSrcBar();
+  document.getElementById("tab-pollen")?.classList.toggle("active", activeTab === "pollen");
+  document.getElementById("tab-weather")?.classList.toggle("active", activeTab === "weather");
 }
 
 
@@ -2039,6 +2089,12 @@ function renderSymHistory() {
 // INTERACTIONS
 // ─────────────────────────────────────────────────────────────────────────────
 function setDay(i) { activeDay=i; render(); }
+function setTab(tab) {
+  activeTab = tab;
+  document.getElementById("tab-pollen")?.classList.toggle("active", tab === "pollen");
+  document.getElementById("tab-weather")?.classList.toggle("active", tab === "weather");
+  render();
+}
 
 
 function setSym(key, val) {
@@ -2115,7 +2171,7 @@ async function loadWeather() {
   // Use cached weather if < 15 min old
   try {
     const cached = JSON.parse(localStorage.getItem(wCacheKey));
-    if (cached && (Date.now() - cached.fetchedAt) < 900000 && cached.hourlyRainProb) { weather = cached; render(); return; }
+    if (cached && (Date.now() - cached.fetchedAt) < 900000 && cached.hourlyRainProb && cached.daily?.[0]?.weatherCode !== undefined) { weather = cached; render(); return; }
   } catch(e) {}
 
   const tz    = appMode === "de" ? "Europe%2FBerlin" : "auto";
@@ -2126,7 +2182,7 @@ async function loadWeather() {
     : "";
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}`
     + `&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code`
-    + `&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,uv_index_max,precipitation_probability_max`
+    + `&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,uv_index_max,precipitation_probability_max,weathercode`
     + `&hourly=precipitation_probability`
     + `&timezone=${tz}&forecast_days=7${units}`;
   try {
@@ -2146,6 +2202,7 @@ async function loadWeather() {
         wind:     Math.round(data.daily.wind_speed_10m_max[i]),
         uv:       data.daily.uv_index_max ? Math.round(data.daily.uv_index_max[i]) : null,
         rainProb: data.daily.precipitation_probability_max?.[i] ?? null,
+        weatherCode: data.daily.weathercode?.[i] ?? null,
       })),
       units: isUS ? {temp:"°F", wind:"mph", rain:"in"} : {temp:"°C", wind:"km/h", rain:"mm"},
       hourlyRainProb: data.hourly?.precipitation_probability ?? null,
