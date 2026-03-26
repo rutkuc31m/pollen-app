@@ -1423,7 +1423,7 @@ let rKey      = localStorage.getItem(LS.region)  || "30-32";
 let filter    = JSON.parse(localStorage.getItem(LS.filter) || "null") || POLLEN.map(p=>p.key);
 let activeDay = 0;
 let activeTab = "pollen"; // "pollen" | "weather"
-let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
+let symptoms  = (() => { const s = JSON.parse(localStorage.getItem(LS.syms) || "{}"); Object.values(s).forEach(e => ["niesen","augen","atmung","muedigkeit"].forEach(k => { if (e[k] > 3) e[k] = 3; })); return s; })();
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
 let severity  = JSON.parse(localStorage.getItem(LS.sev)  || "{}");
 // migrate old 3-level severity to 4-level
