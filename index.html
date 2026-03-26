@@ -794,7 +794,7 @@ const STRINGS = {
     ptr_pull: "↓ Ziehen",
     ptr_release: "↺ Loslassen",
     ptr_loading: "⟳ Aktualisiere…",
-    sym_hints: ["keine","kaum spürbar","leicht","mäßig","stark","sehr stark"],
+    sym_hints: ["keine","leicht","mäßig","stark"],
     corr_days: "Letzte 90 Tage",
     // exposure score
     exposure_title: "Tagesbelastung", of: "von",
@@ -975,7 +975,7 @@ const STRINGS = {
     ptr_pull: "↓ Pull to refresh",
     ptr_release: "↺ Release to refresh",
     ptr_loading: "⟳ Refreshing…",
-    sym_hints: ["none","barely noticeable","mild","moderate","severe","very severe"],
+    sym_hints: ["none","mild","moderate","severe"],
     corr_days: "Last 90 days",
     // exposure score
     exposure_title: "Daily exposure", of: "of",
@@ -1149,7 +1149,7 @@ const STRINGS = {
     ptr_pull:"↓ Çek",
     ptr_release:"↺ Bırak",
     ptr_loading:"⟳ Yenileniyor…",
-    sym_hints:["yok","neredeyse hissedilmiyor","hafif","orta","şiddetli","çok şiddetli"],
+    sym_hints:["yok","hafif","orta","şiddetli"],
     corr_days:"Son 90 gün",
     exposure_title:"Günlük polen yükü", of:"/ ",
     besttime_title:"Dışarıda en iyi zaman",
@@ -2035,7 +2035,7 @@ function renderSeason2025() {
 function renderSymHistory() {
   const entries = Object.entries(symptoms).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,5);
   if (!entries.length) return "";
-  const sc = v => !v?"#3f3f46":["#3f3f46","#bae6fd","#bae6fd","#c2410c","#b91c1c","#b91c1c"][v]??"#b91c1c";
+  const sc = v => !v ? "var(--border)" : "var(--accent)";
   return `
     <div class="sym-hist">
       <div class="sym-hist-title">${t("saved_entries")}</div>
@@ -2702,7 +2702,7 @@ function refreshDrawer() {
           <div class="sym-icon">${ic}</div>
           <div class="sym-label">${lb}</div>
           <div class="sym-scale">
-            ${[0,1,2,3,4,5].map(v=>`
+            ${[0,1,2,3].map(v=>`
               <button class="sym-btn${draft[k]===v?" on":""}" onclick="setSym('${k}',${v})" title="${v}: ${t("sym_hints")[v]}">${v===0?"–":v}</button>`).join("")}
           </div>
         </div>`}).join("")}
