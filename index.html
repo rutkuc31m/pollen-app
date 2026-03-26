@@ -32,8 +32,8 @@
       --text:    #09090b;
       --text2:   #71717a;
       --text3:   #737380;
-      --accent:  #16a34a;
-      --accent-subtle: #f0fdf4;
+      --accent:  #06b6d4;
+      --accent-subtle: #e0f9ff;
       --r:       13px;
       --sh:      0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
     }
@@ -45,8 +45,8 @@
       --text:   #fafafa;
       --text2:  #a1a1aa;
       --text3:  #71717a;
-      --accent: #4ade80;
-      --accent-subtle: #052e16;
+      --accent: #22d3ee;
+      --accent-subtle: #083344;
       --sh:     0 1px 3px rgba(0,0,0,.5);
     }
 
@@ -64,7 +64,6 @@
     /* ── HEADER ──────────────────────────────────────── */
     .topbar {
       background: var(--card);
-      border-bottom: 1px solid var(--border);
       position: sticky; top: 0; z-index: 99;
       padding: 0 16px;
     }
@@ -75,6 +74,7 @@
     }
     .logo { font-weight: 700; font-size: 1rem; flex: 1; letter-spacing: -.2px; }
     .logo em { color: var(--accent); font-style: normal; }
+    .logo-icon, .tab-btn .tab-icon { filter: grayscale(1) brightness(10); }
     .icon-btn {
       width: 34px; height: 34px; border-radius: 8px;
       border: 1px solid var(--border);
@@ -118,6 +118,27 @@
       border: 1px solid var(--border); background: var(--card2);
       color: var(--text2); cursor: pointer; font-size: .84rem;
     }
+
+    /* ── TABS ────────────────────────────────────────── */
+    .tab-bar {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+    }
+    .tab-bar-inner {
+      max-width: 640px; margin: 0 auto;
+      display: flex; gap: 0;
+    }
+    .tab-btn {
+      flex: 1; padding: 10px 0; font-size: .88rem; font-weight: 600;
+      border: none; background: none; color: var(--text2);
+      cursor: pointer; border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color .15s, border-color .15s;
+      font-family: inherit;
+    }
+    .tab-btn.active { color: var(--text); border-bottom-color: var(--text); }
+    .tab-btn:hover:not(.active) { color: var(--text); }
 
     /* ── PAGE ────────────────────────────────────────── */
     .page { max-width: 640px; margin: 0 auto; padding: 14px 14px 80px; }
@@ -169,12 +190,12 @@
 
     /* colour tokens per level */
     .risk-none   { --rc:#71717a; --rb:#f4f4f5; }
-    .risk-low    { --rc:#65a30d; --rb:#ecfccb; }
-    .risk-mid    { --rc:#a16207; --rb:#fef9c3; }
+    .risk-low    { --rc:#0891b2; --rb:#e0f9ff; }
+    .risk-mid    { --rc:#c2410c; --rb:#fff7ed; }
     .risk-high   { --rc:#b91c1c; --rb:#fee2e2; }
     [data-theme="dark"] .risk-none  { --rc:#a1a1aa; --rb:#27272a; }
-    [data-theme="dark"] .risk-low   { --rc:#a3e635; --rb:#1a2e05; }
-    [data-theme="dark"] .risk-mid   { --rc:#fde047; --rb:#1c1400; }
+    [data-theme="dark"] .risk-low   { --rc:#22d3ee; --rb:#083344; }
+    [data-theme="dark"] .risk-mid   { --rc:#fb923c; --rb:#1c0900; }
     [data-theme="dark"] .risk-high  { --rc:#f87171; --rb:#1c0000; }
     .risk-none,.risk-low,.risk-mid,.risk-high {
       color: var(--rc); background: var(--rb);
@@ -219,7 +240,8 @@
     .ptable tr.dim { opacity: .35; }
     .ptable tr.active-row td:first-child { border-left: 3px solid var(--accent); }
     .pname  { font-weight: 500; font-size: .86rem; }
-    .picon  { font-size: 1rem; margin-right: 5px; }
+    .picon  { font-size: 1rem; filter: grayscale(1) brightness(10); }
+    td .picon, .corr-name .picon, .season-name .picon, .trend-leg-item .picon, .driver-pill .picon { margin-right: 3px; }
     .ps     { font-size: .68rem; display: block; margin-top: 1px; }
     .ps.on  { color: var(--accent); }
     .ps.off { color: var(--text3); }
@@ -228,11 +250,11 @@
       font-size: .76rem; font-weight: 500;
     }
     .b-none { color: var(--text3); }
-    .b-low  { color:#65a30d; }
-    .b-mid  { color:#a16207; }
+    .b-low  { color:#0891b2; }
+    .b-mid  { color:#c2410c; }
     .b-high { color:#b91c1c; }
-    [data-theme="dark"] .b-low  { color:#a3e635; }
-    [data-theme="dark"] .b-mid  { color:#fde047; }
+    [data-theme="dark"] .b-low  { color:#22d3ee; }
+    [data-theme="dark"] .b-mid  { color:#fb923c; }
     [data-theme="dark"] .b-high { color:#f87171; }
     .col-hi { font-weight: 600; }
 
@@ -255,13 +277,13 @@
     }
     .wh-cell.wh-today { outline: 2px solid var(--accent); outline-offset: -1px; }
     .wh-cell.wh-future { opacity: .3; }
-    .wh-cell[data-sc="0"] { background: color-mix(in srgb, #65a30d 18%, var(--card)); color: #65a30d; }
-    .wh-cell[data-sc="1"] { background: color-mix(in srgb, #65a30d 35%, var(--card)); color: #3f6212; }
-    .wh-cell[data-sc="2"] { background: color-mix(in srgb, #a16207 45%, var(--card)); color: #78350f; }
+    .wh-cell[data-sc="0"] { background: color-mix(in srgb, #06b6d4 18%, var(--card)); color: #0891b2; }
+    .wh-cell[data-sc="1"] { background: color-mix(in srgb, #06b6d4 35%, var(--card)); color: #0891b2; }
+    .wh-cell[data-sc="2"] { background: color-mix(in srgb, #c2410c 45%, var(--card)); color: #7c2d12; }
     .wh-cell[data-sc="3"] { background: color-mix(in srgb, #b91c1c 55%, var(--card)); color: #7f1d1d; }
-    [data-theme="dark"] .wh-cell[data-sc="0"] { color: #86efac; }
-    [data-theme="dark"] .wh-cell[data-sc="1"] { color: #bef264; }
-    [data-theme="dark"] .wh-cell[data-sc="2"] { color: #fde68a; }
+    [data-theme="dark"] .wh-cell[data-sc="0"] { color: #22d3ee; }
+    [data-theme="dark"] .wh-cell[data-sc="1"] { color: #22d3ee; }
+    [data-theme="dark"] .wh-cell[data-sc="2"] { color: #fb923c; }
     [data-theme="dark"] .wh-cell[data-sc="3"] { color: #fca5a5; }
     .wh-date { font-size: .6rem; line-height: 1; }
     .wh-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; margin-top: 2px; }
@@ -280,11 +302,11 @@
       background: var(--border);
       position: relative;
     }
-    .s25-cell[data-v="1"] { background: color-mix(in srgb,#65a30d 45%,var(--card)); }
-    .s25-cell[data-v="2"] { background: color-mix(in srgb,#a16207 58%,var(--card)); }
+    .s25-cell[data-v="1"] { background: color-mix(in srgb,#06b6d4 45%,var(--card)); }
+    .s25-cell[data-v="2"] { background: color-mix(in srgb,#c2410c 58%,var(--card)); }
     .s25-cell[data-v="3"] { background: color-mix(in srgb,#b91c1c 68%,var(--card)); }
-    [data-theme="dark"] .s25-cell[data-v="1"] { background: #365314; }
-    [data-theme="dark"] .s25-cell[data-v="2"] { background: #713f12; }
+    [data-theme="dark"] .s25-cell[data-v="1"] { background: #083344; }
+    [data-theme="dark"] .s25-cell[data-v="2"] { background: #431407; }
     [data-theme="dark"] .s25-cell[data-v="3"] { background: #7f1d1d; }
     .s25-note { padding: 8px 0 0; font-size: .65rem; color: var(--text3); font-style: italic; }
     .s25-tip {
@@ -302,16 +324,21 @@
       padding: 10px 14px; display: flex; align-items: center; gap: 10px;
       border-top: 1px solid var(--border);
     }
-    .sym-icon  { font-size: 1.1rem; width: 24px; text-align: center; flex-shrink: 0; }
+    .sym-icon  { font-size: 1.1rem; width: 24px; text-align: center; flex-shrink: 0; filter: grayscale(1) brightness(10); }
     .sym-label { font-size: .84rem; width: 70px; flex-shrink: 0; }
     .sym-scale { display: flex; gap: 4px; flex: 1; }
     .sym-btn {
       flex: 1; padding: 6px 2px; border-radius: 7px;
       border: 1px solid var(--border); background: var(--card2);
       color: var(--text); font-size: .78rem; cursor: pointer;
-      transition: all .1s;
+      transition: background .2s, color .2s, border-color .2s, transform .15s, box-shadow .2s;
     }
-    .sym-btn.on { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+    .sym-btn:active { transform: scale(.88); }
+    .sym-btn.on {
+      background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700;
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 40%, transparent);
+      transform: scale(1.08);
+    }
     [data-theme="dark"] .sym-btn.on { color: #000; }
     .sym-save {
       display: block; margin: 10px 14px;
@@ -381,7 +408,7 @@
     .wd-uv   { font-size: .6rem; color: var(--text3); margin-top: 1px; }
     .uv-hi   { color: #b91c1c; }
     .uv-mid  { color: #c2410c; }
-    .uv-low  { color: #a16207; }
+    .uv-low  { color: #c2410c; }
 
     /* ── CORRELATION ─────────────────────────────────── */
     .corr-wrap { padding: 10px 14px 14px; border-top: 1px solid var(--border); }
@@ -443,10 +470,10 @@
       padding: 6px 12px; border-radius: 9px;
       font-size: .82rem; font-weight: 500;
     }
-    .time-win.good  { background: #dcfce7; color: #15803d; }
+    .time-win.good  { background: #e0f9ff; color: #0891b2; }
     .time-win.warn  { background: #fee2e2; color: #b91c1c; }
     .time-win.none  { background: var(--card2); color: var(--text2); }
-    [data-theme="dark"] .time-win.good { background: #052e16; color: #4ade80; }
+    [data-theme="dark"] .time-win.good { background: #083344; color: #22d3ee; }
     [data-theme="dark"] .time-win.warn { background: #1c0000; color: #f87171; }
     .time-note { font-size: .67rem; color: var(--text3); padding: 2px 14px 12px; }
 
@@ -454,10 +481,11 @@
     .tips-group { padding: 10px 14px 6px; }
     .tips-group + .tips-group { padding-top: 4px; }
     .tips-group-title { font-size: .67rem; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+    .tips-group-title .di, .dsec-head .di, .drawer-label-icon, .cross-food .di { filter: grayscale(1) brightness(10); }
     .tip-row { display: flex; align-items: baseline; gap: 7px; font-size: .82rem; padding: 2px 0; }
-    .tip-ok   { color: #15803d; font-weight: 700; flex-shrink: 0; }
+    .tip-ok   { color: #0891b2; font-weight: 700; flex-shrink: 0; }
     .tip-no   { color: #b91c1c; font-weight: 700; flex-shrink: 0; }
-    [data-theme="dark"] .tip-ok { color: #4ade80; }
+    [data-theme="dark"] .tip-ok { color: #22d3ee; }
     [data-theme="dark"] .tip-no { color: #f87171; }
 
     /* ── NEARBY REGIONS ──────────────────────────────── */
@@ -472,10 +500,10 @@
     .nearby-dist { font-size: .7rem; color: var(--text3); width: 50px; text-align: right; flex-shrink: 0; }
     .escape-box {
       margin: 4px 14px 14px; padding: 10px 13px; border-radius: 9px;
-      background: #dcfce7; color: #15803d; font-size: .82rem; line-height: 1.4;
-      border: 1px solid #bbf7d0;
+      background: #e0f9ff; color: #0891b2; font-size: .82rem; line-height: 1.4;
+      border: 1px solid #a5f3fc;
     }
-    [data-theme="dark"] .escape-box { background: #052e16; color: #4ade80; border-color: #166534; }
+    [data-theme="dark"] .escape-box { background: #083344; color: #22d3ee; border-color: color-mix(in srgb, #22d3ee 20%, transparent); }
 
     /* ── TOAST ───────────────────────────────────────── */
     #toast {
@@ -547,11 +575,11 @@
     }
 
     /* ── CORRELATION IMPROVEMENTS ────────────────────── */
-    .corr-fill-low  { background: #65a30d; }
-    .corr-fill-mid  { background: #a16207; }
+    .corr-fill-low  { background: #0891b2; }
+    .corr-fill-mid  { background: #c2410c; }
     .corr-fill-high { background: #b91c1c; }
-    [data-theme="dark"] .corr-fill-low  { background: #a3e635; }
-    [data-theme="dark"] .corr-fill-mid  { background: #fde047; }
+    [data-theme="dark"] .corr-fill-low  { background: #22d3ee; }
+    [data-theme="dark"] .corr-fill-mid  { background: #fb923c; }
     [data-theme="dark"] .corr-fill-high { background: #f87171; }
     .corr-meta { font-size: .67rem; color: var(--text3); margin-top: 2px; }
     .corr-no-data { font-size: .76rem; color: var(--text3); font-style: italic; padding: 4px 0; }
@@ -571,19 +599,23 @@
       padding: 8px 14px; display: flex; align-items: center; gap: 8px;
       border-top: 1px solid var(--border);
     }
-    .med-icon { font-size: 1rem; width: 24px; text-align: center; flex-shrink: 0; }
+    .med-icon { font-size: 1rem; width: 24px; text-align: center; flex-shrink: 0; filter: grayscale(1) brightness(10); }
     .med-label { font-size: .82rem; flex: 1; min-width: 0; }
     .med-toggle {
       width: 40px; height: 22px; border-radius: 11px;
       border: 1px solid var(--border); background: var(--card2);
-      cursor: pointer; position: relative; transition: all .15s;
+      cursor: pointer; position: relative;
+      transition: background .25s, border-color .25s, box-shadow .25s;
       flex-shrink: 0;
     }
-    .med-toggle.on { background: var(--accent); border-color: var(--accent); }
+    .med-toggle.on {
+      background: var(--accent); border-color: var(--accent);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 40%, transparent);
+    }
     .med-toggle::after {
       content: ""; position: absolute; top: 2px; left: 2px;
       width: 16px; height: 16px; border-radius: 50%;
-      background: #fff; transition: transform .15s;
+      background: #fff; transition: transform .25s cubic-bezier(.34,1.56,.64,1);
     }
     .med-toggle.on::after { transform: translateX(18px); }
     .med-hist-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-size: .76rem; }
@@ -610,30 +642,19 @@
 
     /* ── CROSS-ALLERGY ALERT ────────────────────────── */
     .cross-alert {
-      margin-bottom: 10px; padding: 10px 13px; border-radius: 10px;
-      background: color-mix(in srgb, #f59e0b 10%, var(--card));
-      border: 1px solid color-mix(in srgb, #f59e0b 25%, transparent);
-      font-size: .82rem; color: var(--text); line-height: 1.45;
+      margin-bottom: 8px; padding: 8px 12px; border-radius: 10px;
+      background: color-mix(in srgb, var(--accent) 14%, var(--card));
+      border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+      font-size: .8rem; color: var(--text); line-height: 1.4;
+      display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 6px;
     }
-    [data-theme="dark"] .cross-alert {
-      background: color-mix(in srgb, #f59e0b 8%, var(--card));
-    }
-    .cross-alert.cross-high {
-      background: color-mix(in srgb, #ef4444 10%, var(--card));
-      border-color: color-mix(in srgb, #ef4444 25%, transparent);
-    }
-    [data-theme="dark"] .cross-alert.cross-high {
-      background: color-mix(in srgb, #ef4444 8%, var(--card));
-    }
-    .cross-high .cross-food {
-      background: color-mix(in srgb, #ef4444 15%, var(--card));
-    }
-    .cross-alert-title { font-weight: 600; margin-bottom: 4px; }
-    .cross-foods { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+    .cross-alert-title { font-weight: 700; color: var(--accent); white-space: nowrap; }
+    .cross-alert-desc { flex: 1; min-width: 0; }
+    .cross-foods { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; width: 100%; }
     .cross-food {
-      display: inline-block; padding: 2px 8px; border-radius: 8px;
-      font-size: .74rem; background: color-mix(in srgb, #f59e0b 15%, var(--card));
-      color: var(--text2);
+      display: inline-block; padding: 1px 7px; border-radius: 20px;
+      font-size: .72rem; background: color-mix(in srgb, var(--accent) 20%, var(--card));
+      color: var(--accent); font-weight: 500;
     }
   </style>
 </head>
@@ -663,7 +684,7 @@
 <div class="topbar">
   <div class="topbar-inner">
     <button class="icon-btn" onclick="openDrawer()" aria-label="Menü">☰</button>
-    <div class="logo">🌿 <em>Pollen</em></div>
+    <div class="logo"><span class="logo-icon">🌿</span> <em>Pollen</em></div>
     <span class="offline-pill" id="offline-pill">Offline</span>
     <button id="pwa-install-btn" onclick="pwaDoPwaInstall()" aria-label="App installieren">⬇ App</button>
     <div style="display:flex;gap:2px">
@@ -681,6 +702,12 @@
     </div>
     <div class="src-bar" id="src-bar"></div>
   </div>
+  <div class="tab-bar">
+    <div class="tab-bar-inner">
+      <button class="tab-btn active" id="tab-pollen" onclick="setTab('pollen')"><span class="tab-icon">🌿</span> Pollen</button>
+      <button class="tab-btn" id="tab-weather" onclick="setTab('weather')">🌤 Wetter</button>
+    </div>
+  </div>
 </div>
 
 <div class="page" id="page">
@@ -697,7 +724,7 @@ function setLang(newLang) {
   lang = newLang;
   localStorage.setItem("p_lang", lang);
   document.documentElement.lang = lang;
-  document.querySelector(".logo").innerHTML = `🌿 <em>Pollen</em>`;
+  document.querySelector(".logo").innerHTML = `<span class="logo-icon">🌿</span> <em>Pollen</em>`;
   ["de","en","tr"].forEach(l => {
     const btn = document.getElementById("lang-btn-" + l);
     if (!btn) return;
@@ -719,6 +746,10 @@ function setLang(newLang) {
   if (db) { render(); renderSrcBar(); }
   const cityInput = document.getElementById("om-city-input");
   if (cityInput) cityInput.placeholder = t("city_search_placeholder");
+  const tabPollen = document.getElementById("tab-pollen");
+  const tabWeather = document.getElementById("tab-weather");
+  if (tabPollen) tabPollen.innerHTML = `<span class="tab-icon">🌿</span> ` + t("tab_pollen");
+  if (tabWeather) tabWeather.textContent = "🌤 " + t("tab_weather");
 }
 
 const STRINGS = {
@@ -744,7 +775,7 @@ const STRINGS = {
     check_conn:"Bitte Verbindung prüfen.",
     dwd_stand:"Stand", next_update:"Nächstes Update",
     region:"Region", geo_title:"Nächste Region automatisch wählen",
-    weather_title:"Wetter & Polleneinfluss",
+    weather_title:"Wetter",
     temp:"Temp", wind:"Wind", humidity:"Feuchte", rain:"Regen", uv:"UV max",
     all_pollen:"Alle Pollen", select_all:"Alle auswählen",
     tap_hint:"Zeile antippen = für dein Risiko ein/ausschließen",
@@ -822,6 +853,8 @@ const STRINGS = {
     datasource_auto: "Mein Standort",
     ds_de: "🇩🇪 DWD (nur Deutschland)",
     ds_om: "🌍 Open-Meteo (Welt)",
+    tab_pollen: "Pollen",
+    tab_weather: "Wetter",
     city_search_placeholder: "Stadt suchen…",
     rain_prob_title: "Regenwahrscheinlichkeit",
     pollen_unavailable: "Pollendaten für diesen Standort nicht verfügbar. Wetterdaten werden angezeigt.",
@@ -923,7 +956,7 @@ const STRINGS = {
     check_conn:"Please check your connection.",
     dwd_stand:"Updated", next_update:"Next update",
     region:"Region", geo_title:"Auto-detect nearest region",
-    weather_title:"Weather & Pollen",
+    weather_title:"Weather",
     temp:"Temp", wind:"Wind", humidity:"Humidity", rain:"Rain", uv:"UV max",
     all_pollen:"All Pollen", select_all:"Select all",
     tap_hint:"Tap a row to include/exclude from your risk",
@@ -1001,6 +1034,8 @@ const STRINGS = {
     datasource_auto: "My location",
     ds_de: "🇩🇪 DWD (Germany only)",
     ds_om: "🌍 Open-Meteo (World)",
+    tab_pollen: "Pollen",
+    tab_weather: "Weather",
     city_search_placeholder: "Search city…",
     rain_prob_title: "Rain probability",
     pollen_unavailable: "Pollen data not available for this location. Showing weather data only.",
@@ -1095,7 +1130,7 @@ const STRINGS = {
     check_conn:"Lütfen bağlantınızı kontrol edin.",
     dwd_stand:"Güncellendi", next_update:"Sonraki güncelleme",
     region:"Bölge", geo_title:"En yakın bölgeyi otomatik seç",
-    weather_title:"Hava & Polen etkisi",
+    weather_title:"Hava Durumu",
     temp:"Sıcaklık", wind:"Rüzgar", humidity:"Nem", rain:"Yağış", uv:"UV maks",
     all_pollen:"Tüm Polenler", select_all:"Tümünü seç",
     tap_hint:"Riski dahil etmek/çıkarmak için satıra dokun",
@@ -1168,6 +1203,8 @@ const STRINGS = {
     datasource_auto:"Konumum",
     ds_de:"🇩🇪 DWD (sadece Almanya)",
     ds_om:"🌍 Open-Meteo (Dünya)",
+    tab_pollen:"Polen",
+    tab_weather:"Hava Durumu",
     city_search_placeholder:"Şehir ara…",
     rain_prob_title:"Yağış olasılığı",
     pollen_unavailable:"Bu konum için polen verisi mevcut değil. Sadece hava durumu gösteriliyor.",
@@ -1383,6 +1420,7 @@ let _weatherAC   = null;   // AbortController for loadWeather()
 let rKey      = localStorage.getItem(LS.region)  || "30-32";
 let filter    = JSON.parse(localStorage.getItem(LS.filter) || "null") || POLLEN.map(p=>p.key);
 let activeDay = 0;
+let activeTab = "pollen"; // "pollen" | "weather"
 let symptoms  = JSON.parse(localStorage.getItem(LS.syms)  || "{}");
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
 let severity  = JSON.parse(localStorage.getItem(LS.sev)  || "{}");
@@ -1393,7 +1431,7 @@ let draft     = {niesen:0,augen:0,atmung:0,muedigkeit:0};
 let medications = JSON.parse(localStorage.getItem(LS.meds) || "{}");
 let medDraft  = {antihistamine:false,eyedrops:false,nasal:false,cortisone:false};
 let symSaved  = !!symptoms[new Date().toISOString().slice(0,10)];
-let openSections = new Set(JSON.parse(localStorage.getItem(LS.open) || '["pollen","profile"]'));
+let openSections = new Set(JSON.parse(localStorage.getItem(LS.open) || '["profile","trend","rainprob"]'));
 
 const SYM_KEYS = [["niesen","🤧"],["augen","👁"],["atmung","💨"],["muedigkeit","😴"]];
 function sumSymptoms(s) { return (s.niesen||0)+(s.augen||0)+(s.atmung||0)+(s.muedigkeit||0); }
@@ -1609,7 +1647,7 @@ function _renderInner() {
         ${summaryHtml}
         ${risk.drivers.length ? `
           <div class="hero-drivers">
-            ${risk.drivers.map(p=>`<span class="driver-pill ${p.pillCls}">${p.icon} ${t(p.key)}</span>`).join("")}
+            ${risk.drivers.map(p=>`<span class="driver-pill ${p.pillCls}"><span class="picon">${p.icon}</span> ${t(p.key)}</span>`).join("")}
           </div>` : `<div style="font-size:.8rem;color:var(--text2);margin-top:5px">${t("no_load")}</div>`}
         <div style="margin-top:8px">
           <div style="font-size:.7rem;color:var(--text2)">${t("exposure_title")}: <strong style="color:var(--rc)">${expScore}</strong> <span style="opacity:.55">${t("of")} 100</span></div>
@@ -1619,6 +1657,9 @@ function _renderInner() {
     </div>`;
     })()}
 
+    <!-- TAB: POLLEN -->
+    ${activeTab === "pollen" ? `
+
     <!-- CORRELATION INSIGHT CHIP -->
     ${(() => {
       if (activeDay !== 0 || db.pollen_available === false) return "";
@@ -1626,10 +1667,10 @@ function _renderInner() {
       if (!top) return "";
       const str = top.r >= 0.7 ? t("corr_strong") : t("corr_moderate");
       const pct = Math.round(top.r * 100);
-      const barColor = top.r >= 0.7 ? "var(--accent)" : "#f59e0b";
+      const barColor = top.r >= 0.7 ? "var(--accent)" : "#c2410c";
       return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--accent) 10%,var(--card));border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);font-size:.78rem;color:var(--text2)">'
         + '<span style="font-size:1rem">💡</span>'
-        + '<span>' + top.p.icon + ' <strong>' + t(top.p.key) + '</strong>: ' + str + '</span>'
+        + '<span><span class="picon">' + top.p.icon + '</span> <strong>' + t(top.p.key) + '</strong>: ' + str + '</span>'
         + '<span style="display:inline-flex;align-items:center;gap:4px;margin-left:auto;white-space:nowrap">'
         + '<span style="width:40px;height:6px;border-radius:3px;background:var(--border);overflow:hidden;display:inline-block">'
         + '<span style="display:block;height:100%;width:' + pct + '%;border-radius:3px;background:' + barColor + '"></span>'
@@ -1642,10 +1683,22 @@ function _renderInner() {
     <!-- CROSS-ALLERGY ALERTS -->
     ${renderCrossAllergyAlerts(pol, activeDay)}
 
-    <!-- WEATHER CARD -->
-    ${weather ? (() => {
-      const w = weather.current;
+    <!-- POLLEN-WEATHER EFFECT -->
+    ${(() => {
       const effect = calcPollenEffect(activeDay);
+      if (!effect) return "";
+      return `<div style="margin-bottom:10px;padding:9px 12px;border-radius:9px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;gap:10px">
+        <span style="font-size:1.3rem">${effect.icon}</span>
+        <span style="font-size:.83rem;font-weight:500">${effect.text}</span>
+      </div>`;
+    })()}
+
+    ` : `<!-- TAB: WEATHER -->`}
+
+    <!-- WEATHER CARD -->
+    ${activeTab === "weather" && !weather ? `<div class="card" style="padding:20px 14px;text-align:center;color:var(--text2);font-size:.85rem">⏳ ${t("locating")}</div>` : ""}
+    ${activeTab === "weather" && weather ? (() => {
+      const w = weather.current;
       const d = weather.daily[activeDay] ?? weather.daily[0];
       const uvVal = d.uv ?? null;
       const uvCls = uvVal === null ? "" : uvVal >= 8 ? "uv-hi" : uvVal >= 5 ? "uv-mid" : uvVal >= 2 ? "uv-low" : "";
@@ -1675,10 +1728,6 @@ function _renderInner() {
             <div style="font-size:1.12rem;font-weight:700;margin:3px 0 2px">${val}</div>
             <div style="font-size:.57rem;color:var(--text3);letter-spacing:.2px;text-transform:uppercase">${lb}</div>
           </div>`).join("")}
-        </div>
-        <div style="margin:4px 14px 10px;padding:9px 12px;border-radius:9px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;gap:10px">
-          <span style="font-size:1.3rem">${effect.icon}</span>
-          <span style="font-size:.83rem;font-weight:500">${effect.text}</span>
         </div>
         ${weather.daily.length > 3 ? `
         <div class="week-strip">
@@ -1711,11 +1760,12 @@ function _renderInner() {
                      onclick="setDay(${i})">
           <div class="dc-label" style="${isToday?"font-weight:700":""}">${n}</div>
           <div class="dc-date">${dStr(i)}</div>
-          ${db.pollen_available !== false ? `
+          ${activeTab === "pollen" && db.pollen_available !== false ? `
           <div class="dc-ring ${cl}" style="font-size:.85rem;font-weight:700">${["✓","!","!!","‼"][sc]}</div>
           <div class="dc-sub" style="font-size:.7rem">${ri.label}</div>` : ""}
-          ${wd ? `
-          <div style="font-size:.66rem;color:var(--text3);margin-top:3px">${wd.tempMax}${weather.units.temp} · ${wd.wind}${weather.units.wind}</div>
+          ${activeTab === "weather" && wd ? `
+          <div style="font-size:1.1rem;margin-top:4px">${wmoIcon(wd.weatherCode ?? 0)}</div>
+          <div style="font-size:.72rem;font-weight:700;margin-top:2px">${wd.tempMax}${weather.units.temp}</div>
           ${wd.rainProb !== null ? `
           <div style="margin-top:3px;display:flex;align-items:center;gap:3px">
             <div style="flex:1;height:3px;border-radius:2px;background:var(--border);overflow:hidden">
@@ -1730,7 +1780,7 @@ function _renderInner() {
       ${DAYS.map((_,i)=>`<div class="swipe-dot${i===activeDay?" active":""}"></div>`).join("")}
     </div>
 
-    ${(() => {
+    ${activeTab === "weather" ? (() => {
       if (!weather?.hourlyRainProb || !weather?.hourlyTime) return "";
       // Filter hourly entries for the active day, every 3h
       const dayDate = new Date(); dayDate.setDate(dayDate.getDate() + activeDay);
@@ -1763,8 +1813,9 @@ function _renderInner() {
           <div style="padding:10px 14px;display:flex;flex-direction:column;gap:5px">${bars}</div>
         </div>
       </div>`;
-    })()}
+    })() : ""}
 
+    ${activeTab === "pollen" ? `
     ${db.pollen_available === false ? `
     <!-- POLLEN UNAVAILABLE NOTICE -->
     <div style="margin-bottom:10px;padding:10px 14px;border-radius:10px;background:color-mix(in srgb,#71717a 10%,var(--card));border:1px solid color-mix(in srgb,#71717a 25%,transparent);font-size:.82rem;color:var(--text2);line-height:1.5;text-align:center">
@@ -1786,7 +1837,7 @@ function _renderInner() {
         + POLLEN.map(function(p) {
             var sev = severity[p.key] || "off";
             return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--border)">'
-              + '<span style="font-size:.9rem;width:18px;text-align:center">' + p.icon + '</span>'
+              + '<span style="font-size:.9rem;width:18px;text-align:center" class="picon">' + p.icon + '</span>'
               + '<span style="min-width:55px;font-size:.75rem">' + t(p.key) + '</span>'
               + '<div style="display:flex;gap:3px;flex:1;justify-content:flex-end">'
               + sevLevels.map(function(s, i) {
@@ -1827,7 +1878,6 @@ function _renderInner() {
             return `<tr class="${!on?"dim":"active-row"}">
               <td>
                 <span class="picon">${p.icon}</span><span class="pname">${t(p.key)}</span>
-                <span class="ps ${inSeason?"on":"off"}">${inSeason?"🌱 "+t("s_"+p.key):"💤 "+t("s_"+p.key)}</span>
               </td>
               ${lvls.map((l,i)=>`
                 <td class="${i===activeDay?"col-hi":""}">
@@ -1853,9 +1903,12 @@ function _renderInner() {
         ${renderTrendChart()}
       </div>
     </div>`}
+    ` /* end pollen tab */ : ""}
 
   `;
   renderSrcBar();
+  document.getElementById("tab-pollen")?.classList.toggle("active", activeTab === "pollen");
+  document.getElementById("tab-weather")?.classList.toggle("active", activeTab === "weather");
 }
 
 
@@ -1980,7 +2033,7 @@ function renderSeason2025() {
       const dimmed = filter.includes(p.key) ? "" : " style=\"opacity:.35\"";
       const cells = vals.map((v,mi) =>
         `<div class="s25-cell" data-v="${v}" title="${MONTHS[mi]}: ${lvLabels[v]??v}"></div>`).join("");
-      return `<div class="s25-name" title="${t(p.key)}" onclick="showS25Tip(event,'${t(p.key)}')"${dimmed}>${p.icon}</div>${cells}`;
+      return `<div class="s25-name picon" title="${t(p.key)}" onclick="showS25Tip(event,'${t(p.key)}')"${dimmed}>${p.icon}</div>${cells}`;
     }).join("");
     note = t(profile.label);
   } else {
@@ -1997,7 +2050,7 @@ function renderSeason2025() {
       const dimmed = filter.includes(p.key) ? "" : " style=\"opacity:.35\"";
       const cells = vals.map((v,mi) =>
         `<div class="s25-cell" data-v="${v}" title="${MONTHS[mi]}: ${lvLabels[v]??v}"></div>`).join("");
-      return `<div class="s25-name" title="${t(p.key)}" onclick="showS25Tip(event,'${t(p.key)}')"${dimmed}>${p.icon}</div>${cells}`;
+      return `<div class="s25-name picon" title="${t(p.key)}" onclick="showS25Tip(event,'${t(p.key)}')"${dimmed}>${p.icon}</div>${cells}`;
     }).join("");
     note = t("season_typical_note");
   }
@@ -2017,7 +2070,7 @@ function renderSeason2025() {
 function renderSymHistory() {
   const entries = Object.entries(symptoms).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,5);
   if (!entries.length) return "";
-  const sc = v => !v?"#3f3f46":["#3f3f46","#65a30d","#65a30d","#a16207","#b91c1c","#b91c1c"][v]??"#b91c1c";
+  const sc = v => !v?"#3f3f46":["#3f3f46","#0891b2","#0891b2","#c2410c","#b91c1c","#b91c1c"][v]??"#b91c1c";
   return `
     <div class="sym-hist">
       <div class="sym-hist-title">${t("saved_entries")}</div>
@@ -2039,6 +2092,12 @@ function renderSymHistory() {
 // INTERACTIONS
 // ─────────────────────────────────────────────────────────────────────────────
 function setDay(i) { activeDay=i; render(); }
+function setTab(tab) {
+  activeTab = tab;
+  document.getElementById("tab-pollen")?.classList.toggle("active", tab === "pollen");
+  document.getElementById("tab-weather")?.classList.toggle("active", tab === "weather");
+  render();
+}
 
 
 function setSym(key, val) {
@@ -2050,24 +2109,7 @@ function setSym(key, val) {
       row.querySelectorAll(".sym-btn").forEach((b,i) => b.classList.toggle("on",i===val));
     }
   });
-  // Speichern-Button wieder einblenden wenn Wert geändert
-  if (symSaved) {
-    const saved = symptoms[todayISO()];
-    const changed = !saved || Object.keys(draft).some(k => draft[k] !== (saved[k] || 0));
-    if (changed) {
-      symSaved = false;
-      const body = document.getElementById("dsym-body");
-      if (body && !body.querySelector(".sym-save")) {
-        const btn = document.createElement("button");
-        btn.className = "sym-save";
-        btn.textContent = t("save");
-        btn.onclick = saveSym;
-        body.querySelector(".sym-hist")
-          ? body.insertBefore(btn, body.querySelector(".sym-hist"))
-          : body.appendChild(btn);
-      }
-    }
-  }
+  saveSym();
 }
 let _symSaveDebounce = false;
 function saveSym() {
@@ -2115,7 +2157,7 @@ async function loadWeather() {
   // Use cached weather if < 15 min old
   try {
     const cached = JSON.parse(localStorage.getItem(wCacheKey));
-    if (cached && (Date.now() - cached.fetchedAt) < 900000 && cached.hourlyRainProb) { weather = cached; render(); return; }
+    if (cached && (Date.now() - cached.fetchedAt) < 900000 && cached.hourlyRainProb && cached.daily?.[0]?.weatherCode !== undefined) { weather = cached; render(); return; }
   } catch(e) {}
 
   const tz    = appMode === "de" ? "Europe%2FBerlin" : "auto";
@@ -2126,7 +2168,7 @@ async function loadWeather() {
     : "";
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}`
     + `&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code`
-    + `&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,uv_index_max,precipitation_probability_max`
+    + `&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,uv_index_max,precipitation_probability_max,weathercode`
     + `&hourly=precipitation_probability`
     + `&timezone=${tz}&forecast_days=7${units}`;
   try {
@@ -2146,6 +2188,7 @@ async function loadWeather() {
         wind:     Math.round(data.daily.wind_speed_10m_max[i]),
         uv:       data.daily.uv_index_max ? Math.round(data.daily.uv_index_max[i]) : null,
         rainProb: data.daily.precipitation_probability_max?.[i] ?? null,
+        weatherCode: data.daily.weathercode?.[i] ?? null,
       })),
       units: isUS ? {temp:"°F", wind:"mph", rain:"in"} : {temp:"°C", wind:"km/h", rain:"mm"},
       hourlyRainProb: data.hourly?.precipitation_probability ?? null,
@@ -2293,15 +2336,15 @@ function renderCorrelation() {
       ${results.map(({p, r, n, insufficient}) => {
         if (insufficient) {
           return '<div class="corr-row">'
-            + '<div class="corr-name">' + p.icon + ' ' + t(p.key) + '</div>'
+            + '<div class="corr-name"><span class="picon">' + p.icon + '</span> ' + t(p.key) + '</div>'
             + '<div class="corr-no-data">' + t("corr_insufficient") + ' (' + n + '/5 ' + t("corr_n_days") + ')</div>'
             + '</div>';
         }
         var pct = Math.round(r * 100);
-        var barColor = r >= 0.6 ? "var(--accent)" : r >= 0.4 ? "#f59e0b" : "var(--text3)";
+        var barColor = r >= 0.6 ? "var(--accent)" : r >= 0.4 ? "#c2410c" : "var(--text3)";
         var strength = r >= 0.7 ? t("corr_strong_short") : r >= 0.4 ? t("corr_moderate_short") : t("corr_weak_short");
         return '<div class="corr-row" style="flex-wrap:wrap;gap:4px 8px">'
-          + '<div class="corr-name">' + p.icon + ' ' + t(p.key) + '</div>'
+          + '<div class="corr-name"><span class="picon">' + p.icon + '</span> ' + t(p.key) + '</div>'
           + '<div style="display:flex;align-items:center;gap:6px;flex:1;min-width:120px">'
           + '<div class="corr-track"><div class="corr-fill" style="width:' + pct + '%;background:' + barColor + '"></div></div>'
           + '<span style="font-size:.75rem;font-weight:600;color:' + barColor + ';min-width:32px">' + pct + '%</span>'
@@ -2344,7 +2387,7 @@ function renderForecastAccuracy() {
   const pct = Math.round((matched / total) * 100);
   return `
     <div class="accuracy-box">
-      <span>📊 ${t("accuracy_title")}:</span>
+      <span><span class="di">📊</span> ${t("accuracy_title")}:</span>
       <span class="accuracy-val">${pct}%</span>
       <span style="font-size:.7rem;color:var(--text3)">(${allDays.length} ${t("accuracy_days")})</span>
     </div>`;
@@ -2468,7 +2511,7 @@ function renderMedTracker() {
         const dateStr = new Date(d+"T12:00:00").toLocaleDateString(lang==="de"?"de-DE":"en-GB",{day:"2-digit",month:"2-digit"});
         return `<div class="med-hist-row">
           <span style="width:42px;color:var(--text3);flex-shrink:0">${dateStr}</span>
-          ${taken.length ? taken.map(mt=>`<span class="med-pill">${mt.icon} ${t("med_"+mt.key)}</span>`).join("") : `<span style="color:var(--text3);font-size:.72rem">${t("med_none_today")}</span>`}
+          ${taken.length ? taken.map(mt=>`<span class="med-pill"><span class="di">${mt.icon}</span> ${t("med_"+mt.key)}</span>`).join("") : `<span style="color:var(--text3);font-size:.72rem">${t("med_none_today")}</span>`}
         </div>`;
       }).join("")}
     </div>` : "";
@@ -2514,7 +2557,7 @@ function renderMedEffectiveness() {
         const pct = Math.max(0, Math.round((Math.abs(reduction)/maxReduction)*100));
         const isPositive = reduction > 0;
         return `<div class="med-eff-row">
-          <div class="med-eff-name">${m.icon} ${t("med_"+m.key)}</div>
+          <div class="med-eff-name"><span class="di">${m.icon}</span> ${t("med_"+m.key)}</div>
           <div class="med-eff-bar"><div class="med-eff-fill" style="width:${pct}%;background:${isPositive?"var(--accent)":"#b91c1c"}"></div></div>
           <div class="med-eff-lbl">${isPositive?"-":"+"} ${Math.abs(reduction)}%</div>
         </div>`;
@@ -2535,7 +2578,7 @@ function renderTrendChart() {
   const n = allDays.length;
 
   // Colors for top pollen types
-  const colors = ["#16a34a","#eab308","#b91c1c","#3b82f6","#a855f7","#f97316","#06b6d4","#ec4899"];
+  const colors = ["#0891b2","#eab308","#b91c1c","#3b82f6","#a855f7","#f97316","#06b6d4","#ec4899"];
 
   // Get top 3 filtered pollen by avg level
   const pollenAvgs = POLLEN.filter(p => filter.includes(p.key)).map(p => {
@@ -2578,7 +2621,7 @@ function renderTrendChart() {
   });
 
   const legend = pollenAvgs.map(({p}, ci) =>
-    `<div class="trend-leg-item"><div class="trend-leg-dot" style="background:${colors[ci]}"></div>${p.icon} ${t(p.key)}</div>`
+    `<div class="trend-leg-item"><div class="trend-leg-dot" style="background:${colors[ci]}"></div><span class="picon">${p.icon}</span> ${t(p.key)}</div>`
   ).join("");
 
   return `
@@ -2640,11 +2683,14 @@ function renderCrossAllergyAlerts(pol, dayIdx) {
   if (!alerts.length) return "";
   const lvlWord = sc => sc >= 3 ? t("cross_high") : t("cross_mid");
   return alerts.map(({p, cross, sc}) => `
-    <div class="cross-alert${sc >= 3 ? " cross-high" : ""}">
-      <div class="cross-alert-title">⚠️ ${t("cross_title")}</div>
-      <div>${t(cross.trigger).replace("{lv}", lvlWord(sc))}</div>
+    <div class="cross-alert">
+      <span class="cross-alert-title">⚠ ${t("cross_title")}</span>
+      <span class="cross-alert-desc">${t(cross.trigger).replace("{lv}", lvlWord(sc))}</span>
       <div class="cross-foods">
-        ${cross.foods().map(f => `<span class="cross-food">${f}</span>`).join("")}
+        ${cross.foods().map(f => {
+            const m = f.match(/^(\S+)\s+(.+)$/);
+            return m ? `<span class="cross-food"><span class="di">${m[1]}</span> ${m[2]}</span>` : `<span class="cross-food">${f}</span>`;
+          }).join("")}
       </div>
     </div>`).join("");
 }
@@ -2678,10 +2724,9 @@ function refreshDrawer() {
               <button class="sym-btn${draft[k]===v?" on":""}" onclick="setSym('${k}',${v})" title="${v}: ${t("sym_hints")[v]}">${v===0?"–":v}</button>`).join("")}
           </div>
         </div>`}).join("")}
-      ${symSaved ? "" : `<button class="sym-save" onclick="saveSym()">${t("save")}</button>`}
       <!-- MEDICATION TRACKER -->
       <div style="border-top:1px solid var(--border);padding:8px 14px 4px">
-        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:2px">💊 ${t("med_title")}</div>
+        <div style="font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);padding:10px 0 4px">${t("med_title")}</div>
       </div>
       <div id="med-tracker-wrap">${renderMedTracker()}</div>
       ${renderSymHistory()}
@@ -2706,7 +2751,7 @@ function refreshDrawer() {
         const avgHigh = avg(highDays);
         const predicted = Math.round(Math.min(20, avgHigh * ([0,0.4,0.7,1][tomorrowRisk])) * 10)/10;
         return `<div style="padding:8px 14px 10px;border-top:1px solid var(--border);font-size:.79rem;color:var(--text2)">
-          🔮 ${t("pred_tomorrow")}: <strong style="color:var(--accent)">${predicted}/20</strong>
+          <span class="di">🔮</span> ${t("pred_tomorrow")}: <strong style="color:var(--accent)">${predicted}/20</strong>
           <span style="opacity:.6;font-size:.7rem"> (${t("based_on_history")})</span>
         </div>`;
       })()}
@@ -2714,7 +2759,7 @@ function refreshDrawer() {
 
     <!-- BEST TIME OUTSIDE -->
     <div class="dsec-head" ${db?.pollen_available === false ? 'style="display:none"' : ''} onclick="toggleDrawerSec('dbesttime')" id="dbesttime-head">
-      <span>🕐 ${t("besttime_title")}</span>
+      <span><span class="di">🕐</span> ${t("besttime_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
     <div class="dsec-body open" id="dbesttime-body" ${db?.pollen_available === false ? 'style="display:none"' : ''}>
@@ -2757,7 +2802,7 @@ function refreshDrawer() {
         if (wind > 15 || risk >= 2) indoor.push(row(false, t("tip_no_laundry")));
         else                        indoor.push(row(true,  t("tip_laundry_ok")));
         const sec = (icon, title, rows) => !rows.length ? "" :
-          `<div class="tips-group"><div class="tips-group-title">${icon} ${title}</div>${rows.join("")}</div>`;
+          `<div class="tips-group"><div class="tips-group-title"><span class="di">${icon}</span> ${title}</div>${rows.join("")}</div>`;
         return sec("💊",t("tips_med"),med) + sec("🌿",t("tips_outdoor"),outdoor) + sec("🏠",t("tips_indoor"),indoor)
           + `<div style="height:6px"></div>`;
       })() : ""}
@@ -2773,7 +2818,7 @@ function refreshDrawer() {
         <div class="season-mhead">${MONTHS_ARR().map(m=>`<div class="season-ml">${m}</div>`).join("")}</div>
         ${POLLEN.map(p=>`
           <div class="season-row">
-            <div class="season-name">${p.icon} ${t(p.key)}</div>
+            <div class="season-name"><span class="picon">${p.icon}</span> ${t(p.key)}</div>
             <div class="season-bar">
               ${MONTHS_ARR().map((_,mi)=>{
                 const m=mi+1,on=p.mo.includes(m),now=(m===month&&on);
@@ -2821,7 +2866,7 @@ function refreshDrawer() {
     <!-- SEASON OVERVIEW (DE only, lazy-rendered on open) -->
     ${appMode === "de" ? `
     <div class="dsec-head" onclick="toggleDrawerSec('ds2025')" id="ds2025-head">
-      <span>📊 ${t("season_overview_title")}</span>
+      <span><span class="di">📊</span> ${t("season_overview_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
     <div class="dsec-body" id="ds2025-body" data-lazy-season="1">
@@ -2830,7 +2875,7 @@ function refreshDrawer() {
 
     <!-- DATA EXPORT/IMPORT -->
     <div class="dsec-head" onclick="toggleDrawerSec('ddata')" id="ddata-head">
-      <span>📦 ${t("data_title")}</span>
+      <span><span class="di">📦</span> ${t("data_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
     <div class="dsec-body" id="ddata-body">
@@ -2876,8 +2921,8 @@ function refreshDrawer() {
     <div class="dsec-body" id="dlegend-body">
       <div class="legend">
         <div class="li"><div class="ld" style="background:#71717a"></div>${t("risk0")}</div>
-        <div class="li"><div class="ld" style="background:#65a30d"></div>${t("lv_low")}</div>
-        <div class="li"><div class="ld" style="background:#a16207"></div>${t("lv_mid")}</div>
+        <div class="li"><div class="ld" style="background:#0891b2"></div>${t("lv_low")}</div>
+        <div class="li"><div class="ld" style="background:#c2410c"></div>${t("lv_mid")}</div>
         <div class="li"><div class="ld" style="background:#b91c1c"></div>${t("lv_high")}</div>
       </div>
       <div style="padding:8px 14px 12px;border-top:1px solid var(--border);font-size:.79rem;color:var(--text2);line-height:1.55">
