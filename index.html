@@ -1871,7 +1871,7 @@ function _renderInner() {
       // ── Temperaturkurve (stündlich) ──────────────────────
       if (weather.hourlyTemp && weather.hourlyTime) {
         const dayDate = new Date(); dayDate.setDate(dayDate.getDate() + activeDay);
-        const dayStr = dayDate.toISOString().slice(0,10);
+        const dayStr = `${dayDate.getFullYear()}-${String(dayDate.getMonth()+1).padStart(2,"0")}-${String(dayDate.getDate()).padStart(2,"0")}`;
         const pts = [];
         weather.hourlyTime.forEach((ts, i) => {
           if (!ts.startsWith(dayStr)) return;
@@ -1912,7 +1912,7 @@ function _renderInner() {
             <div style="font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("sunrise")}</div>
           </div>
           <div>
-            <div style="font-size:1.3rem">${moon.icon}</div>
+            <div style="font-size:1.3rem;filter:grayscale(1)">${moon.icon}</div>
             <div style="font-size:.82rem;font-weight:600;margin:4px 0 2px">${moon.name}</div>
             <div style="font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("moon_title")}</div>
           </div>
