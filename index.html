@@ -1430,7 +1430,7 @@ let draft     = {niesen:0,augen:0,atmung:0,muedigkeit:0};
 let medications = JSON.parse(localStorage.getItem(LS.meds) || "{}");
 let medDraft  = {antihistamine:false,eyedrops:false,nasal:false,cortisone:false};
 let symSaved  = !!symptoms[new Date().toISOString().slice(0,10)];
-let openSections = new Set(JSON.parse(localStorage.getItem(LS.open) || '["pollen","profile"]'));
+let openSections = new Set(JSON.parse(localStorage.getItem(LS.open) || '["profile","trend","rainprob"]'));
 
 const SYM_KEYS = [["niesen","🤧"],["augen","👁"],["atmung","💨"],["muedigkeit","😴"]];
 function sumSymptoms(s) { return (s.niesen||0)+(s.augen||0)+(s.atmung||0)+(s.muedigkeit||0); }
