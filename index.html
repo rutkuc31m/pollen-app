@@ -1905,8 +1905,8 @@ function _renderInner() {
         if (pts.length >= 2) {
           const min = Math.min(...pts.map(p=>p.v)), max = Math.max(...pts.map(p=>p.v));
           const range = max - min || 1;
-          const W = 300, H = 90;
-          const px = h => (h / 23) * W;
+          const W = 300, H = 90, PAD = 10;
+          const px = h => PAD + (h / 23) * (W - PAD * 2);
           const py = v => H - ((v - min) / range) * (H - 20) - 10;
           const path = pts.map((p, i) => {
             if (i === 0) return `M${px(p.h).toFixed(1)},${py(p.v).toFixed(1)}`;
@@ -1918,11 +1918,11 @@ function _renderInner() {
           const valLabels = pts.filter(p => p.h % 6 === 0).map(p =>
             `<text x="${px(p.h).toFixed(1)}" y="${(py(p.v)-5).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="600" fill="#e2e8f0">${Math.round(p.v)}°</text>`).join("");
           const axisLabels = [0,3,6,9,12,15,18,21].map(h =>
-            `<text x="${px(h).toFixed(1)}" y="${H+12}" text-anchor="${h===0?"start":"middle"}" font-size="7.5" fill="var(--text3)">${String(h).padStart(2,"0")}</text>`).join("");
+            `<text x="${px(h).toFixed(1)}" y="${H+12}" text-anchor="middle" font-size="7.5" fill="var(--text3)">${String(h).padStart(2,"0")}</text>`).join("");
           rows.push(`<div class="card">
             <div class="card-head"><span class="card-title"><span class="di">🌡</span> ${t("temp")}</span></div>
             <div style="padding:10px 0 10px">
-              <svg viewBox="-2 0 ${W+4} ${H+18}" style="width:100%;height:140px;display:block">
+              <svg viewBox="0 0 ${W} ${H+18}" style="width:100%;height:140px;display:block">
                 <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#bae6fd" stop-opacity=".3"/><stop offset="100%" stop-color="#bae6fd" stop-opacity="0"/></linearGradient></defs>
                 <path d="${area}" fill="url(#tg)"/>
                 <path d="${path}" fill="none" stroke="#bae6fd" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
