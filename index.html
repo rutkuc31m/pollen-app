@@ -1848,7 +1848,7 @@ function _renderInner() {
       }).join("");
       return `<div class="card">
         <div class="card-head">
-          <span class="card-title">🌧 ${t("rain_prob_title")}</span>
+          <span class="card-title"><span class="di">🌧</span> ${t("rain_prob_title")}</span>
         </div>
         <div style="padding:10px 14px;display:flex;flex-direction:column;gap:5px">${bars}</div>
       </div>`;
@@ -1905,7 +1905,7 @@ function _renderInner() {
           const axisLabels = [0,3,6,9,12,15,18,21,23].map(h =>
             `<text x="${px(h).toFixed(1)}" y="${H+13}" text-anchor="${h===0?"start":h===23?"end":"middle"}" font-size="9" fill="var(--text3)">${h===23?"00":String(h).padStart(2,"0")}</text>`).join("");
           rows.push(`<div class="card">
-            <div class="card-head"><span class="card-title">🌡 ${t("temp")}</span></div>
+            <div class="card-head"><span class="card-title"><span class="di">🌡</span> ${t("temp")}</span></div>
             <div style="padding:10px 0 10px">
               <svg viewBox="-2 0 ${W+4} ${H+18}" style="width:100%;height:140px;display:block">
                 <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#bae6fd" stop-opacity=".3"/><stop offset="100%" stop-color="#bae6fd" stop-opacity="0"/></linearGradient></defs>
@@ -1926,7 +1926,7 @@ function _renderInner() {
         const aqiPct = aqi !== null ? Math.min(100, Math.round(aqi)) : 0;
         const aqiCol = aqi <= 20 ? "#e0f2fe" : aqi <= 40 ? "#bae6fd" : aqi <= 60 ? "#7cb8d4" : aqi <= 80 ? "#4a7a93" : "#1e3a4a";
         rows.push(`<div class="card">
-          <div class="card-head"><span class="card-title">💨 ${t("air_quality_title")}</span></div>
+          <div class="card-head"><span class="card-title"><span class="di">💨</span> ${t("air_quality_title")}</span></div>
           <div style="padding:10px 16px 14px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
               <span style="font-size:1.2rem;font-weight:700;color:${aqiCol}">${aqi ?? "–"} <span style="font-size:.75rem;font-weight:400;color:var(--text2)">${aqiLabel(aqi)}</span></span>
@@ -1955,7 +1955,7 @@ function _renderInner() {
       const sevKeys = ["severity_off","severity_low","severity_mid","severity_high"];
       return '<div class="card">'
         + '<div class="card-head">'
-        + '<span class="card-title">🧬 ' + t("allergy_profile") + '</span>'
+        + '<span class="card-title"><span class="di">🧬</span> ' + t("allergy_profile") + '</span>'
         + '</div>'
         + '<div id="profile-body">'
         + '<div style="padding:8px 14px 4px;font-size:.75rem;color:var(--text2);margin-bottom:6px">' + t("profile_onboarding") + '</div>'
@@ -2015,7 +2015,7 @@ function _renderInner() {
     <!-- POLLEN TREND CHART -->
     <div class="card">
       <div class="card-head">
-        <span class="card-title">📈 ${t("trend_title")}</span>
+        <span class="card-title"><span class="di">📈</span> ${t("trend_title")}</span>
       </div>
       <div id="trend-body">
         ${renderTrendChart()}
