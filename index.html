@@ -1844,6 +1844,38 @@ function _renderInner() {
       const d = weather.daily[activeDay] ?? weather.daily[0];
       const rows = [];
 
+      // ── Sonne / Mond / Gefühlt / Wind (5er-Karte) ────────
+      const moon = moonPhase();
+      rows.push(`<div class="card">
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);padding:14px 12px;gap:4px;text-align:center">
+          <div>
+            <div style="font-size:1rem;color:var(--text2);line-height:1.6">☀↑</div>
+            <div style="font-size:.88rem;font-weight:700;margin:4px 0 2px">${fmtTime(d.sunrise)}</div>
+            <div style="font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("sunrise")}</div>
+          </div>
+          <div>
+            <div style="font-size:1rem;color:var(--text2);line-height:1.6">☀↓</div>
+            <div style="font-size:.88rem;font-weight:700;margin:4px 0 2px">${fmtTime(d.sunset)}</div>
+            <div style="font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("sunset")}</div>
+          </div>
+          <div>
+            <div style="font-size:1.1rem;filter:grayscale(1);line-height:1.5">${moon.icon}</div>
+            <div style="font-size:.78rem;font-weight:600;margin:4px 0 2px">${moon.name}</div>
+            <div style="font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("moon_title")}</div>
+          </div>
+          <div>
+            <div style="font-size:1rem;color:var(--text2);line-height:1.6">~°</div>
+            <div style="font-size:.88rem;font-weight:700;margin:4px 0 2px">${d.apparentTemp !== null ? d.apparentTemp + weather.units.temp : "–"}</div>
+            <div style="font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("feels_like")}</div>
+          </div>
+          <div>
+            <div style="font-size:1.1rem;color:var(--text2);transform:rotate(${d.windDir ?? 0}deg);display:inline-block;line-height:1.5">↑</div>
+            <div style="font-size:.88rem;font-weight:700;margin:4px 0 2px">${windDirText(d.windDir)}</div>
+            <div style="font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("wind_dir")}</div>
+          </div>
+        </div>
+      </div>`);
+
       // ── Beste Zeit draußen ────────────────────────────────
       if (db && appMode === "de") {
         const btPol = (db.regions.find(r=>rk(r)===rKey) ?? db.regions[0])?.pollen;
@@ -1906,38 +1938,6 @@ function _renderInner() {
         }
       }
 
-      // ── Sonne / Mond / Gefühlt / Wind (5er-Karte) ────────
-      const moon = moonPhase();
-      const sunRow = `<div class="card">
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);padding:14px 12px;gap:4px;text-align:center">
-          <div>
-            <div style="font-size:1rem;color:var(--text2);line-height:1.6">☀↑</div>
-            <div style="font-size:.88rem;font-weight:700;margin:4px 0 2px">${fmtTime(d.sunrise)}</div>
-            <div style="font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("sunrise")}</div>
-          </div>
-          <div>
-            <div style="font-size:1rem;color:var(--text2);line-height:1.6">☀↓</div>
-            <div style="font-size:.88rem;font-weight:700;margin:4px 0 2px">${fmtTime(d.sunset)}</div>
-            <div style="font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("sunset")}</div>
-          </div>
-          <div>
-            <div style="font-size:1.1rem;filter:grayscale(1);line-height:1.5">${moon.icon}</div>
-            <div style="font-size:.78rem;font-weight:600;margin:4px 0 2px">${moon.name}</div>
-            <div style="font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("moon_title")}</div>
-          </div>
-          <div>
-            <div style="font-size:1rem;color:var(--text2);line-height:1.6">~°</div>
-            <div style="font-size:.88rem;font-weight:700;margin:4px 0 2px">${d.apparentTemp !== null ? d.apparentTemp + weather.units.temp : "–"}</div>
-            <div style="font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("feels_like")}</div>
-          </div>
-          <div>
-            <div style="font-size:1.1rem;color:var(--text2);transform:rotate(${d.windDir ?? 0}deg);display:inline-block;line-height:1.5">↑</div>
-            <div style="font-size:.88rem;font-weight:700;margin:4px 0 2px">${windDirText(d.windDir)}</div>
-            <div style="font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("wind_dir")}</div>
-          </div>
-        </div>
-      </div>`;
-      rows.push(sunRow);
 
       // ── Luftqualität ──────────────────────────────────────
       if (airQuality) {
