@@ -2048,7 +2048,7 @@ function renderSymHistory() {
         <div style="display:grid;grid-template-columns:42px repeat(4,1fr);gap:4px;align-items:center;margin-bottom:5px;font-size:.76rem">
           <div style="color:var(--text3)">${new Date(d+"T12:00:00").toLocaleDateString(lang==="de"?"de-DE":"en-GB",{day:"2-digit",month:"2-digit"})}</div>
           ${["niesen","augen","atmung","muedigkeit"].map(k=>`
-            <div style="display:flex;justify-content:center"><div class="sym-dot" style="background:${sc(s[k])};color:#fff">${s[k]||"–"}</div></div>`).join("")}
+            <div style="display:flex;justify-content:center"><div class="sym-dot" style="background:${sc(s[k])};color:#000">${s[k]||"–"}</div></div>`).join("")}
         </div>`).join("")}
     </div>`;
 }
