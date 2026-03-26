@@ -3171,6 +3171,9 @@ async function loadDE() {
   storeHistoryDay(reg.pollen);
 
   render();
+  // Stadtname nach render() nochmal setzen (render überschreibt regionbar nicht, aber sicher ist sicher)
+  const _inp = document.getElementById("de-city-input");
+  if (_inp && geoInfo?.city) _inp.value = geoInfo.city;
   loadWeather(); // läuft parallel, rendert nochmal wenn fertig
 }
 
