@@ -1832,15 +1832,11 @@ function _renderInner() {
           <span style="color:var(--text2);width:2.5em;text-align:right;flex-shrink:0">${s.prob}%</span>
         </div>`;
       }).join("");
-      const isOpen = openSections.has("rainprob");
       return `<div class="card">
-        <div class="card-head collapsible${isOpen?" open":""}" onclick="toggleSection('rainprob')">
+        <div class="card-head">
           <span class="card-title">🌧 ${t("rain_prob_title")}</span>
-          <span class="collapse-arrow">▼</span>
         </div>
-        <div id="rainprob-body" class="collapsible-body${isOpen?" open":""}">
-          <div style="padding:10px 14px;display:flex;flex-direction:column;gap:5px">${bars}</div>
-        </div>
+        <div style="padding:10px 14px;display:flex;flex-direction:column;gap:5px">${bars}</div>
       </div>`;
     })() : ""}
 
