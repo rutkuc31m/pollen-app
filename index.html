@@ -1891,8 +1891,7 @@ function _renderInner() {
           const min = Math.min(...pts.map(p=>p.v)), max = Math.max(...pts.map(p=>p.v));
           const range = max - min || 1;
           const W = 300, H = 90;
-          const padL = 4, padR = 4;
-          const px = h => padL + (h / 23) * (W - padL - padR);
+          const px = h => (h / 23) * W;
           const py = v => H - ((v - min) / range) * (H - 20) - 10;
           const path = pts.map((p, i) => {
             if (i === 0) return `M${px(p.h).toFixed(1)},${py(p.v).toFixed(1)}`;
@@ -1907,8 +1906,8 @@ function _renderInner() {
             `<text x="${px(h).toFixed(1)}" y="${H+13}" text-anchor="middle" font-size="9" fill="var(--text3)">${String(h).padStart(2,"0")}</text>`).join("");
           rows.push(`<div class="card">
             <div class="card-head"><span class="card-title">🌡 ${t("temp")}</span></div>
-            <div style="padding:10px 16px 10px">
-              <svg viewBox="0 0 ${W} ${H+18}" style="width:100%;height:140px;display:block">
+            <div style="padding:10px 0 10px">
+              <svg viewBox="-2 0 ${W+4} ${H+18}" style="width:100%;height:140px;display:block">
                 <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#bae6fd" stop-opacity=".3"/><stop offset="100%" stop-color="#bae6fd" stop-opacity="0"/></linearGradient></defs>
                 <path d="${area}" fill="url(#tg)"/>
                 <path d="${path}" fill="none" stroke="#bae6fd" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
