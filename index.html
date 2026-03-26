@@ -32,8 +32,8 @@
       --text:    #fafafa;
       --text2:   #a1a1aa;
       --text3:   #71717a;
-      --accent:  #67e8f9;
-      --accent-subtle: #0c3547;
+      --accent:  #bae6fd;
+      --accent-subtle: #0c2840;
       --r:       13px;
       --sh:      0 1px 3px rgba(0,0,0,.5);
     }
@@ -169,7 +169,7 @@
 
     /* colour tokens per level */
     .risk-none  { --rc:#a1a1aa; --rb:#27272a; }
-    .risk-low   { --rc:#67e8f9; --rb:#0c3547; }
+    .risk-low   { --rc:#bae6fd; --rb:#0c2840; }
     .risk-mid   { --rc:#fb923c; --rb:#1c0900; }
     .risk-high  { --rc:#f87171; --rb:#1c0000; }
     .risk-none,.risk-low,.risk-mid,.risk-high {
@@ -225,7 +225,7 @@
       font-size: .76rem; font-weight: 500;
     }
     .b-none { color: var(--text3); }
-    .b-low  { color:#67e8f9; }
+    .b-low  { color:#bae6fd; }
     .b-mid  { color:#fb923c; }
     .b-high { color:#f87171; }
     .col-hi { font-weight: 600; }
@@ -249,12 +249,12 @@
     }
     .wh-cell.wh-today { outline: 2px solid var(--accent); outline-offset: -1px; }
     .wh-cell.wh-future { opacity: .3; }
-    .wh-cell[data-sc="0"] { background: color-mix(in srgb, #67e8f9 18%, var(--card)); color: #67e8f9; }
-    .wh-cell[data-sc="1"] { background: color-mix(in srgb, #67e8f9 35%, var(--card)); color: #67e8f9; }
+    .wh-cell[data-sc="0"] { background: color-mix(in srgb, #bae6fd 18%, var(--card)); color: #bae6fd; }
+    .wh-cell[data-sc="1"] { background: color-mix(in srgb, #bae6fd 35%, var(--card)); color: #bae6fd; }
     .wh-cell[data-sc="2"] { background: color-mix(in srgb, #c2410c 45%, var(--card)); color: #7c2d12; }
     .wh-cell[data-sc="3"] { background: color-mix(in srgb, #b91c1c 55%, var(--card)); color: #7f1d1d; }
-    .wh-cell[data-sc="0"] { color: #67e8f9; }
-    .wh-cell[data-sc="1"] { color: #67e8f9; }
+    .wh-cell[data-sc="0"] { color: #bae6fd; }
+    .wh-cell[data-sc="1"] { color: #bae6fd; }
     .wh-cell[data-sc="2"] { color: #fb923c; }
     .wh-cell[data-sc="3"] { color: #fca5a5; }
     .wh-date { font-size: .6rem; line-height: 1; }
@@ -274,10 +274,10 @@
       background: var(--border);
       position: relative;
     }
-    .s25-cell[data-v="1"] { background: color-mix(in srgb,#67e8f9 45%,var(--card)); }
+    .s25-cell[data-v="1"] { background: color-mix(in srgb,#bae6fd 45%,var(--card)); }
     .s25-cell[data-v="2"] { background: color-mix(in srgb,#c2410c 58%,var(--card)); }
     .s25-cell[data-v="3"] { background: color-mix(in srgb,#b91c1c 68%,var(--card)); }
-    .s25-cell[data-v="1"] { background: #0c3547; }
+    .s25-cell[data-v="1"] { background: #0c2840; }
     .s25-cell[data-v="2"] { background: #431407; }
     .s25-cell[data-v="3"] { background: #7f1d1d; }
     .s25-note { padding: 8px 0 0; font-size: .65rem; color: var(--text3); font-style: italic; }
@@ -380,7 +380,7 @@
     .wd-uv   { font-size: .6rem; color: var(--text3); margin-top: 1px; }
     .uv-hi   { color: #b91c1c; }
     .uv-mid  { color: #d97706; }
-    .uv-low  { color: #67e8f9; }
+    .uv-low  { color: #bae6fd; }
 
     /* ── CORRELATION ─────────────────────────────────── */
     .corr-wrap { padding: 10px 14px 14px; border-top: 1px solid var(--border); }
@@ -442,10 +442,10 @@
       padding: 6px 12px; border-radius: 9px;
       font-size: .82rem; font-weight: 500;
     }
-    .time-win.good  { background: #0c3547; color: #67e8f9; }
+    .time-win.good  { background: #0c2840; color: #bae6fd; }
     .time-win.warn  { background: #fee2e2; color: #b91c1c; }
     .time-win.none  { background: var(--card2); color: var(--text2); }
-    .time-win.good { background: #0c3547; color: #67e8f9; }
+    .time-win.good { background: #0c2840; color: #bae6fd; }
     .time-win.warn { background: #1c0000; color: #f87171; }
     .time-note { font-size: .67rem; color: var(--text3); padding: 2px 14px 12px; }
 
@@ -471,10 +471,10 @@
     .nearby-dist { font-size: .7rem; color: var(--text3); width: 50px; text-align: right; flex-shrink: 0; }
     .escape-box {
       margin: 4px 14px 14px; padding: 10px 13px; border-radius: 9px;
-      background: #0c3547; color: #67e8f9; font-size: .82rem; line-height: 1.4;
+      background: #0c2840; color: #bae6fd; font-size: .82rem; line-height: 1.4;
       border: 1px solid #a5f3fc;
     }
-    .escape-box { background: #0c3547; color: #67e8f9; border-color: color-mix(in srgb, #67e8f9 20%, transparent); }
+    .escape-box { background: #0c2840; color: #bae6fd; border-color: color-mix(in srgb, #bae6fd 20%, transparent); }
 
     /* ── TOAST ───────────────────────────────────────── */
     #toast {
@@ -546,10 +546,10 @@
     }
 
     /* ── CORRELATION IMPROVEMENTS ────────────────────── */
-    .corr-fill-low  { background: #67e8f9; }
+    .corr-fill-low  { background: #bae6fd; }
     .corr-fill-mid  { background: #c2410c; }
     .corr-fill-high { background: #b91c1c; }
-    .corr-fill-low  { background: #67e8f9; }
+    .corr-fill-low  { background: #bae6fd; }
     .corr-fill-mid  { background: #fb923c; }
     .corr-fill-high { background: #f87171; }
     .corr-meta { font-size: .67rem; color: var(--text3); margin-top: 2px; }
@@ -2031,7 +2031,7 @@ function renderSeason2025() {
 function renderSymHistory() {
   const entries = Object.entries(symptoms).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,5);
   if (!entries.length) return "";
-  const sc = v => !v?"#3f3f46":["#3f3f46","#67e8f9","#67e8f9","#c2410c","#b91c1c","#b91c1c"][v]??"#b91c1c";
+  const sc = v => !v?"#3f3f46":["#3f3f46","#bae6fd","#bae6fd","#c2410c","#b91c1c","#b91c1c"][v]??"#b91c1c";
   return `
     <div class="sym-hist">
       <div class="sym-hist-title">${t("saved_entries")}</div>
@@ -2556,7 +2556,7 @@ function renderTrendChart() {
   const n = allDays.length;
 
   // Colors for top pollen types
-  const colors = ["#67e8f9","#eab308","#b91c1c","#3b82f6","#a855f7","#f97316","#67e8f9","#ec4899"];
+  const colors = ["#bae6fd","#eab308","#b91c1c","#3b82f6","#a855f7","#f97316","#bae6fd","#ec4899"];
 
   // Get top 3 filtered pollen by avg level
   const pollenAvgs = POLLEN.filter(p => filter.includes(p.key)).map(p => {
@@ -2899,7 +2899,7 @@ function refreshDrawer() {
     <div class="dsec-body" id="dlegend-body">
       <div class="legend">
         <div class="li"><div class="ld" style="background:#71717a"></div>${t("risk0")}</div>
-        <div class="li"><div class="ld" style="background:#67e8f9"></div>${t("lv_low")}</div>
+        <div class="li"><div class="ld" style="background:#bae6fd"></div>${t("lv_low")}</div>
         <div class="li"><div class="ld" style="background:#c2410c"></div>${t("lv_mid")}</div>
         <div class="li"><div class="ld" style="background:#b91c1c"></div>${t("lv_high")}</div>
       </div>
