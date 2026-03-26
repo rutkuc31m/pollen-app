@@ -899,7 +899,7 @@ const STRINGS = {
     med_nasal: "Nasenspray",
     med_cortisone: "Cortison",
     med_history: "Letzte Medikamenten-Einträge",
-    med_effectiveness: "Medikamenten-Wirksamkeit",
+    med_effectiveness: "Wirksamkeit",
     med_eff_hint: "Ø Symptomreduktion an Tagen mit Medikament vs. ohne",
     med_none_today: "Heute kein Medikament genommen",
     med_reduction: "Reduktion",
@@ -2725,7 +2725,7 @@ function renderMedEffectiveness() {
         const isPositive = reduction > 0;
         return `<div class="med-eff-row">
           <div class="med-eff-name"><span class="di">${m.icon}</span> ${t("med_"+m.key)}</div>
-          <div class="med-eff-bar"><div class="med-eff-fill" style="width:${pct}%;background:${isPositive?"var(--accent)":"#b91c1c"}"></div></div>
+          <div class="med-eff-bar"><div class="med-eff-fill" style="width:${pct}%;background:${isPositive?"var(--accent)":"var(--text3)"}"></div></div>
           <div class="med-eff-lbl">${isPositive?"-":"+"} ${Math.abs(reduction)}%</div>
         </div>`;
       }).join("")}
