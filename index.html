@@ -2100,24 +2100,7 @@ function setSym(key, val) {
       row.querySelectorAll(".sym-btn").forEach((b,i) => b.classList.toggle("on",i===val));
     }
   });
-  // Speichern-Button wieder einblenden wenn Wert geändert
-  if (symSaved) {
-    const saved = symptoms[todayISO()];
-    const changed = !saved || Object.keys(draft).some(k => draft[k] !== (saved[k] || 0));
-    if (changed) {
-      symSaved = false;
-      const body = document.getElementById("dsym-body");
-      if (body && !body.querySelector(".sym-save")) {
-        const btn = document.createElement("button");
-        btn.className = "sym-save";
-        btn.textContent = t("save");
-        btn.onclick = saveSym;
-        body.querySelector(".sym-hist")
-          ? body.insertBefore(btn, body.querySelector(".sym-hist"))
-          : body.appendChild(btn);
-      }
-    }
-  }
+  saveSym();
 }
 let _symSaveDebounce = false;
 function saveSym() {
@@ -2729,7 +2712,6 @@ function refreshDrawer() {
               <button class="sym-btn${draft[k]===v?" on":""}" onclick="setSym('${k}',${v})" title="${v}: ${t("sym_hints")[v]}">${v===0?"–":v}</button>`).join("")}
           </div>
         </div>`}).join("")}
-      ${symSaved ? "" : `<button class="sym-save" onclick="saveSym()">${t("save")}</button>`}
       <!-- MEDICATION TRACKER -->
       <div style="border-top:1px solid var(--border);padding:8px 14px 4px">
         <div style="font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);padding:10px 0 4px">${t("med_title")}</div>
