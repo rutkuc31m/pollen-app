@@ -3150,7 +3150,9 @@ async function loadGlobal() {
        <input id="om-city-input" type="text" value="${escapeHtml(locName)}"
          placeholder="${escapeHtml(t('city_search_placeholder'))}"
          style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px 6px 28px;font-size:.85rem;outline:none;font-family:inherit"
-         oninput="omCitySearch(this.value)" onfocus="this.select()" autocomplete="off" autocorrect="off" spellcheck="false">
+         oninput="omCitySearch(this.value)"
+         onfocus="this.dataset.prev=this.value; this.value=''"
+         onblur="if(!this.value.trim()){this.value=this.dataset.prev||''}" autocomplete="off" autocorrect="off" spellcheck="false">
        <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.8rem;pointer-events:none">📍</span>
        <div id="om-city-results" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:200;overflow:hidden;box-shadow:var(--sh)"></div>
      </div>
