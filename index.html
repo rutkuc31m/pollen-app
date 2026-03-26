@@ -2925,25 +2925,6 @@ function refreshDrawer() {
     </div>
 
     <!-- BEST TIME OUTSIDE -->
-    <div class="dsec-head" ${db?.pollen_available === false ? 'style="display:none"' : ''} onclick="toggleDrawerSec('dbesttime')" id="dbesttime-head">
-      <span><span class="di">🕐</span> ${t("besttime_title")}</span>
-      <span class="dsec-arrow">▼</span>
-    </div>
-    <div class="dsec-body open" id="dbesttime-body" ${db?.pollen_available === false ? 'style="display:none"' : ''}>
-      ${drawerPol && weather ? (() => {
-        const bt = calcBestTimes(drawerPol, activeDay);
-        if (!bt) return `<div style="padding:10px 14px;font-size:.82rem;color:var(--text2)">${t("besttime_note")}</div>`;
-        return `
-          <div class="time-windows">
-            ${bt.good.length
-              ? bt.good.map(w=>`<div class="time-win good">✓ ${w}</div>`).join("")
-              : `<div class="time-win none">⚠ ${t("besttime_none")}</div>`}
-            ${bt.avoid ? `<div class="time-win warn">⚠ ${t("besttime_avoid")}: ${bt.avoid}</div>` : ""}
-          </div>
-          <div class="time-note">${t("besttime_note")}</div>`;
-      })() : `<div style="padding:10px 14px;font-size:.82rem;color:var(--text2)">${t("loading")}</div>`}
-    </div>
-
     <!-- TIPS FOR TODAY -->
     <div class="dsec-head" ${db?.pollen_available === false ? 'style="display:none"' : ''} onclick="toggleDrawerSec('dtips')" id="dtips-head">
       <span>${t("tips_title")}</span>
