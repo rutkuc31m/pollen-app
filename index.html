@@ -3153,7 +3153,7 @@ async function loadGlobal() {
          <div id="om-city-results" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:200;overflow:hidden;box-shadow:var(--sh)"></div>
        </div>
      </div>
-     <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}">📍</button>`;
+     <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}" style="align-self:flex-end">📍</button>`;
 
   const url = `https://air-quality-api.open-meteo.com/v1/air-quality`
     + `?latitude=${lat}&longitude=${lon}`
