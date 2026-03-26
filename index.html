@@ -1774,7 +1774,7 @@ function _renderInner() {
       ${DAYS.map((_,i)=>`<div class="swipe-dot${i===activeDay?" active":""}"></div>`).join("")}
     </div>
 
-    ${(() => {
+    ${activeTab === "weather" ? (() => {
       if (!weather?.hourlyRainProb || !weather?.hourlyTime) return "";
       // Filter hourly entries for the active day, every 3h
       const dayDate = new Date(); dayDate.setDate(dayDate.getDate() + activeDay);
@@ -1807,9 +1807,7 @@ function _renderInner() {
           <div style="padding:10px 14px;display:flex;flex-direction:column;gap:5px">${bars}</div>
         </div>
       </div>`;
-    })()}
-
-    ` /* end weather tab */ : ""}
+    })() : ""}
 
     ${activeTab === "pollen" ? `
     ${db.pollen_available === false ? `
