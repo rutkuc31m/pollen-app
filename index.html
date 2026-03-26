@@ -717,6 +717,8 @@ function setLang(newLang) {
   if (geoBtn2) geoBtn2.title = t("geo_title");
   document.querySelector(".offline-pill").textContent = t("offline");
   if (db) { render(); renderSrcBar(); }
+  const cityInput = document.getElementById("om-city-input");
+  if (cityInput) cityInput.placeholder = t("city_search_placeholder");
 }
 
 const STRINGS = {
