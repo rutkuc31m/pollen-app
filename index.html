@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="light">
+<html lang="de" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,31 +23,19 @@
   <meta name="twitter:description" content="Tägliche Pollenflug-Vorhersage mit Allergierisiko, Symptom-Tracker und Medikamenten-Tracking.">
   <title>Pollenflug</title>
   <style>
-    /* ── TOKENS ─────────────────────────────────────── */
+    /* ── TOKENS (Dark Mode only) ────────────────────── */
     :root {
-      --bg:      #f6f6f7;
-      --card:    #ffffff;
-      --card2:   #f9f9fa;
-      --border:  #e4e4e7;
-      --text:    #09090b;
-      --text2:   #71717a;
-      --text3:   #737380;
-      --accent:  #06b6d4;
-      --accent-subtle: #e0f9ff;
-      --r:       13px;
-      --sh:      0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
-    }
-    [data-theme="dark"] {
-      --bg:     #0a0a0b;
-      --card:   #18181b;
-      --card2:  #27272a;
-      --border: #3f3f46;
-      --text:   #fafafa;
-      --text2:  #a1a1aa;
-      --text3:  #71717a;
-      --accent: #22d3ee;
+      --bg:      #0a0a0b;
+      --card:    #18181b;
+      --card2:   #27272a;
+      --border:  #3f3f46;
+      --text:    #fafafa;
+      --text2:   #a1a1aa;
+      --text3:   #71717a;
+      --accent:  #22d3ee;
       --accent-subtle: #083344;
-      --sh:     0 1px 3px rgba(0,0,0,.5);
+      --r:       13px;
+      --sh:      0 1px 3px rgba(0,0,0,.5);
     }
 
     /* ── BASE ────────────────────────────────────────── */
@@ -180,14 +168,10 @@
     }
 
     /* colour tokens per level */
-    .risk-none   { --rc:#71717a; --rb:#f4f4f5; }
-    .risk-low    { --rc:#0891b2; --rb:#e0f9ff; }
-    .risk-mid    { --rc:#c2410c; --rb:#fff7ed; }
-    .risk-high   { --rc:#b91c1c; --rb:#fee2e2; }
-    [data-theme="dark"] .risk-none  { --rc:#a1a1aa; --rb:#27272a; }
-    [data-theme="dark"] .risk-low   { --rc:#22d3ee; --rb:#083344; }
-    [data-theme="dark"] .risk-mid   { --rc:#fb923c; --rb:#1c0900; }
-    [data-theme="dark"] .risk-high  { --rc:#f87171; --rb:#1c0000; }
+    .risk-none  { --rc:#a1a1aa; --rb:#27272a; }
+    .risk-low   { --rc:#22d3ee; --rb:#083344; }
+    .risk-mid   { --rc:#fb923c; --rb:#1c0900; }
+    .risk-high  { --rc:#f87171; --rb:#1c0000; }
     .risk-none,.risk-low,.risk-mid,.risk-high {
       color: var(--rc); background: var(--rb);
     }
@@ -241,12 +225,9 @@
       font-size: .76rem; font-weight: 500;
     }
     .b-none { color: var(--text3); }
-    .b-low  { color:#0891b2; }
-    .b-mid  { color:#c2410c; }
-    .b-high { color:#b91c1c; }
-    [data-theme="dark"] .b-low  { color:#22d3ee; }
-    [data-theme="dark"] .b-mid  { color:#fb923c; }
-    [data-theme="dark"] .b-high { color:#f87171; }
+    .b-low  { color:#22d3ee; }
+    .b-mid  { color:#fb923c; }
+    .b-high { color:#f87171; }
     .col-hi { font-weight: 600; }
 
     /* ── WEEKLY HISTORY HEATMAP ──────────────────────── */
@@ -272,10 +253,10 @@
     .wh-cell[data-sc="1"] { background: color-mix(in srgb, #06b6d4 35%, var(--card)); color: #0891b2; }
     .wh-cell[data-sc="2"] { background: color-mix(in srgb, #c2410c 45%, var(--card)); color: #7c2d12; }
     .wh-cell[data-sc="3"] { background: color-mix(in srgb, #b91c1c 55%, var(--card)); color: #7f1d1d; }
-    [data-theme="dark"] .wh-cell[data-sc="0"] { color: #22d3ee; }
-    [data-theme="dark"] .wh-cell[data-sc="1"] { color: #22d3ee; }
-    [data-theme="dark"] .wh-cell[data-sc="2"] { color: #fb923c; }
-    [data-theme="dark"] .wh-cell[data-sc="3"] { color: #fca5a5; }
+    .wh-cell[data-sc="0"] { color: #22d3ee; }
+    .wh-cell[data-sc="1"] { color: #22d3ee; }
+    .wh-cell[data-sc="2"] { color: #fb923c; }
+    .wh-cell[data-sc="3"] { color: #fca5a5; }
     .wh-date { font-size: .6rem; line-height: 1; }
     .wh-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; margin-top: 2px; }
     .wh-legend { display: flex; gap: 10px; padding: 8px 0 0 52px; flex-wrap: wrap; }
@@ -296,9 +277,9 @@
     .s25-cell[data-v="1"] { background: color-mix(in srgb,#06b6d4 45%,var(--card)); }
     .s25-cell[data-v="2"] { background: color-mix(in srgb,#c2410c 58%,var(--card)); }
     .s25-cell[data-v="3"] { background: color-mix(in srgb,#b91c1c 68%,var(--card)); }
-    [data-theme="dark"] .s25-cell[data-v="1"] { background: #083344; }
-    [data-theme="dark"] .s25-cell[data-v="2"] { background: #431407; }
-    [data-theme="dark"] .s25-cell[data-v="3"] { background: #7f1d1d; }
+    .s25-cell[data-v="1"] { background: #083344; }
+    .s25-cell[data-v="2"] { background: #431407; }
+    .s25-cell[data-v="3"] { background: #7f1d1d; }
     .s25-note { padding: 8px 0 0; font-size: .65rem; color: var(--text3); font-style: italic; }
     .s25-tip {
       position: fixed; z-index: 999;
@@ -330,7 +311,7 @@
       box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 40%, transparent);
       transform: scale(1.08);
     }
-    [data-theme="dark"] .sym-btn.on { color: #000; }
+    .sym-btn.on { color: #000; }
     .sym-save {
       display: block; margin: 10px 14px;
       width: calc(100% - 28px); padding: 10px;
@@ -338,7 +319,7 @@
       border: none; border-radius: 9px;
       font-size: .9rem; font-weight: 600; cursor: pointer;
     }
-    [data-theme="dark"] .sym-save { color: #000; }
+    .sym-save { color: #000; }
     .sym-save:hover { opacity: .85; }
     .sym-hist { padding: 8px 14px 12px; border-top: 1px solid var(--border); }
     .sym-hist-title { font-size: .72rem; text-transform: uppercase; letter-spacing: .4px; color: var(--text3); margin-bottom: 7px; }
@@ -464,8 +445,8 @@
     .time-win.good  { background: #e0f9ff; color: #0891b2; }
     .time-win.warn  { background: #fee2e2; color: #b91c1c; }
     .time-win.none  { background: var(--card2); color: var(--text2); }
-    [data-theme="dark"] .time-win.good { background: #083344; color: #22d3ee; }
-    [data-theme="dark"] .time-win.warn { background: #1c0000; color: #f87171; }
+    .time-win.good { background: #083344; color: #22d3ee; }
+    .time-win.warn { background: #1c0000; color: #f87171; }
     .time-note { font-size: .67rem; color: var(--text3); padding: 2px 14px 12px; }
 
     /* ── TIPS ────────────────────────────────────────── */
@@ -493,7 +474,7 @@
       background: #e0f9ff; color: #0891b2; font-size: .82rem; line-height: 1.4;
       border: 1px solid #a5f3fc;
     }
-    [data-theme="dark"] .escape-box { background: #083344; color: #22d3ee; border-color: color-mix(in srgb, #22d3ee 20%, transparent); }
+    .escape-box { background: #083344; color: #22d3ee; border-color: color-mix(in srgb, #22d3ee 20%, transparent); }
 
     /* ── TOAST ───────────────────────────────────────── */
     #toast {
@@ -568,9 +549,9 @@
     .corr-fill-low  { background: #0891b2; }
     .corr-fill-mid  { background: #c2410c; }
     .corr-fill-high { background: #b91c1c; }
-    [data-theme="dark"] .corr-fill-low  { background: #22d3ee; }
-    [data-theme="dark"] .corr-fill-mid  { background: #fb923c; }
-    [data-theme="dark"] .corr-fill-high { background: #f87171; }
+    .corr-fill-low  { background: #22d3ee; }
+    .corr-fill-mid  { background: #fb923c; }
+    .corr-fill-high { background: #f87171; }
     .corr-meta { font-size: .67rem; color: var(--text3); margin-top: 2px; }
     .corr-no-data { font-size: .76rem; color: var(--text3); font-style: italic; padding: 4px 0; }
     .corr-n-label { font-size: .64rem; color: var(--text3); opacity: .8; }
@@ -683,7 +664,6 @@
       <button class="icon-btn" id="lang-btn-tr" onclick="setLang('tr')" style="font-size:.7rem;font-weight:700;width:auto;padding:4px 10px;border-radius:0 6px 6px 0">TR</button>
     </div>
     <button class="icon-btn" id="refresh-btn" onclick="doRefresh()" title="Aktualisieren" aria-label="Aktualisieren" style="font-size:.95rem">↻</button>
-    <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" aria-label="Design wechseln"><span class="di">🌙</span></button>
   </div>
   <div class="regionbar">
     <div class="regionbar-inner" id="regionbar-inner">
@@ -1432,13 +1412,10 @@ function loadFilterFor(pollenList, lsKey) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// THEME
+// THEME (dark only)
 // ─────────────────────────────────────────────────────────────────────────────
-function applyTheme(theme) {
-  document.documentElement.dataset.theme = theme;
-  document.getElementById("theme-btn").innerHTML = `<span class="di">${theme==="dark" ? "☀️" : "🌙"}</span>`;
-  document.getElementById("theme-meta").content = theme==="dark" ? "#18181b" : "#ffffff";
-}
+document.getElementById("theme-meta").content = "#18181b";
+
 function doRefresh() {
   const btn = document.getElementById("refresh-btn");
   btn.classList.remove("spinning");
@@ -1446,12 +1423,6 @@ function doRefresh() {
   btn.classList.add("spinning");
   btn.addEventListener("animationend", () => location.reload(), { once: true });
 }
-function toggleTheme() {
-  const theme = document.documentElement.dataset.theme==="dark" ? "light" : "dark";
-  localStorage.setItem(LS.theme, theme); applyTheme(theme);
-}
-applyTheme(localStorage.getItem(LS.theme) ||
-  (window.matchMedia("(prefers-color-scheme:dark)").matches ? "dark" : "light"));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPERS
