@@ -107,12 +107,16 @@
       max-width: 640px; margin: 4px auto 0;
       display: flex; align-items: center; gap: 6px;
     }
-    .src-sel {
-      flex: 1; background: var(--card2); border: 1px solid var(--border);
-      color: var(--text); border-radius: 8px;
-      padding: 5px 8px; font-size: .8rem; outline: none; cursor: pointer;
+    .src-tabs { display: flex; flex: 1; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+    .src-tab {
+      flex: 1; padding: 5px 8px; font-size: .78rem; font-weight: 500;
+      background: var(--card2); border: none; color: var(--text2);
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;
+      transition: background .15s, color .15s;
     }
-    .src-sel:focus { border-color: var(--accent); }
+    .src-tab + .src-tab { border-left: 1px solid var(--border); }
+    .src-tab.active { background: var(--accent); color: #fff; font-weight: 600; }
+    .src-tab .di { filter: grayscale(1) brightness(10); }
     .src-share-btn {
       flex-shrink: 0; padding: 5px 9px; border-radius: 8px;
       border: 1px solid var(--border); background: var(--card2);
@@ -706,7 +710,7 @@
   <div class="tab-bar">
     <div class="tab-bar-inner">
       <button class="tab-btn active" id="tab-pollen" onclick="setTab('pollen')"><span class="tab-icon">🌿</span> Pollen</button>
-      <button class="tab-btn" id="tab-weather" onclick="setTab('weather')">🌤 Wetter</button>
+      <button class="tab-btn" id="tab-weather" onclick="setTab('weather')"><span class="tab-icon">🌤</span> Wetter</button>
     </div>
   </div>
 </div>
@@ -2967,10 +2971,14 @@ function renderSrcBar() {
   if (!el) return;
   const current = appMode; // always reflect actual active mode
   el.innerHTML = `
-    <select class="src-sel" id="src-sel" onchange="setDataSource(this.value)">
-      <option value="de"${current==="de"?" selected":""}>${t("ds_de")}</option>
-      <option value="om"${current==="om"?" selected":""}>${t("ds_om")}</option>
-    </select>
+    <div class="src-tabs">
+      <button class="src-tab${current==="de"?" active":""}" onclick="setDataSource('de')">
+        <span class="di">🇩🇪</span> DWD
+      </button>
+      <button class="src-tab${current==="om"?" active":""}" onclick="setDataSource('om')">
+        <span class="di">🌍</span> Open-Meteo
+      </button>
+    </div>
     <button class="src-share-btn" onclick="shareUrl()" title="Share">🔗</button>
   `;
 }
