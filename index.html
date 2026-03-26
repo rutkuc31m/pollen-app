@@ -3152,37 +3152,19 @@ async function loadDE() {
   }
 
   // Restore DE regionbar (dropdown + geo button)
+  const deCityName = geoInfo?.city || "";
   document.getElementById("regionbar-inner").innerHTML =
-    `<select id="region-sel" style="flex:1"></select><button class="geo-btn" id="geo-btn" onclick="geoLocate()" title="${t("geo_title")}"><span class="di">📍</span></button>${srcTabsHTML()}`;
-  const sel = document.getElementById("region-sel");
-  const groups = {};
-  for (const r of db.regions) {
-    if (!groups[r.region_name]) groups[r.region_name] = [];
-    groups[r.region_name].push(r);
-  }
-  for (const [name, list] of Object.entries(groups)) {
-    const g = document.createElement("optgroup");
-    g.label = name;
-    for (const r of list) {
-      const o = document.createElement("option");
-      o.value = rk(r); o.textContent = r.partregion_name || r.region_name;
-      if (rk(r)===rKey) o.selected = true;
-      g.appendChild(o);
-    }
-    sel.appendChild(g);
-  }
-
-  document.getElementById("region-sel").addEventListener("change", e => {
-    const val = e.target.value;
-    clearTimeout(regionDebounce);
-    regionDebounce = setTimeout(() => {
-      rKey = val;
-      localStorage.setItem(LS.region, rKey);
-      weather = null;
-      render();
-      loadWeather();
-    }, 200);
-  });
+    `<div style="flex:1;position:relative">
+       <input id="de-city-input" type="text" value="${escapeHtml(deCityName)}"
+         placeholder="${escapeHtml(t('city_search_placeholder'))}"
+         style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px 6px 28px;font-size:.85rem;outline:none;font-family:inherit"
+         oninput="deCitySearch(this.value)"
+         onfocus="this.dataset.prev=this.value; this.value=''"
+         onblur="if(!this.value.trim()){this.value=this.dataset.prev||''}" autocomplete="off" autocorrect="off" spellcheck="false">
+       <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.75rem;pointer-events:none;filter:grayscale(1) brightness(10)">🔍</span>
+       <div id="de-city-results" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:200;overflow:hidden;box-shadow:var(--sh)"></div>
+     </div>
+     <button class="geo-btn" id="geo-btn" onclick="geoLocate()" title="${t("geo_title")}"><span class="di">📍</span></button>`;
 
   // store today's history
   const reg = db.regions.find(r=>rk(r)===rKey) ?? db.regions[0];
@@ -3263,6 +3245,47 @@ async function loadGlobal() {
   storeHistoryDay(pollen);
   render();
   loadWeather();
+}
+
+let _deCityTimer = null;
+async function deCitySearch(query) {
+  const results = document.getElementById("de-city-results");
+  if (!results) return;
+  clearTimeout(_deCityTimer);
+  if (query.length < 2) { results.style.display = "none"; return; }
+  _deCityTimer = setTimeout(async () => {
+    try {
+      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=6&language=${lang}&format=json&country_code=DE`);
+      const data = await res.json();
+      if (!data.results?.length) { results.style.display = "none"; return; }
+      results.innerHTML = data.results.map(r => {
+        const label = [r.name, r.admin1].filter(Boolean).join(", ");
+        return `<div onclick="deCitySelect(${r.latitude},${r.longitude},'${escapeHtml(r.name)}')"
+          style="padding:8px 12px;font-size:.84rem;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text)"
+          onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">
+          📍 ${escapeHtml(label)}
+        </div>`;
+      }).join("");
+      results.style.display = "block";
+    } catch { results.style.display = "none"; }
+  }, 350);
+}
+function deCitySelect(lat, lon, city) {
+  const results = document.getElementById("de-city-results");
+  if (results) results.style.display = "none";
+  const input = document.getElementById("de-city-input");
+  if (input) input.value = city;
+  // Find nearest DWD region
+  let best = null, bestDist = Infinity;
+  for (const [key, c] of Object.entries(REGION_COORDS)) {
+    const d = Math.hypot(c.lat - lat, c.lon - lon);
+    if (d < bestDist) { bestDist = d; best = key; }
+  }
+  if (best) {
+    rKey = best; localStorage.setItem(LS.region, rKey);
+  }
+  geoInfo = { ...geoInfo, city, latitude: lat, longitude: lon, country_code: "DE" };
+  weather = null; render(); loadWeather();
 }
 
 let _omCityTimer = null;
