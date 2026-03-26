@@ -473,12 +473,10 @@
     .tips-group + .tips-group { padding-top: 4px; }
     .tips-group-title { font-size: .67rem; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
     .tips-group-title .di, .dsec-head .di, .drawer-label-icon, .cross-food .di,
-    div.di, .wd-icon.di, .geo-btn .di { filter: grayscale(1) brightness(10); }
+    div.di, .wd-icon.di, .geo-btn .di, .med-pill .di { filter: grayscale(1) brightness(10); }
     .tip-row { display: flex; align-items: baseline; gap: 7px; font-size: .82rem; padding: 2px 0; }
-    .tip-ok   { color: #0891b2; font-weight: 700; flex-shrink: 0; }
-    .tip-no   { color: #b91c1c; font-weight: 700; flex-shrink: 0; }
-    [data-theme="dark"] .tip-ok { color: #22d3ee; }
-    [data-theme="dark"] .tip-no { color: #f87171; }
+    .tip-ok   { color: var(--text3); font-size: .6rem; flex-shrink: 0; }
+    .tip-no   { color: var(--text3); font-size: .6rem; flex-shrink: 0; }
 
     /* ── NEARBY REGIONS ──────────────────────────────── */
     .nearby-list { padding: 10px 14px 6px; }
@@ -2797,7 +2795,7 @@ function refreshDrawer() {
         const risk = personalRisk(drawerPol, activeDay).max;
         const wind = wd?.wind ?? 0, rain = wd?.rain ?? 0;
         const row  = (ok, text) =>
-          `<div class="tip-row"><span class="${ok?"tip-ok":"tip-no"}">${ok?"✓":"✗"}</span><span>${text}</span></div>`;
+          `<div class="tip-row"><span class="${ok?"tip-ok":"tip-no"}">●</span><span>${text}</span></div>`;
         const med = [], outdoor = [], indoor = [];
         if (risk >= 2)              med.push(row(true,  t("tip_antihistamine")));
         if (risk >= 3)              med.push(row(true,  t("tip_eyedrops")));
