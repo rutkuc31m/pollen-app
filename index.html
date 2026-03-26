@@ -2576,10 +2576,14 @@ function openDrawer() {
   document.getElementById("drawer").classList.add("open");
   document.getElementById("drawer-overlay").classList.add("show");
   document.getElementById("drawer-close-btn")?.focus();
+  document.body.style.overflow = "hidden";
+  document.getElementById("page").style.overflow = "hidden";
 }
 function closeDrawer() {
   document.getElementById("drawer").classList.remove("open");
   document.getElementById("drawer-overlay").classList.remove("show");
+  document.body.style.overflow = "";
+  document.getElementById("page").style.overflow = "";
   if (_drawerOpener) { _drawerOpener.focus(); _drawerOpener = null; }
 }
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
