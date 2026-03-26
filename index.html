@@ -74,6 +74,7 @@
     }
     .logo { font-weight: 700; font-size: 1rem; flex: 1; letter-spacing: -.2px; }
     .logo em { color: var(--accent); font-style: normal; }
+    .logo-icon, .tab-btn .tab-icon { filter: grayscale(1) brightness(10); }
     .icon-btn {
       width: 34px; height: 34px; border-radius: 8px;
       border: 1px solid var(--border);
@@ -673,7 +674,7 @@
 <div class="topbar">
   <div class="topbar-inner">
     <button class="icon-btn" onclick="openDrawer()" aria-label="Menü">☰</button>
-    <div class="logo">🌿 <em>Pollen</em></div>
+    <div class="logo"><span class="logo-icon">🌿</span> <em>Pollen</em></div>
     <span class="offline-pill" id="offline-pill">Offline</span>
     <button id="pwa-install-btn" onclick="pwaDoPwaInstall()" aria-label="App installieren">⬇ App</button>
     <div style="display:flex;gap:2px">
@@ -693,7 +694,7 @@
   </div>
   <div class="tab-bar">
     <div class="tab-bar-inner">
-      <button class="tab-btn active" id="tab-pollen" onclick="setTab('pollen')">🌿 Pollen</button>
+      <button class="tab-btn active" id="tab-pollen" onclick="setTab('pollen')"><span class="tab-icon">🌿</span> Pollen</button>
       <button class="tab-btn" id="tab-weather" onclick="setTab('weather')">🌤 Wetter</button>
     </div>
   </div>
@@ -713,7 +714,7 @@ function setLang(newLang) {
   lang = newLang;
   localStorage.setItem("p_lang", lang);
   document.documentElement.lang = lang;
-  document.querySelector(".logo").innerHTML = `🌿 <em>Pollen</em>`;
+  document.querySelector(".logo").innerHTML = `<span class="logo-icon">🌿</span> <em>Pollen</em>`;
   ["de","en","tr"].forEach(l => {
     const btn = document.getElementById("lang-btn-" + l);
     if (!btn) return;
@@ -737,7 +738,7 @@ function setLang(newLang) {
   if (cityInput) cityInput.placeholder = t("city_search_placeholder");
   const tabPollen = document.getElementById("tab-pollen");
   const tabWeather = document.getElementById("tab-weather");
-  if (tabPollen) tabPollen.textContent = "🌿 " + t("tab_pollen");
+  if (tabPollen) tabPollen.innerHTML = `<span class="tab-icon">🌿</span> ` + t("tab_pollen");
   if (tabWeather) tabWeather.textContent = "🌤 " + t("tab_weather");
 }
 
