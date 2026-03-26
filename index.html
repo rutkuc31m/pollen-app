@@ -232,8 +232,8 @@
     .col-hi { font-weight: 600; }
 
     /* ── LEVEL BARS ──────────────────────────────────── */
-    .lv-bars { display: inline-flex; align-items: center; gap: 3px; }
-    .lv-bars .b { border-radius: 2px; background: var(--border); }
+    .lv-bars { display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0; }
+    .lv-bars .b { border-radius: 2px; background: var(--border); flex-shrink: 0; }
     .lv-bars .b.on { background: var(--accent); }
     .lv-bars.sm .b { width: 5px; height: 10px; }
     .lv-bars.md .b { width: 6px; height: 16px; }
