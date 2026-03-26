@@ -481,7 +481,8 @@
     .tips-group { padding: 10px 14px 6px; }
     .tips-group + .tips-group { padding-top: 4px; }
     .tips-group-title { font-size: .67rem; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
-    .tips-group-title .di, .dsec-head .di, .drawer-label-icon, .cross-food .di { filter: grayscale(1) brightness(10); }
+    .tips-group-title .di, .dsec-head .di, .drawer-label-icon, .cross-food .di,
+    div.di, .wd-icon.di { filter: grayscale(1) brightness(10); }
     .tip-row { display: flex; align-items: baseline; gap: 7px; font-size: .82rem; padding: 2px 0; }
     .tip-ok   { color: #0891b2; font-weight: 700; flex-shrink: 0; }
     .tip-no   { color: #b91c1c; font-weight: 700; flex-shrink: 0; }
@@ -1724,7 +1725,7 @@ function _renderInner() {
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:12px 14px 6px;text-align:center">
           ${[[w.code!=null?wmoIcon(w.code):"🌡",t("temp"),`${w.temp}${weather.units.temp}`],["💨",t("wind"),`${d.wind} ${weather.units.wind}`],["💧",t("humidity"),`${w.humidity}%`],["🌧",t("rain"),`${d.rain} ${weather.units.rain}`],["☀️",t("uv"),`<span class="${uvCls}">${uvLabel}</span>`]].map(([ic,lb,val])=>`
           <div style="padding:6px 2px">
-            <div style="font-size:1.05rem">${ic}</div>
+            <div style="font-size:1.05rem" class="di">${ic}</div>
             <div style="font-size:1.12rem;font-weight:700;margin:3px 0 2px">${val}</div>
             <div style="font-size:.57rem;color:var(--text3);letter-spacing:.2px;text-transform:uppercase">${lb}</div>
           </div>`).join("")}
@@ -1738,9 +1739,9 @@ function _renderInner() {
             const uvWCls = uvW === null ? "" : uvW >= 8 ? "uv-hi" : uvW >= 5 ? "uv-mid" : uvW >= 2 ? "uv-low" : "";
             return `<div class="week-day${i===0?" today-wk":""}">
               <div class="wd-name">${i===0?t("today"):dayName}</div>
-              <div class="wd-icon">${wkIcon(wd.rain, wd.wind)}</div>
+              <div class="wd-icon di">${wkIcon(wd.rain, wd.wind)}</div>
               <div class="wd-temp">${wd.tempMax}°</div>
-              <div class="wd-rain">${wd.rain > 2 ? "💧"+wd.rain+weather.units.rain : wd.rain > 0 ? wd.rain+weather.units.rain : "–"}</div>
+              <div class="wd-rain">${wd.rain > 2 ? `<span class="di">💧</span>`+wd.rain+weather.units.rain : wd.rain > 0 ? wd.rain+weather.units.rain : "–"}</div>
               ${uvW !== null ? `<div class="wd-uv ${uvWCls}">UV ${uvW} (${uvCat(uvW)})</div>` : ""}
             </div>`;
           }).join("")}
