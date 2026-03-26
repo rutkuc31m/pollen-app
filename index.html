@@ -32,8 +32,8 @@
       --text:    #09090b;
       --text2:   #71717a;
       --text3:   #737380;
-      --accent:  #16a34a;
-      --accent-subtle: #f0fdf4;
+      --accent:  #0891b2;
+      --accent-subtle: #ecfeff;
       --r:       13px;
       --sh:      0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
     }
@@ -45,8 +45,8 @@
       --text:   #fafafa;
       --text2:  #a1a1aa;
       --text3:  #71717a;
-      --accent: #4ade80;
-      --accent-subtle: #052e16;
+      --accent: #22d3ee;
+      --accent-subtle: #083344;
       --sh:     0 1px 3px rgba(0,0,0,.5);
     }
 
@@ -463,10 +463,10 @@
       padding: 6px 12px; border-radius: 9px;
       font-size: .82rem; font-weight: 500;
     }
-    .time-win.good  { background: #dcfce7; color: #15803d; }
+    .time-win.good  { background: #ecfeff; color: #0e7490; }
     .time-win.warn  { background: #fee2e2; color: #b91c1c; }
     .time-win.none  { background: var(--card2); color: var(--text2); }
-    [data-theme="dark"] .time-win.good { background: #052e16; color: #4ade80; }
+    [data-theme="dark"] .time-win.good { background: #083344; color: #22d3ee; }
     [data-theme="dark"] .time-win.warn { background: #1c0000; color: #f87171; }
     .time-note { font-size: .67rem; color: var(--text3); padding: 2px 14px 12px; }
 
@@ -475,9 +475,9 @@
     .tips-group + .tips-group { padding-top: 4px; }
     .tips-group-title { font-size: .67rem; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
     .tip-row { display: flex; align-items: baseline; gap: 7px; font-size: .82rem; padding: 2px 0; }
-    .tip-ok   { color: #15803d; font-weight: 700; flex-shrink: 0; }
+    .tip-ok   { color: #0e7490; font-weight: 700; flex-shrink: 0; }
     .tip-no   { color: #b91c1c; font-weight: 700; flex-shrink: 0; }
-    [data-theme="dark"] .tip-ok { color: #4ade80; }
+    [data-theme="dark"] .tip-ok { color: #22d3ee; }
     [data-theme="dark"] .tip-no { color: #f87171; }
 
     /* ── NEARBY REGIONS ──────────────────────────────── */
@@ -492,10 +492,10 @@
     .nearby-dist { font-size: .7rem; color: var(--text3); width: 50px; text-align: right; flex-shrink: 0; }
     .escape-box {
       margin: 4px 14px 14px; padding: 10px 13px; border-radius: 9px;
-      background: #dcfce7; color: #15803d; font-size: .82rem; line-height: 1.4;
-      border: 1px solid #bbf7d0;
+      background: #ecfeff; color: #0e7490; font-size: .82rem; line-height: 1.4;
+      border: 1px solid #a5f3fc;
     }
-    [data-theme="dark"] .escape-box { background: #052e16; color: #4ade80; border-color: #166534; }
+    [data-theme="dark"] .escape-box { background: #083344; color: #22d3ee; border-color: #164e63; }
 
     /* ── TOAST ───────────────────────────────────────── */
     #toast {
@@ -2595,7 +2595,7 @@ function renderTrendChart() {
   const n = allDays.length;
 
   // Colors for top pollen types
-  const colors = ["#16a34a","#eab308","#b91c1c","#3b82f6","#a855f7","#f97316","#06b6d4","#ec4899"];
+  const colors = ["#0891b2","#eab308","#b91c1c","#3b82f6","#a855f7","#f97316","#06b6d4","#ec4899"];
 
   // Get top 3 filtered pollen by avg level
   const pollenAvgs = POLLEN.filter(p => filter.includes(p.key)).map(p => {
