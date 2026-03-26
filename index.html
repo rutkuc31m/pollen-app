@@ -1878,7 +1878,6 @@ function _renderInner() {
             return `<tr class="${!on?"dim":"active-row"}">
               <td>
                 <span class="picon">${p.icon}</span><span class="pname">${t(p.key)}</span>
-                <span class="ps ${inSeason?"on":"off"}">${inSeason?"🌱 "+t("s_"+p.key):"💤 "+t("s_"+p.key)}</span>
               </td>
               ${lvls.map((l,i)=>`
                 <td class="${i===activeDay?"col-hi":""}">
