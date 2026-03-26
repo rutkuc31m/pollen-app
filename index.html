@@ -3142,13 +3142,16 @@ async function loadGlobal() {
   const vars = OM_VARS.om;
   const locName = [geoInfo.city, geoInfo.country].filter(Boolean).join(", ");
 
-  // Regionbar: city search + GPS button
+  // Regionbar: current location label + city search + GPS button
   document.getElementById("regionbar-inner").innerHTML =
-    `<div style="flex:1;position:relative">
-       <input id="om-city-input" type="text" placeholder="🔍 ${escapeHtml(locName || t('city_search_placeholder'))}"
-         style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;font-size:.85rem;outline:none;font-family:inherit"
-         oninput="omCitySearch(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
-       <div id="om-city-results" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:200;overflow:hidden;box-shadow:var(--sh)"></div>
+    `<div style="flex:1;display:flex;flex-direction:column;gap:4px">
+       ${locName ? `<span style="font-size:.75rem;color:var(--text3);padding-left:2px">📍 ${escapeHtml(locName)}</span>` : ""}
+       <div style="position:relative">
+         <input id="om-city-input" type="text" placeholder="${escapeHtml(t('city_search_placeholder'))}"
+           style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;font-size:.85rem;outline:none;font-family:inherit"
+           oninput="omCitySearch(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
+         <div id="om-city-results" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:200;overflow:hidden;box-shadow:var(--sh)"></div>
+       </div>
      </div>
      <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}">📍</button>`;
 
@@ -3230,7 +3233,7 @@ function omCitySelect(lat, lon, city, country) {
   const results = document.getElementById("om-city-results");
   if (results) results.style.display = "none";
   const input = document.getElementById("om-city-input");
-  if (input) input.value = [city, country].filter(Boolean).join(", ");
+  if (input) input.value = "";
   geoInfo = { latitude: lat, longitude: lon, city, country, country_code: "", _manual: true };
   weather = null;
   loadGlobal();
