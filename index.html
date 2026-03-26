@@ -387,9 +387,9 @@
     .wd-temp { font-size: .8rem; font-weight: 700; }
     .wd-rain { font-size: .62rem; color: var(--text3); margin-top: 1px; }
     .wd-uv   { font-size: .6rem; color: var(--text3); margin-top: 1px; }
-    .uv-hi   { color: #e0f2fe; }
-    .uv-mid  { color: #bae6fd; }
-    .uv-low  { color: #7cb8d4; }
+    .uv-hi   { color: #3f3f46; }
+    .uv-mid  { color: #7cb8d4; }
+    .uv-low  { color: #bae6fd; }
 
     /* ── CORRELATION ─────────────────────────────────── */
     .corr-wrap { padding: 10px 14px 14px; border-top: 1px solid var(--border); }
@@ -2902,10 +2902,10 @@ function refreshDrawer() {
     </div>
     <div class="dsec-body" id="dlegend-body">
       <div class="legend">
-        <div class="li"><div class="ld" style="background:#71717a"></div>${t("risk0")}</div>
-        <div class="li"><div class="ld" style="background:#bae6fd"></div>${t("lv_low")}</div>
-        <div class="li"><div class="ld" style="background:#c2410c"></div>${t("lv_mid")}</div>
-        <div class="li"><div class="ld" style="background:#b91c1c"></div>${t("lv_high")}</div>
+        <div class="li"><span style="color:var(--text3);font-size:.85rem">–</span> ${t("risk0")}</div>
+        <div class="li">${lvBar(1,"sm")} ${t("lv_low")}</div>
+        <div class="li">${lvBar(2,"sm")} ${t("lv_mid")}</div>
+        <div class="li">${lvBar(3,"sm")} ${t("lv_high")}</div>
       </div>
       <div style="padding:8px 14px 12px;border-top:1px solid var(--border);font-size:.79rem;color:var(--text2);line-height:1.55">
         <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:6px">${t("risk_calc_title")}</div>
@@ -2913,7 +2913,7 @@ function refreshDrawer() {
       </div>
       <div style="padding:10px 14px 14px;border-top:1px solid var(--border)">
         <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:8px">${t("uv_scale")}</div>
-        ${[["0–2",t("uv_low"),"#3f3f46"],["3–5",t("uv_moderate"),"#7cb8d4"],["6–7",t("uv_high"),"#93c5fd"],["8–10",t("uv_very_high"),"#bae6fd"],["11+",t("uv_extreme"),"#e0f2fe"]].map(([range,cat,col])=>`
+        ${[["0–2",t("uv_low"),"#e0f2fe"],["3–5",t("uv_moderate"),"#bae6fd"],["6–7",t("uv_high"),"#7cb8d4"],["8–10",t("uv_very_high"),"#4a7a93"],["11+",t("uv_extreme"),"#1e3a4a"]].map(([range,cat,col])=>`
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:.8rem">
           <div style="width:10px;height:10px;border-radius:50%;background:${col};flex-shrink:0"></div>
           <span style="width:36px;color:var(--text3);flex-shrink:0">${range}</span>
