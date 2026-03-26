@@ -1880,23 +1880,30 @@ function _renderInner() {
         if (pts.length >= 2) {
           const min = Math.min(...pts.map(p=>p.v)), max = Math.max(...pts.map(p=>p.v));
           const range = max - min || 1;
-          const W = 100, H = 40;
-          const px = (i) => (i / (pts.length-1)) * W;
-          const py = (v) => H - ((v - min) / range) * H;
-          const path = pts.map((p,i) => `${i===0?"M":"L"}${px(i).toFixed(1)},${py(p.v).toFixed(1)}`).join(" ");
-          const area = path + ` L${W},${H} L0,${H} Z`;
-          const labels = pts.filter((_,i) => i % 3 === 0).map(p =>
-            `<div style="flex:1;text-align:center;font-size:.6rem;color:var(--text3)">${String(p.h).padStart(2,"0")}h</div>`).join("");
+          const W = 100, H = 36;
+          const px = h => (h / 23) * W;
+          const py = v => H - ((v - min) / range) * (H - 8) - 4;
+          const path = pts.map((p, i) => {
+            if (i === 0) return `M${px(p.h).toFixed(1)},${py(p.v).toFixed(1)}`;
+            const prev = pts[i-1];
+            const cpx = (px(p.h) - px(prev.h)) / 2;
+            return `C${(px(prev.h)+cpx).toFixed(1)},${py(prev.v).toFixed(1)} ${(px(p.h)-cpx).toFixed(1)},${py(p.v).toFixed(1)} ${px(p.h).toFixed(1)},${py(p.v).toFixed(1)}`;
+          }).join(" ");
+          const area = path + ` L${px(pts[pts.length-1].h).toFixed(1)},${H} L${px(pts[0].h).toFixed(1)},${H} Z`;
+          const valLabels = pts.filter(p => p.h % 3 === 0).map(p =>
+            `<text x="${px(p.h).toFixed(1)}" y="${(py(p.v)-2).toFixed(1)}" text-anchor="middle" font-size="5.5" fill="#a1a1aa">${p.v}°</text>`).join("");
+          const axisLabels = [0,3,6,9,12,15,18,21].map(h =>
+            `<text x="${px(h).toFixed(1)}" y="${H+8}" text-anchor="middle" font-size="5" fill="var(--text3)">${String(h).padStart(2,"0")}h</text>`).join("");
           rows.push(`<div class="card">
             <div class="card-head"><span class="card-title">🌡 ${t("temp")}</span></div>
             <div style="padding:10px 16px 6px">
-              <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:44px;overflow:visible">
+              <svg viewBox="-2 -4 ${W+4} ${H+14}" style="width:100%;height:54px">
                 <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#bae6fd" stop-opacity=".25"/><stop offset="100%" stop-color="#bae6fd" stop-opacity="0"/></linearGradient></defs>
                 <path d="${area}" fill="url(#tg)"/>
                 <path d="${path}" fill="none" stroke="#bae6fd" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
-                ${pts.map((p,i)=> i%3===0?`<text x="${px(i).toFixed(1)}" y="${(py(p.v)-3).toFixed(1)}" text-anchor="middle" font-size="5.5" fill="#a1a1aa">${p.v}°</text>`:"").join("")}
+                ${valLabels}
+                ${axisLabels}
               </svg>
-              <div style="display:flex;margin-top:2px">${labels}</div>
             </div>
           </div>`);
         }
