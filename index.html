@@ -387,9 +387,9 @@
     .wd-temp { font-size: .8rem; font-weight: 700; }
     .wd-rain { font-size: .62rem; color: var(--text3); margin-top: 1px; }
     .wd-uv   { font-size: .6rem; color: var(--text3); margin-top: 1px; }
-    .uv-hi   { color: #b91c1c; }
-    .uv-mid  { color: #d97706; }
-    .uv-low  { color: #bae6fd; }
+    .uv-hi   { color: #e0f2fe; }
+    .uv-mid  { color: #bae6fd; }
+    .uv-low  { color: #7cb8d4; }
 
     /* ── CORRELATION ─────────────────────────────────── */
     .corr-wrap { padding: 10px 14px 14px; border-top: 1px solid var(--border); }
@@ -2913,7 +2913,7 @@ function refreshDrawer() {
       </div>
       <div style="padding:10px 14px 14px;border-top:1px solid var(--border)">
         <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:8px">${t("uv_scale")}</div>
-        ${[["0–2",t("uv_low"),"#22c55e"],["3–5",t("uv_moderate"),"#eab308"],["6–7",t("uv_high"),"#f97316"],["8–10",t("uv_very_high"),"#ef4444"],["11+",t("uv_extreme"),"#b91c1c"]].map(([range,cat,col])=>`
+        ${[["0–2",t("uv_low"),"#3f3f46"],["3–5",t("uv_moderate"),"#7cb8d4"],["6–7",t("uv_high"),"#93c5fd"],["8–10",t("uv_very_high"),"#bae6fd"],["11+",t("uv_extreme"),"#e0f2fe"]].map(([range,cat,col])=>`
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:.8rem">
           <div style="width:10px;height:10px;border-radius:50%;background:${col};flex-shrink:0"></div>
           <span style="width:36px;color:var(--text3);flex-shrink:0">${range}</span>
