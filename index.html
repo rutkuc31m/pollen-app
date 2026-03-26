@@ -2732,7 +2732,7 @@ function refreshDrawer() {
       ${symSaved ? "" : `<button class="sym-save" onclick="saveSym()">${t("save")}</button>`}
       <!-- MEDICATION TRACKER -->
       <div style="border-top:1px solid var(--border);padding:8px 14px 4px">
-        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:2px"><span class="di">💊</span> ${t("med_title")}</div>
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:2px">${t("med_title")}</div>
       </div>
       <div id="med-tracker-wrap">${renderMedTracker()}</div>
       ${renderSymHistory()}
