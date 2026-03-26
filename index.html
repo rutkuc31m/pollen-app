@@ -3382,7 +3382,7 @@ async function init() {
       if (json.latitude && json.longitude) {
         geoInfo = { ...json, country_code: json.country_code || "DE" };
       } else {
-        geoInfo = { country_code:"DE", latitude:52.37, longitude:9.73, city:"Hannover", country:"Germany", _ipFallback: true };
+        geoInfo = { country_code:"DE", latitude:52.37, longitude:9.73, city:"", country:"Germany", _ipFallback: true };
       }
     } catch {
       geoInfo = { country_code:"DE", latitude:52.37, longitude:9.73, city:"Hannover", country:"Germany", _ipFallback: true };
