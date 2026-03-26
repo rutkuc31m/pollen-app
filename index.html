@@ -594,7 +594,7 @@
       padding: 8px 14px; display: flex; align-items: center; gap: 8px;
       border-top: 1px solid var(--border);
     }
-    .med-icon { font-size: 1rem; width: 24px; text-align: center; flex-shrink: 0; }
+    .med-icon { font-size: 1rem; width: 24px; text-align: center; flex-shrink: 0; filter: grayscale(1) brightness(10); }
     .med-label { font-size: .82rem; flex: 1; min-width: 0; }
     .med-toggle {
       width: 40px; height: 22px; border-radius: 11px;
@@ -2519,7 +2519,7 @@ function renderMedTracker() {
         const dateStr = new Date(d+"T12:00:00").toLocaleDateString(lang==="de"?"de-DE":"en-GB",{day:"2-digit",month:"2-digit"});
         return `<div class="med-hist-row">
           <span style="width:42px;color:var(--text3);flex-shrink:0">${dateStr}</span>
-          ${taken.length ? taken.map(mt=>`<span class="med-pill">${mt.icon} ${t("med_"+mt.key)}</span>`).join("") : `<span style="color:var(--text3);font-size:.72rem">${t("med_none_today")}</span>`}
+          ${taken.length ? taken.map(mt=>`<span class="med-pill"><span class="di">${mt.icon}</span> ${t("med_"+mt.key)}</span>`).join("") : `<span style="color:var(--text3);font-size:.72rem">${t("med_none_today")}</span>`}
         </div>`;
       }).join("")}
     </div>` : "";
@@ -2565,7 +2565,7 @@ function renderMedEffectiveness() {
         const pct = Math.max(0, Math.round((Math.abs(reduction)/maxReduction)*100));
         const isPositive = reduction > 0;
         return `<div class="med-eff-row">
-          <div class="med-eff-name">${m.icon} ${t("med_"+m.key)}</div>
+          <div class="med-eff-name"><span class="di">${m.icon}</span> ${t("med_"+m.key)}</div>
           <div class="med-eff-bar"><div class="med-eff-fill" style="width:${pct}%;background:${isPositive?"var(--accent)":"#b91c1c"}"></div></div>
           <div class="med-eff-lbl">${isPositive?"-":"+"} ${Math.abs(reduction)}%</div>
         </div>`;
