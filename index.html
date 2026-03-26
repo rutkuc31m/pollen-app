@@ -604,7 +604,7 @@
       color: var(--accent);
     }
     .med-eff-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
-    .med-eff-name { width: 90px; font-size: .78rem; flex-shrink: 0; }
+    .med-eff-name { width: 90px; font-size: .75rem; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .med-eff-bar { flex: 1; background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; }
     .med-eff-fill { height: 100%; border-radius: 4px; background: var(--accent); }
     .med-eff-lbl { font-size: .68rem; color: var(--text3); width: 36px; text-align: right; flex-shrink: 0; }
@@ -894,7 +894,7 @@ const STRINGS = {
     s_cypress:"Jan–Apr", s_plane:"Mär–Mai",
     // medication tracker
     med_title: "Medikamente heute",
-    med_antihistamine: "Antihistaminikum",
+    med_antihistamine: "Antihistamin",
     med_eyedrops: "Augentropfen",
     med_nasal: "Nasenspray",
     med_cortisone: "Cortison",
