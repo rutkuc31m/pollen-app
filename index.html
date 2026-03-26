@@ -1847,7 +1847,7 @@ function _renderInner() {
         </tbody>
       </table>
       <div style="padding:8px 14px 10px;font-size:.72rem;color:var(--text3);text-align:center">
-        💡 ${t("profile_hint")} <a href="#" onclick="event.preventDefault();event.stopPropagation();document.getElementById('profile-body')?.closest('.card')?.scrollIntoView({behavior:'smooth',block:'center'});if(!openSections.has('profile'))toggleSection('profile')" style="color:var(--accent);text-decoration:underline;cursor:pointer">${t("profile_link")}</a>
+        <span class="di">💡</span> ${t("profile_hint")} <a href="#" onclick="event.preventDefault();event.stopPropagation();document.getElementById('profile-body')?.closest('.card')?.scrollIntoView({behavior:'smooth',block:'center'});if(!openSections.has('profile'))toggleSection('profile')" style="color:var(--accent);text-decoration:underline;cursor:pointer">${t("profile_link")}</a>
       </div>
       </div>
     </div>
