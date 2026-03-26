@@ -1847,8 +1847,8 @@ function _renderInner() {
               <span class="pname">${t(p.key)}</span>
             </div>
             <div style="display:flex;align-items:center;gap:12px">
-              <div style="width:50px;display:flex;align-items:center;justify-content:center">${l.sc > 0 ? lvBar(l.sc, "md") : ""}</div>
-              <span style="font-size:.78rem;color:${l.sc>0?"var(--accent)":"var(--text3)"};width:42px;text-align:right">${l.label}</span>
+              ${l.sc > 0 ? lvBar(l.sc, "md") : ""}
+              <span style="font-size:.78rem;color:${l.sc>0?"var(--accent)":"var(--text3)"};min-width:60px;text-align:right;white-space:nowrap">${l.label}</span>
             </div>
           </div>`;
         }).join("")}
