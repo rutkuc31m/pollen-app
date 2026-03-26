@@ -1980,11 +1980,10 @@ function _renderInner() {
       const sevLevels = ["off","low","mid","high"];
       const sevKeys = ["severity_off","severity_low","severity_mid","severity_high"];
       return '<div class="card">'
-        + '<div class="card-head collapsible' + (isOpen ? ' open' : '') + '" onclick="toggleSection(\'profile\')">'
+        + '<div class="card-head">'
         + '<span class="card-title">🧬 ' + t("allergy_profile") + '</span>'
-        + '<span class="collapse-arrow">▼</span>'
         + '</div>'
-        + '<div class="collapsible-body' + (isOpen ? ' open' : '') + '" id="profile-body">'
+        + '<div id="profile-body">'
         + '<div style="padding:8px 14px 4px;font-size:.75rem;color:var(--text2);margin-bottom:6px">' + t("profile_onboarding") + '</div>'
         + '<div style="padding:0 14px 12px">'
         + POLLEN.map(function(p) {
@@ -2041,11 +2040,10 @@ function _renderInner() {
 
     <!-- POLLEN TREND CHART -->
     <div class="card">
-      <div class="card-head collapsible" onclick="toggleSection('trend')">
+      <div class="card-head">
         <span class="card-title">📈 ${t("trend_title")}</span>
-        <span class="collapse-arrow">▼</span>
       </div>
-      <div class="collapsible-body" id="trend-body">
+      <div id="trend-body">
         ${renderTrendChart()}
       </div>
     </div>`}
