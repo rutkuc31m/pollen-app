@@ -820,6 +820,7 @@ const STRINGS = {
     datasource_auto: "Mein Standort",
     ds_de: "🇩🇪 DWD (nur Deutschland)",
     ds_om: "🌍 Open-Meteo (Welt)",
+    city_search_placeholder: "Stadt suchen…",
     rain_prob_title: "Regenwahrscheinlichkeit",
     pollen_unavailable: "Pollendaten für diesen Standort nicht verfügbar. Wetterdaten werden angezeigt.",
     pollen_unavailable_short: "Keine Pollendaten verfügbar",
@@ -998,6 +999,7 @@ const STRINGS = {
     datasource_auto: "My location",
     ds_de: "🇩🇪 DWD (Germany only)",
     ds_om: "🌍 Open-Meteo (World)",
+    city_search_placeholder: "Search city…",
     rain_prob_title: "Rain probability",
     pollen_unavailable: "Pollen data not available for this location. Showing weather data only.",
     pollen_unavailable_short: "No pollen data available",
@@ -1164,6 +1166,7 @@ const STRINGS = {
     datasource_auto:"Konumum",
     ds_de:"🇩🇪 DWD (sadece Almanya)",
     ds_om:"🌍 Open-Meteo (Dünya)",
+    city_search_placeholder:"Şehir ara…",
     rain_prob_title:"Yağış olasılığı",
     pollen_unavailable:"Bu konum için polen verisi mevcut değil. Sadece hava durumu gösteriliyor.",
     pollen_unavailable_short:"Polen verisi mevcut değil",
@@ -3139,10 +3142,15 @@ async function loadGlobal() {
   const vars = OM_VARS.om;
   const locName = [geoInfo.city, geoInfo.country].filter(Boolean).join(", ");
 
-  // Regionbar: location name + relocate button
+  // Regionbar: city search + GPS button
   document.getElementById("regionbar-inner").innerHTML =
-    `<span style="font-size:.84rem;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📍 ${escapeHtml(locName)}</span>
-     <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}">🔄</button>`;
+    `<div style="flex:1;position:relative">
+       <input id="om-city-input" type="text" placeholder="🔍 ${escapeHtml(locName || t('city_search_placeholder'))}"
+         style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;font-size:.85rem;outline:none;font-family:inherit"
+         oninput="omCitySearch(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
+       <div id="om-city-results" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:200;overflow:hidden;box-shadow:var(--sh)"></div>
+     </div>
+     <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}">📍</button>`;
 
   const url = `https://air-quality-api.open-meteo.com/v1/air-quality`
     + `?latitude=${lat}&longitude=${lon}`
@@ -3194,12 +3202,61 @@ async function loadGlobal() {
   loadWeather();
 }
 
-async function relocate() {
-  geoInfo = null;
+let _omCityTimer = null;
+async function omCitySearch(query) {
+  const results = document.getElementById("om-city-results");
+  if (!results) return;
+  clearTimeout(_omCityTimer);
+  if (query.length < 2) { results.style.display = "none"; return; }
+  _omCityTimer = setTimeout(async () => {
+    try {
+      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=${lang}&format=json`);
+      const data = await res.json();
+      if (!data.results?.length) { results.style.display = "none"; return; }
+      results.innerHTML = data.results.map(r => {
+        const label = [r.name, r.admin1, r.country].filter(Boolean).join(", ");
+        return `<div onclick="omCitySelect(${r.latitude},${r.longitude},'${escapeHtml(r.name)}','${escapeHtml(r.country||"")}')"
+          style="padding:8px 12px;font-size:.84rem;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text)"
+          onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">
+          📍 ${escapeHtml(label)}
+        </div>`;
+      }).join("");
+      results.style.display = "block";
+    } catch { results.style.display = "none"; }
+  }, 350);
+}
+
+function omCitySelect(lat, lon, city, country) {
+  const results = document.getElementById("om-city-results");
+  if (results) results.style.display = "none";
+  const input = document.getElementById("om-city-input");
+  if (input) input.value = [city, country].filter(Boolean).join(", ");
+  geoInfo = { latitude: lat, longitude: lon, city, country, country_code: "", _manual: true };
   weather = null;
-  document.getElementById("page").innerHTML =
-    `<div class="center"><div class="spin"></div><span>${t("locating")}</span></div>`;
-  init();
+  loadGlobal();
+}
+
+async function relocate() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(pos => {
+      geoInfo = { latitude: pos.coords.latitude, longitude: pos.coords.longitude, city: "", country: "", country_code: "", _gps: true };
+      weather = null;
+      document.getElementById("page").innerHTML =
+        `<div class="center"><div class="spin"></div><span>${t("locating")}</span></div>`;
+      loadGlobal();
+    }, () => {
+      // GPS denied — just reload via IP
+      geoInfo = null; weather = null;
+      document.getElementById("page").innerHTML =
+        `<div class="center"><div class="spin"></div><span>${t("locating")}</span></div>`;
+      init();
+    });
+  } else {
+    geoInfo = null; weather = null;
+    document.getElementById("page").innerHTML =
+      `<div class="center"><div class="spin"></div><span>${t("locating")}</span></div>`;
+    init();
+  }
 }
 
 let _initRunning = false;
@@ -3227,17 +3284,20 @@ async function init() {
       setTimeout(() => ctrl.abort(), 5000);
       const res = await fetch("https://ipwho.is/", { signal: ctrl.signal });
       const json = await res.json();
-      // success:false means unrecognised IP (VPN/datacenter) — still use coords if present
-      geoInfo = (json.success !== false && json.country_code)
-        ? json
-        : { ...json, country_code: json.country_code || "DE" };
+      // Validate: need at least lat/lon to be usable
+      if (json.latitude && json.longitude) {
+        geoInfo = { ...json, country_code: json.country_code || "DE" };
+      } else {
+        geoInfo = { country_code:"DE", latitude:52.37, longitude:9.73, city:"Hannover", country:"Germany", _ipFallback: true };
+      }
     } catch {
-      geoInfo = { country_code:"DE", latitude:52.37, longitude:9.73, city:"", country:"Germany" };
+      geoInfo = { country_code:"DE", latitude:52.37, longitude:9.73, city:"Hannover", country:"Germany", _ipFallback: true };
     }
   }
 
   const autoCC = (geoInfo.country_code || "DE").toUpperCase();
-  const resolvedMode = manualMode ?? (autoCC === "DE" ? "de" : "om");
+  // If IP-geo failed (no real location data) and no manual mode → default to DWD
+  const resolvedMode = manualMode ?? (geoInfo._ipFallback ? "de" : autoCC === "DE" ? "de" : "om");
 
   if (resolvedMode === "de") {
     appMode = "de";
