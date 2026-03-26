@@ -1610,7 +1610,7 @@ function _renderInner() {
       <div class="hero-badge risk-none" style="font-size:1.6rem;font-weight:800">?</div>
       <div class="hero-body">
         <div class="hero-risk risk-none" style="font-size:1rem">${t("pollen_unavailable_short")}</div>
-        <div class="hero-loc">${escapeHtml(reg.region_name)} · ${DAY_NAMES()[activeDay]}</div>
+        <div class="hero-loc">${escapeHtml(geoInfo?.city || reg.region_name)} · ${DAY_NAMES()[activeDay]}</div>
       </div>
     </div>` : (() => {
       const todayScore    = personalRisk(pol, 0).max;
@@ -1646,7 +1646,7 @@ function _renderInner() {
           ${risk.label}${trend ? ` <span style="font-size:1rem;opacity:.8">${trend}</span>` : ""}
         </div>
         ${trendLabel ? `<div style="font-size:.76rem;color:var(--text2);margin-top:1px">${t("tendency")}: ${trendLabel}</div>` : ""}
-        <div class="hero-loc">${escapeHtml(reg.region_name)}${reg.partregion_name?` · ${escapeHtml(reg.partregion_name)}`:""} · ${DAY_NAMES()[activeDay]}</div>
+        <div class="hero-loc">${escapeHtml(geoInfo?.city || reg.partregion_name || reg.region_name)} · ${DAY_NAMES()[activeDay]}</div>
         ${summaryHtml}
         ${risk.drivers.length ? `
           <div class="hero-drivers">
@@ -2241,22 +2241,39 @@ function calcPollenEffect(dayIdx) {
 function geoLocate() {
   if (!navigator.geolocation) { showToast(t("geo_unsupported")); return; }
   const btn = document.getElementById("geo-btn");
-  btn.disabled = true; btn.textContent = "⏳";
-  navigator.geolocation.getCurrentPosition(pos => {
+  btn.disabled = true; btn.innerHTML = "⏳";
+  navigator.geolocation.getCurrentPosition(async pos => {
     const { latitude: lat, longitude: lon } = pos.coords;
-    let best = null, bestDist = Infinity;
-    for (const [key, c] of Object.entries(REGION_COORDS)) {
-      const d = Math.hypot(c.lat - lat, c.lon - lon);
-      if (d < bestDist) { bestDist = d; best = key; }
-    }
-    if (best) {
-      rKey = best;
-      localStorage.setItem(LS.region, rKey);
-      const sel = document.getElementById("region-sel");
-      if (sel) sel.value = rKey;
-      weather = null;
-      render();
-      loadWeather();
+    // Detect if coordinates are within Germany bounds
+    const inDE = lat >= 47.3 && lat <= 55.1 && lon >= 5.9 && lon <= 15.1;
+    // Try to get city name via reverse geocoding
+    let cityName = "";
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=${lang}`, { headers: {"Accept-Language": lang} });
+      const j = await r.json();
+      cityName = j.address?.city || j.address?.town || j.address?.village || j.address?.county || "";
+    } catch {}
+
+    if (inDE) {
+      // Switch to DWD mode, find nearest region
+      geoInfo = { latitude: lat, longitude: lon, city: cityName, country: "Germany", country_code: "DE", _gps: true };
+      if (appMode !== "de") { localStorage.setItem(LS.mode, "de"); location.reload(); return; }
+      let best = null, bestDist = Infinity;
+      for (const [key, c] of Object.entries(REGION_COORDS)) {
+        const d = Math.hypot(c.lat - lat, c.lon - lon);
+        if (d < bestDist) { bestDist = d; best = key; }
+      }
+      if (best) {
+        rKey = best; localStorage.setItem(LS.region, rKey);
+        const sel = document.getElementById("region-sel");
+        if (sel) sel.value = rKey;
+      }
+      weather = null; render(); loadWeather();
+    } else {
+      // Switch to OM mode with GPS coords
+      geoInfo = { latitude: lat, longitude: lon, city: cityName, country: "", country_code: "", _gps: true };
+      if (appMode !== "om") { localStorage.setItem(LS.mode, "om"); location.reload(); return; }
+      weather = null; loadGlobal();
     }
     btn.disabled = false; btn.innerHTML = '<span class="di">📍</span>';
   }, () => {
