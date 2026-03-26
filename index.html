@@ -2687,7 +2687,10 @@ function renderCrossAllergyAlerts(pol, dayIdx) {
       <span class="cross-alert-title">⚠ ${t("cross_title")}</span>
       <span class="cross-alert-desc">${t(cross.trigger).replace("{lv}", lvlWord(sc))}</span>
       <div class="cross-foods">
-        ${cross.foods().map(f => `<span class="cross-food">${f}</span>`).join("")}
+        ${cross.foods().map(f => {
+            const m = f.match(/^(\S+)\s+(.+)$/);
+            return m ? `<span class="cross-food"><span class="di">${m[1]}</span> ${m[2]}</span>` : `<span class="cross-food">${f}</span>`;
+          }).join("")}
       </div>
     </div>`).join("");
 }
