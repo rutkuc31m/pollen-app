@@ -164,7 +164,8 @@
       display: inline-flex; align-items: center; gap: 4px;
       padding: 3px 10px; border-radius: 20px;
       font-size: .78rem; font-weight: 500;
-      background: transparent !important;
+      background: color-mix(in srgb, var(--accent) 12%, var(--card)) !important;
+      color: var(--accent) !important;
     }
 
     /* colour tokens per level */
@@ -226,9 +227,29 @@
     }
     .b-none { color: var(--text3); }
     .b-low  { color:#bae6fd; }
-    .b-mid  { color:#fb923c; }
-    .b-high { color:#f87171; }
+    .b-mid  { color:#bae6fd; }
+    .b-high { color:#bae6fd; }
     .col-hi { font-weight: 600; }
+
+    /* ── LEVEL BARS ──────────────────────────────────── */
+    .lv-bars { display: inline-flex; align-items: flex-end; gap: 2px; }
+    .lv-bars .b { border-radius: 1px; background: var(--border); }
+    .lv-bars .b.on { background: var(--accent); }
+    .lv-bars.sm .b { width: 3px; }
+    .lv-bars.sm .b:nth-child(1) { height: 5px; }
+    .lv-bars.sm .b:nth-child(2) { height: 8px; }
+    .lv-bars.sm .b:nth-child(3) { height: 11px; }
+    .lv-bars.sm .b:nth-child(4) { height: 15px; }
+    .lv-bars.md .b { width: 4px; }
+    .lv-bars.md .b:nth-child(1) { height: 8px; }
+    .lv-bars.md .b:nth-child(2) { height: 13px; }
+    .lv-bars.md .b:nth-child(3) { height: 18px; }
+    .lv-bars.md .b:nth-child(4) { height: 24px; }
+    .lv-bars.lg .b { width: 7px; }
+    .lv-bars.lg .b:nth-child(1) { height: 12px; }
+    .lv-bars.lg .b:nth-child(2) { height: 20px; }
+    .lv-bars.lg .b:nth-child(3) { height: 28px; }
+    .lv-bars.lg .b:nth-child(4) { height: 38px; }
 
     /* ── WEEKLY HISTORY HEATMAP ──────────────────────── */
     .week-heatmap { padding: 10px 14px 14px; overflow-x: auto; }
@@ -1435,6 +1456,9 @@ function dStr(n) {
   return d.toLocaleDateString(loc,{weekday:"short",day:"2-digit",month:"2-digit"});
 }
 function lv(v)  { return LV[String(v)] ?? {cls:"b-none",sc:0,label:String(v),rc:"none"}; }
+function lvBar(sc, size="sm") {
+  return `<span class="lv-bars ${size}">${[1,2,3,4].map(i=>`<span class="b${i<=sc?" on":""}"></span>`).join("")}</span>`;
+}
 function rk(r)  { return `${r.region_id}-${r.partregion_id}`; }
 function region(){ return db.regions.find(r=>rk(r)===rKey) ?? db.regions[0]; }
 
@@ -1588,17 +1612,17 @@ function _renderInner() {
         } else if (allergenName) {
           const prefix = risk.max >= 3 ? t("hero_bad_day") : risk.max === 2 ? t("hero_ok_day") : t("hero_good_day");
           summaryHtml = lang === "tr"
-            ? `<div class="hero-summary ${risk.cls}">${allergenName}${t("hero_allergen_suffix")} ${prefix}</div>`
-            : `<div class="hero-summary ${risk.cls}">${prefix} ${allergenName}${t("hero_allergen_suffix")}</div>`;
+            ? `<div class="hero-summary">${allergenName}${t("hero_allergen_suffix")} ${prefix}</div>`
+            : `<div class="hero-summary">${prefix} ${allergenName}${t("hero_allergen_suffix")}</div>`;
         }
       }
       return `
     <div class="hero day-transition" onclick="openSection('pollen')" style="cursor:pointer" title="${t("all_pollen")}">
-      <div class="hero-badge ${risk.cls}" style="font-size:1.6rem;font-weight:800">
-        ${["✓","!","!!","‼"][risk.max]}
+      <div class="hero-badge" style="display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px">
+        ${lvBar(risk.max, "lg")}
       </div>
       <div class="hero-body">
-        <div class="hero-risk ${risk.cls}" style="font-size:1.42rem">
+        <div class="hero-risk" style="font-size:1.42rem;color:var(--accent)">
           ${risk.label}${trend ? ` <span style="font-size:1rem;opacity:.8">${trend}</span>` : ""}
         </div>
         ${trendLabel ? `<div style="font-size:.76rem;color:var(--text2);margin-top:1px">${t("tendency")}: ${trendLabel}</div>` : ""}
@@ -1609,8 +1633,8 @@ function _renderInner() {
             ${risk.drivers.map(p=>`<span class="driver-pill ${p.pillCls}"><span class="picon">${p.icon}</span> ${t(p.key)}</span>`).join("")}
           </div>` : `<div style="font-size:.8rem;color:var(--text2);margin-top:5px">${t("no_load")}</div>`}
         <div style="margin-top:8px">
-          <div style="font-size:.7rem;color:var(--text2)">${t("exposure_title")}: <strong style="color:var(--rc)">${expScore}</strong> <span style="opacity:.55">${t("of")} 100</span></div>
-          <div class="exp-bar"><div class="exp-bar-fill ${risk.cls}" style="width:${expScore}%"></div></div>
+          <div style="font-size:.7rem;color:var(--text2)">${t("exposure_title")}: <strong style="color:var(--accent)">${expScore}</strong> <span style="opacity:.55">${t("of")} 100</span></div>
+          <div class="exp-bar"><div class="exp-bar-fill" style="width:${expScore}%;background:var(--accent)"></div></div>
         </div>
       </div>
     </div>`;
@@ -1720,7 +1744,7 @@ function _renderInner() {
           <div class="dc-label" style="${isToday?"font-weight:700":""}">${n}</div>
           <div class="dc-date">${dStr(i)}</div>
           ${activeTab === "pollen" && db.pollen_available !== false ? `
-          <div class="dc-ring ${cl}" style="font-size:.85rem;font-weight:700">${["✓","!","!!","‼"][sc]}</div>
+          <div class="dc-ring" style="display:flex;align-items:flex-end;justify-content:center">${lvBar(sc, "md")}</div>
           <div class="dc-sub" style="font-size:.7rem">${ri.label}</div>` : ""}
           ${activeTab === "weather" && wd ? `
           <div style="font-size:1.1rem;margin-top:4px">${wmoIcon(wd.weatherCode ?? 0)}</div>
@@ -1840,7 +1864,7 @@ function _renderInner() {
               </td>
               ${lvls.map((l,i)=>`
                 <td class="${i===activeDay?"col-hi":""}">
-                  <span class="badge ${l.cls}">${l.label}</span>
+                  ${lvBar(l.sc)}
                 </td>`).join("")}
             </tr>`;
           }).join("")}
@@ -2830,7 +2854,7 @@ function refreshDrawer() {
             ${others.map(o=>`
               <div class="nearby-row">
                 <span class="nearby-name">${escapeHtml(o.r.partregion_name||o.r.region_name)}</span>
-                <span class="badge ${bCls[o.sc]}">${RISK[o.sc].label}</span>
+                ${lvBar(o.sc)}
                 <span class="nearby-dist">${o.dist} ${t("km_away")}</span>
               </div>`).join("")}
           </div>
