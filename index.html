@@ -3100,6 +3100,13 @@ async function loadDE() {
     }
   }
 
+  // Ensure rKey is a valid DE region key, else fallback to Hannover
+  const validDEKeys = db.regions.map(r => rk(r));
+  if (!validDEKeys.includes(rKey)) {
+    rKey = validDEKeys.includes("30-32") ? "30-32" : validDEKeys[0];
+    localStorage.setItem(LS.region, rKey);
+  }
+
   // Restore DE regionbar (dropdown + geo button)
   document.getElementById("regionbar-inner").innerHTML =
     `<select id="region-sel"></select><button class="geo-btn" id="geo-btn" onclick="geoLocate()" title="${t("geo_title")}">📍</button>`;
