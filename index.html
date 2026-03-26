@@ -755,7 +755,7 @@ const STRINGS = {
     weather_title:"Wetter", week_title:"7-Tage-Vorschau",
     temp:"Temp", wind:"Wind", humidity:"Feuchte", rain:"Regen", uv:"UV max",
     feels_like:"Gefühlt", wind_dir:"Windrichtung",
-    sunrise:"Sonnenaufgang", sunset:"Sonnenuntergang",
+    sunrise:"Aufgang", sunset:"Untergang",
     moon_title:"Mondphase",
     moon_new:"Neumond", moon_waxing_crescent:"Zunehmend", moon_first_quarter:"Erstes Viertel",
     moon_waxing_gibbous:"Zunehmend gibbös", moon_full:"Vollmond",
@@ -1806,8 +1806,8 @@ function _renderInner() {
       `;
     })() : ""}
 
-    <!-- 3-DAY STRIP -->
-    <div class="days-strip" style="grid-template-columns:repeat(${DAYS.length},1fr)">
+    <!-- 3-DAY STRIP (nur Pollen-Tab) -->
+    <div class="days-strip" style="grid-template-columns:repeat(${DAYS.length},1fr);${activeTab==="weather"?"display:none":""}">
       ${DAY_NAMES().map((n,i)=>{
         const sc = dayScores[i];
         const cl = ["risk-none","risk-low","risk-mid","risk-high"][sc];
@@ -1834,9 +1834,9 @@ function _renderInner() {
         </div>`;
       }).join("")}
     </div>
-    <div class="swipe-dots">
+    ${activeTab!=="weather"?`<div class="swipe-dots">
       ${DAYS.map((_,i)=>`<div class="swipe-dot${i===activeDay?" active":""}"></div>`).join("")}
-    </div>
+    </div>`:""}
 
     ${activeTab === "weather" ? (() => {
       if (!weather?.hourlyRainProb || !weather?.hourlyTime) return "";
