@@ -1754,9 +1754,10 @@ function _renderInner() {
         </div>`;
       }).join("");
       const isOpen = openSections.has("rainprob");
-      return `<div style="background:var(--card);border-radius:var(--r);margin-bottom:10px;border:1px solid var(--border);overflow:hidden">
-        <div class="card-head collapsible${isOpen?" open":""}" onclick="toggleSection('rainprob')" style="padding:10px 14px;font-size:.75rem;font-weight:600;color:var(--text2)">
-          🌧 ${t("rain_prob_title")} <span class="collapse-arrow">▾</span>
+      return `<div class="card">
+        <div class="card-head collapsible${isOpen?" open":""}" onclick="toggleSection('rainprob')">
+          <span class="card-title">🌧 ${t("rain_prob_title")}</span>
+          <span class="collapse-arrow">▼</span>
         </div>
         <div id="rainprob-body" class="collapsible-body${isOpen?" open":""}">
           <div style="padding:0 14px 10px;display:flex;flex-direction:column;gap:5px">${bars}</div>
