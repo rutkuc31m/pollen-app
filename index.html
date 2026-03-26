@@ -324,7 +324,7 @@
       padding: 10px 14px; display: flex; align-items: center; gap: 10px;
       border-top: 1px solid var(--border);
     }
-    .sym-icon  { font-size: 1.1rem; width: 24px; text-align: center; flex-shrink: 0; }
+    .sym-icon  { font-size: 1.1rem; width: 24px; text-align: center; flex-shrink: 0; filter: grayscale(1) brightness(10); }
     .sym-label { font-size: .84rem; width: 70px; flex-shrink: 0; }
     .sym-scale { display: flex; gap: 4px; flex: 1; }
     .sym-btn {
@@ -476,6 +476,7 @@
     .tips-group { padding: 10px 14px 6px; }
     .tips-group + .tips-group { padding-top: 4px; }
     .tips-group-title { font-size: .67rem; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+    .tips-group-title .di, .dsec-head .di, .drawer-label-icon { filter: grayscale(1) brightness(10); }
     .tip-row { display: flex; align-items: baseline; gap: 7px; font-size: .82rem; padding: 2px 0; }
     .tip-ok   { color: #0e7490; font-weight: 700; flex-shrink: 0; }
     .tip-no   { color: #b91c1c; font-weight: 700; flex-shrink: 0; }
@@ -2394,7 +2395,7 @@ function renderForecastAccuracy() {
   const pct = Math.round((matched / total) * 100);
   return `
     <div class="accuracy-box">
-      <span>📊 ${t("accuracy_title")}:</span>
+      <span><span class="di">📊</span> ${t("accuracy_title")}:</span>
       <span class="accuracy-val">${pct}%</span>
       <span style="font-size:.7rem;color:var(--text3)">(${allDays.length} ${t("accuracy_days")})</span>
     </div>`;
@@ -2731,7 +2732,7 @@ function refreshDrawer() {
       ${symSaved ? "" : `<button class="sym-save" onclick="saveSym()">${t("save")}</button>`}
       <!-- MEDICATION TRACKER -->
       <div style="border-top:1px solid var(--border);padding:8px 14px 4px">
-        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:2px">💊 ${t("med_title")}</div>
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:2px"><span class="di">💊</span> ${t("med_title")}</div>
       </div>
       <div id="med-tracker-wrap">${renderMedTracker()}</div>
       ${renderSymHistory()}
@@ -2756,7 +2757,7 @@ function refreshDrawer() {
         const avgHigh = avg(highDays);
         const predicted = Math.round(Math.min(20, avgHigh * ([0,0.4,0.7,1][tomorrowRisk])) * 10)/10;
         return `<div style="padding:8px 14px 10px;border-top:1px solid var(--border);font-size:.79rem;color:var(--text2)">
-          🔮 ${t("pred_tomorrow")}: <strong style="color:var(--accent)">${predicted}/20</strong>
+          <span class="di">🔮</span> ${t("pred_tomorrow")}: <strong style="color:var(--accent)">${predicted}/20</strong>
           <span style="opacity:.6;font-size:.7rem"> (${t("based_on_history")})</span>
         </div>`;
       })()}
@@ -2764,7 +2765,7 @@ function refreshDrawer() {
 
     <!-- BEST TIME OUTSIDE -->
     <div class="dsec-head" ${db?.pollen_available === false ? 'style="display:none"' : ''} onclick="toggleDrawerSec('dbesttime')" id="dbesttime-head">
-      <span>🕐 ${t("besttime_title")}</span>
+      <span><span class="di">🕐</span> ${t("besttime_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
     <div class="dsec-body open" id="dbesttime-body" ${db?.pollen_available === false ? 'style="display:none"' : ''}>
@@ -2807,7 +2808,7 @@ function refreshDrawer() {
         if (wind > 15 || risk >= 2) indoor.push(row(false, t("tip_no_laundry")));
         else                        indoor.push(row(true,  t("tip_laundry_ok")));
         const sec = (icon, title, rows) => !rows.length ? "" :
-          `<div class="tips-group"><div class="tips-group-title">${icon} ${title}</div>${rows.join("")}</div>`;
+          `<div class="tips-group"><div class="tips-group-title"><span class="di">${icon}</span> ${title}</div>${rows.join("")}</div>`;
         return sec("💊",t("tips_med"),med) + sec("🌿",t("tips_outdoor"),outdoor) + sec("🏠",t("tips_indoor"),indoor)
           + `<div style="height:6px"></div>`;
       })() : ""}
@@ -2871,7 +2872,7 @@ function refreshDrawer() {
     <!-- SEASON OVERVIEW (DE only, lazy-rendered on open) -->
     ${appMode === "de" ? `
     <div class="dsec-head" onclick="toggleDrawerSec('ds2025')" id="ds2025-head">
-      <span>📊 ${t("season_overview_title")}</span>
+      <span><span class="di">📊</span> ${t("season_overview_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
     <div class="dsec-body" id="ds2025-body" data-lazy-season="1">
@@ -2880,7 +2881,7 @@ function refreshDrawer() {
 
     <!-- DATA EXPORT/IMPORT -->
     <div class="dsec-head" onclick="toggleDrawerSec('ddata')" id="ddata-head">
-      <span>📦 ${t("data_title")}</span>
+      <span><span class="di">📦</span> ${t("data_title")}</span>
       <span class="dsec-arrow">▼</span>
     </div>
     <div class="dsec-body" id="ddata-body">
