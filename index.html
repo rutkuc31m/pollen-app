@@ -752,10 +752,10 @@ const STRINGS = {
     check_conn:"Bitte Verbindung prüfen.",
     dwd_stand:"Stand", next_update:"Nächstes Update",
     region:"Region", geo_title:"Nächste Region automatisch wählen",
-    weather_title:"Wetter",
+    weather_title:"Wetter", week_title:"7-Tage-Vorschau",
     temp:"Temp", wind:"Wind", humidity:"Feuchte", rain:"Regen", uv:"UV max",
     feels_like:"Gefühlt", wind_dir:"Windrichtung",
-    sunrise:"Sonnenaufgang", sunset:"Sonnenuntergang",
+    sunrise:"Aufgang", sunset:"Untergang",
     moon_title:"Mondphase",
     moon_new:"Neumond", moon_waxing_crescent:"Zunehmend", moon_first_quarter:"Erstes Viertel",
     moon_waxing_gibbous:"Zunehmend gibbös", moon_full:"Vollmond",
@@ -941,7 +941,7 @@ const STRINGS = {
     check_conn:"Please check your connection.",
     dwd_stand:"Updated", next_update:"Next update",
     region:"Region", geo_title:"Auto-detect nearest region",
-    weather_title:"Weather",
+    weather_title:"Weather", week_title:"7-Day Forecast",
     temp:"Temp", wind:"Wind", humidity:"Humidity", rain:"Rain", uv:"UV max",
     feels_like:"Feels like", wind_dir:"Wind direction",
     sunrise:"Sunrise", sunset:"Sunset",
@@ -1123,7 +1123,7 @@ const STRINGS = {
     check_conn:"Lütfen bağlantınızı kontrol edin.",
     dwd_stand:"Güncellendi", next_update:"Sonraki güncelleme",
     region:"Bölge", geo_title:"En yakın bölgeyi otomatik seç",
-    weather_title:"Hava Durumu",
+    weather_title:"Hava Durumu", week_title:"7 Günlük Tahmin",
     temp:"Sıcaklık", wind:"Rüzgar", humidity:"Nem", rain:"Yağış", uv:"UV maks",
     feels_like:"Hissedilen", wind_dir:"Rüzgar yönü",
     sunrise:"Gün doğumu", sunset:"Gün batımı",
@@ -1772,27 +1772,42 @@ function _renderInner() {
             <div style="font-size:.55rem;color:var(--text3);letter-spacing:.2px;text-transform:uppercase">${lb}</div>
           </div>`).join(""); })()}
         </div>
-        ${weather.daily.length > 3 ? `
-        <div class="week-strip">
-          ${weather.daily.map((wd, i) => {
+        <div style="border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:10px 14px 10px;text-align:center">
+          ${weather.daily.slice(0,3).map((wd, i) => {
             const dt = new Date(); dt.setDate(dt.getDate() + i);
             const dayName = wkNames[dt.getDay() === 0 ? 6 : dt.getDay() - 1];
-            const uvW = wd.uv ?? null;
-            const uvWCls = uvW === null ? "" : uvW >= 8 ? "uv-hi" : uvW >= 5 ? "uv-mid" : uvW >= 2 ? "uv-low" : "";
-            return `<div class="week-day${i===0?" today-wk":""}">
-              <div class="wd-name">${i===0?t("today"):dayName}</div>
-              <div class="wd-icon di">${wkIcon(wd.rain, wd.wind)}</div>
-              <div class="wd-temp">${wd.tempMax}°</div>
-              <div class="wd-rain">${wd.rain > 2 ? `<span class="di">💧</span>`+wd.rain+weather.units.rain : wd.rain > 0 ? wd.rain+weather.units.rain : "–"}</div>
-              ${uvW !== null ? `<div class="wd-uv ${uvWCls}">UV ${uvW} (${uvCat(uvW)})</div>` : ""}
+            const label = i===0 ? t("today") : i===1 ? t("tomorrow") : dayName;
+            return `<div style="padding:4px 2px">
+              <div style="font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">${label}</div>
+              <div style="font-size:1.2rem" class="di">${wmoIcon(wd.weatherCode ?? 0)}</div>
+              <div style="font-size:.9rem;font-weight:700;margin:3px 0 2px">${wd.tempMax}${weather.units.temp}</div>
+              ${wd.rainProb !== null ? `<div style="font-size:.65rem;color:var(--text3)">${wd.rainProb}%</div>` : ""}
             </div>`;
           }).join("")}
-        </div>` : ""}
-      </div>`;
+        </div>
+      </div>
+      ${weather.daily.length > 3 ? `
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-head"><span class="card-title">${t("week_title")||"7 Tage"}</span></div>
+        ${weather.daily.map((wd, i) => {
+          const dt = new Date(); dt.setDate(dt.getDate() + i);
+          const dayName = i===0 ? t("today") : wkNames[dt.getDay() === 0 ? 6 : dt.getDay() - 1];
+          const uvW = wd.uv ?? null;
+          const uvWCls = uvW === null ? "" : uvW >= 8 ? "uv-hi" : uvW >= 5 ? "uv-mid" : uvW >= 2 ? "uv-low" : "";
+          return `<div style="display:grid;grid-template-columns:3rem 1.8rem 1fr auto auto;align-items:center;gap:8px;padding:8px 14px;${i>0?"border-top:1px solid var(--border)":""}">
+            <div style="font-size:.78rem;font-weight:${i===0?"700":"400"};color:${i===0?"var(--text)":"var(--text2)"}">${dayName}</div>
+            <div style="font-size:1rem;text-align:center" class="di">${wmoIcon(wd.weatherCode ?? 0)}</div>
+            <div style="font-size:.75rem;color:var(--text3)">${wd.rain > 0 ? wd.rain+weather.units.rain : "–"}</div>
+            <div style="font-size:.82rem;font-weight:600">${wd.tempMax}°</div>
+            ${uvW !== null ? `<div style="font-size:.65rem;text-align:right" class="${uvWCls}">UV ${uvW}</div>` : "<div></div>"}
+          </div>`;
+        }).join("")}
+      </div>` : ""}
+      `;
     })() : ""}
 
-    <!-- 3-DAY STRIP -->
-    <div class="days-strip" style="grid-template-columns:repeat(${DAYS.length},1fr)">
+    <!-- 3-DAY STRIP (nur Pollen-Tab) -->
+    <div class="days-strip" style="grid-template-columns:repeat(${DAYS.length},1fr);${activeTab==="weather"?"display:none":""}">
       ${DAY_NAMES().map((n,i)=>{
         const sc = dayScores[i];
         const cl = ["risk-none","risk-low","risk-mid","risk-high"][sc];
@@ -1819,9 +1834,9 @@ function _renderInner() {
         </div>`;
       }).join("")}
     </div>
-    <div class="swipe-dots">
+    ${activeTab!=="weather"?`<div class="swipe-dots">
       ${DAYS.map((_,i)=>`<div class="swipe-dot${i===activeDay?" active":""}"></div>`).join("")}
-    </div>
+    </div>`:""}
 
     ${activeTab === "weather" ? (() => {
       if (!weather?.hourlyRainProb || !weather?.hourlyTime) return "";
@@ -1902,8 +1917,8 @@ function _renderInner() {
           const area = path + ` L${px(pts[pts.length-1].h).toFixed(1)},${H} L${px(pts[0].h).toFixed(1)},${H} Z`;
           const valLabels = pts.filter(p => p.h % 6 === 0).map(p =>
             `<text x="${px(p.h).toFixed(1)}" y="${(py(p.v)-5).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="600" fill="#e2e8f0">${Math.round(p.v)}°</text>`).join("");
-          const axisLabels = [0,3,6,9,12,15,18,21,23].map(h =>
-            `<text x="${px(h).toFixed(1)}" y="${H+13}" text-anchor="${h===0?"start":h===23?"end":"middle"}" font-size="9" fill="var(--text3)">${h===23?"00":String(h).padStart(2,"0")}</text>`).join("");
+          const axisLabels = [0,3,6,9,12,15,18,21].map(h =>
+            `<text x="${px(h).toFixed(1)}" y="${H+12}" text-anchor="${h===0?"start":"middle"}" font-size="7.5" fill="var(--text3)">${String(h).padStart(2,"0")}</text>`).join("");
           rows.push(`<div class="card">
             <div class="card-head"><span class="card-title"><span class="di">🌡</span> ${t("temp")}</span></div>
             <div style="padding:10px 0 10px">
