@@ -1767,7 +1767,7 @@ function _renderInner() {
             ["↑",  windDirText(d.windDir), t("wind_dir"), null, d.windDir ?? 0]
           ].map(([ic,val,lb,flt,rot])=>`
           <div style="padding:4px 2px">
-            <div style="font-size:1rem;color:var(--text2);line-height:1.5${flt?`;filter:${flt}`:""}${rot!=null?`;transform:rotate(${rot}deg);display:inline-block`:""}">${ic}</div>
+            <div class="di" style="font-size:1rem;line-height:1.5${flt?`;filter:${flt}`:""}${rot!=null?`;transform:rotate(${rot}deg);display:inline-block`:""}">${ic}</div>
             <div style="font-size:.82rem;font-weight:700;margin:3px 0 2px">${val}</div>
             <div style="font-size:.55rem;color:var(--text3);letter-spacing:.2px;text-transform:uppercase">${lb}</div>
           </div>`).join(""); })()}
@@ -1807,7 +1807,7 @@ function _renderInner() {
           <div class="dc-ring" style="display:flex;align-items:flex-end;justify-content:center">${lvBar(sc, "md")}</div>
           <div class="dc-sub" style="font-size:.7rem">${ri.label}</div>` : ""}
           ${activeTab === "weather" && wd ? `
-          <div style="font-size:1.1rem;margin-top:4px">${wmoIcon(wd.weatherCode ?? 0)}</div>
+          <div style="font-size:1.1rem;margin-top:4px" class="di">${wmoIcon(wd.weatherCode ?? 0)}</div>
           <div style="font-size:.72rem;font-weight:700;margin-top:2px">${wd.tempMax}${weather.units.temp}</div>
           ${wd.rainProb !== null ? `
           <div style="margin-top:3px;display:flex;align-items:center;gap:3px">
