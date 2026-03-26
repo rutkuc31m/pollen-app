@@ -232,24 +232,12 @@
     .col-hi { font-weight: 600; }
 
     /* ── LEVEL BARS ──────────────────────────────────── */
-    .lv-bars { display: inline-flex; align-items: flex-end; gap: 3px; }
-    .lv-bars .b { border-radius: 0; background: var(--border); }
+    .lv-bars { display: inline-flex; align-items: center; gap: 3px; }
+    .lv-bars .b { border-radius: 2px; background: var(--border); }
     .lv-bars .b.on { background: var(--accent); }
-    .lv-bars.sm .b { width: 3px; }
-    .lv-bars.sm .b:nth-child(1) { height: 5px; }
-    .lv-bars.sm .b:nth-child(2) { height: 8px; }
-    .lv-bars.sm .b:nth-child(3) { height: 11px; }
-    .lv-bars.sm .b:nth-child(4) { height: 15px; }
-    .lv-bars.md .b { width: 4px; }
-    .lv-bars.md .b:nth-child(1) { height: 8px; }
-    .lv-bars.md .b:nth-child(2) { height: 13px; }
-    .lv-bars.md .b:nth-child(3) { height: 18px; }
-    .lv-bars.md .b:nth-child(4) { height: 24px; }
-    .lv-bars.lg .b { width: 7px; }
-    .lv-bars.lg .b:nth-child(1) { height: 12px; }
-    .lv-bars.lg .b:nth-child(2) { height: 20px; }
-    .lv-bars.lg .b:nth-child(3) { height: 28px; }
-    .lv-bars.lg .b:nth-child(4) { height: 38px; }
+    .lv-bars.sm .b { width: 5px; height: 10px; }
+    .lv-bars.md .b { width: 6px; height: 16px; }
+    .lv-bars.lg .b { width: 10px; height: 26px; }
 
     /* ── WEEKLY HISTORY HEATMAP ──────────────────────── */
     .week-heatmap { padding: 10px 14px 14px; overflow-x: auto; }
