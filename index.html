@@ -2902,7 +2902,6 @@ function refreshDrawer() {
       <div id="med-tracker-wrap">${renderMedTracker()}</div>
       ${renderSymHistory()}
       ${renderCorrelation()}
-      ${renderForecastAccuracy()}
       ${(() => {
         if (!db) return "";
         const pol = db.regions.find(r=>rk(r)===rKey)?.pollen;
@@ -3023,6 +3022,7 @@ function refreshDrawer() {
     </div>
     <div class="dsec-body" id="ddata-body">
       <div style="padding:10px 14px 14px;display:flex;flex-direction:column;gap:8px">
+        ${appMode === "de" ? renderForecastAccuracy() : ""}
         <div style="font-size:.75rem;color:var(--text3)">${t("data_export_hint")}</div>
         <div style="display:flex;gap:8px">
           <button class="card-action" style="padding:6px 14px;border:1px solid var(--border);border-radius:8px;font-size:.8rem;cursor:pointer;background:var(--card2);color:var(--text)" onclick="exportData()">${t("data_export")}</button>
