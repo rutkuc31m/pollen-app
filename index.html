@@ -3181,6 +3181,11 @@ async function loadDE() {
 // GLOBAL MODE: Open-Meteo Air Quality
 // ─────────────────────────────────────────────────────────────────────────────
 async function loadGlobal() {
+  // Immer OM-Modus sicherstellen – egal von wo aufgerufen
+  appMode = "om";
+  POLLEN  = POLLEN_OM;
+  DAYS    = ["today","tomorrow","dayafter_to","day3","day4"];
+
   const lat = geoInfo.latitude;
   const lon = geoInfo.longitude;
   const vars = OM_VARS.om;
@@ -3328,10 +3333,6 @@ function omCitySelect(lat, lon, city, country, country_code) {
     localStorage.setItem(LS.mode, "de");
     init();
   } else {
-    appMode = "om";
-    POLLEN  = POLLEN_OM;
-    DAYS    = ["today","tomorrow","dayafter_to","day3","day4"];
-    filter  = loadFilterFor(POLLEN, LS.filter + "_om");
     localStorage.setItem(LS.mode, "om");
     loadGlobal();
   }
