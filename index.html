@@ -774,7 +774,7 @@ const STRINGS = {
     check_conn:"Bitte Verbindung prüfen.",
     dwd_stand:"Stand", next_update:"Nächstes Update",
     region:"Region", geo_title:"Nächste Region automatisch wählen",
-    weather_title:"Wetter & Polleneinfluss",
+    weather_title:"Wetter",
     temp:"Temp", wind:"Wind", humidity:"Feuchte", rain:"Regen", uv:"UV max",
     all_pollen:"Alle Pollen", select_all:"Alle auswählen",
     tap_hint:"Zeile antippen = für dein Risiko ein/ausschließen",
@@ -955,7 +955,7 @@ const STRINGS = {
     check_conn:"Please check your connection.",
     dwd_stand:"Updated", next_update:"Next update",
     region:"Region", geo_title:"Auto-detect nearest region",
-    weather_title:"Weather & Pollen",
+    weather_title:"Weather",
     temp:"Temp", wind:"Wind", humidity:"Humidity", rain:"Rain", uv:"UV max",
     all_pollen:"All Pollen", select_all:"Select all",
     tap_hint:"Tap a row to include/exclude from your risk",
@@ -1129,7 +1129,7 @@ const STRINGS = {
     check_conn:"Lütfen bağlantınızı kontrol edin.",
     dwd_stand:"Güncellendi", next_update:"Sonraki güncelleme",
     region:"Bölge", geo_title:"En yakın bölgeyi otomatik seç",
-    weather_title:"Hava & Polen etkisi",
+    weather_title:"Hava Durumu",
     temp:"Sıcaklık", wind:"Rüzgar", humidity:"Nem", rain:"Yağış", uv:"UV maks",
     all_pollen:"Tüm Polenler", select_all:"Tümünü seç",
     tap_hint:"Riski dahil etmek/çıkarmak için satıra dokun",
@@ -1682,13 +1682,22 @@ function _renderInner() {
     <!-- CROSS-ALLERGY ALERTS -->
     ${renderCrossAllergyAlerts(pol, activeDay)}
 
+    <!-- POLLEN-WEATHER EFFECT -->
+    ${(() => {
+      const effect = calcPollenEffect(activeDay);
+      if (!effect) return "";
+      return `<div style="margin-bottom:10px;padding:9px 12px;border-radius:9px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;gap:10px">
+        <span style="font-size:1.3rem">${effect.icon}</span>
+        <span style="font-size:.83rem;font-weight:500">${effect.text}</span>
+      </div>`;
+    })()}
+
     ` : `<!-- TAB: WEATHER -->`}
 
     <!-- WEATHER CARD -->
     ${activeTab === "weather" && !weather ? `<div class="card" style="padding:20px 14px;text-align:center;color:var(--text2);font-size:.85rem">⏳ ${t("locating")}</div>` : ""}
     ${activeTab === "weather" && weather ? (() => {
       const w = weather.current;
-      const effect = calcPollenEffect(activeDay);
       const d = weather.daily[activeDay] ?? weather.daily[0];
       const uvVal = d.uv ?? null;
       const uvCls = uvVal === null ? "" : uvVal >= 8 ? "uv-hi" : uvVal >= 5 ? "uv-mid" : uvVal >= 2 ? "uv-low" : "";
@@ -1718,10 +1727,6 @@ function _renderInner() {
             <div style="font-size:1.12rem;font-weight:700;margin:3px 0 2px">${val}</div>
             <div style="font-size:.57rem;color:var(--text3);letter-spacing:.2px;text-transform:uppercase">${lb}</div>
           </div>`).join("")}
-        </div>
-        <div style="margin:4px 14px 10px;padding:9px 12px;border-radius:9px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;gap:10px">
-          <span style="font-size:1.3rem">${effect.icon}</span>
-          <span style="font-size:.83rem;font-weight:500">${effect.text}</span>
         </div>
         ${weather.daily.length > 3 ? `
         <div class="week-strip">
