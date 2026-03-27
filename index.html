@@ -869,7 +869,11 @@ const STRINGS = {
     pwa_install: "App installieren",
     // hero summary sentences
     hero_good_day: "Heute ein guter Tag für", hero_bad_day: "Heute ein schlechter Tag für", hero_ok_day: "Heute: mittlere Belastung für",
+    hero_low_day: "Geringe Belastung heute für",
     hero_allergen_suffix: "-Allergiker",
+    hero_and: "und",
+    hero_wind_note: "Wind verstärkt die Belastung",
+    hero_no_profile: "Kein Allergenprofil – Allergene im Menü wählen",
     // correlation improvements
     corr_insufficient: "Zu wenig Daten", corr_no_link: "Kein Zusammenhang",
     corr_n_days: "Tage", corr_basis: "Ø Datenbasis",
@@ -1058,7 +1062,11 @@ const STRINGS = {
     pwa_install: "Install app",
     // hero summary sentences
     hero_good_day: "Today is a good day for", hero_bad_day: "Today is a bad day for", hero_ok_day: "Moderate exposure today for",
+    hero_low_day: "Low exposure today for",
     hero_allergen_suffix: " allergy sufferers",
+    hero_and: "and",
+    hero_wind_note: "Wind increases exposure",
+    hero_no_profile: "No allergy profile – select allergens in the menu",
     // correlation improvements
     corr_insufficient: "Not enough data", corr_no_link: "No correlation",
     corr_n_days: "days", corr_basis: "Avg. data basis",
@@ -1222,7 +1230,11 @@ const STRINGS = {
     profile_onboarding:"Kişisel riskinizi hesaplamak için alerjilerinizi seçin:",
     pwa_install:"Uygulamayı yükle",
     hero_good_day:"bugün iyi bir gün", hero_bad_day:"bugün zor bir gün", hero_ok_day:"bugün fena değil",
+    hero_low_day:"bugün düşük düzeyde",
     hero_allergen_suffix:" alerjisi için",
+    hero_and:"ve",
+    hero_wind_note:"Rüzgar belirtileri artırıyor",
+    hero_no_profile:"Alerji profili yok – menüden seçin",
     corr_insufficient:"Yetersiz veri", corr_no_link:"İlişki yok",
     corr_n_days:"gün", corr_basis:"Ort. veri tabanı",
     corr_r_val:"r", corr_strong:"Semptomlarla güçlü korelasyon", corr_moderate:"Semptomlarla olası korelasyon",
@@ -1650,16 +1662,23 @@ function _renderInner() {
       const expScore = calcExposureScore(pol, activeDay);
       // Hero summary sentence based on filter + risk
       let summaryHtml = "";
-      if (activeDay === 0 && filter.length > 0) {
-        const topAllergen = risk.drivers[0];
-        const allergenName = topAllergen ? t(topAllergen.key) : "";
-        if (risk.max === 0) {
+      if (activeDay === 0) {
+        if (filter.length === 0) {
+          // No profile set
+          summaryHtml = `<div class="hero-summary" style="color:var(--text2);font-size:.78rem">${t("hero_no_profile")}</div>`;
+        } else if (risk.max === 0) {
           summaryHtml = `<div class="hero-summary">${t("no_load")}</div>`;
-        } else if (allergenName) {
-          const prefix = risk.max >= 3 ? t("hero_bad_day") : risk.max === 2 ? t("hero_ok_day") : t("hero_good_day");
-          summaryHtml = lang === "tr"
-            ? `<div class="hero-summary">${allergenName}${t("hero_allergen_suffix")} ${prefix}</div>`
-            : `<div class="hero-summary">${prefix} ${allergenName}${t("hero_allergen_suffix")}</div>`;
+        } else {
+          // Up to 2 allergens (level 1 gets own label, wind note when strong)
+          const topNames = risk.drivers.slice(0, 2).map(p => t(p.key)).join(` ${t("hero_and")} `);
+          const prefix = risk.max >= 3 ? t("hero_bad_day") : risk.max === 2 ? t("hero_ok_day") : risk.max === 1 ? t("hero_low_day") : t("hero_good_day");
+          const wd = weather?.daily?.[0];
+          const windNote = (wd?.wind ?? 0) > 25 && risk.max >= 2 ? ` · ${t("hero_wind_note")}` : "";
+          const suffix = t("hero_allergen_suffix");
+          const mainText = lang === "tr"
+            ? `${topNames}${suffix} ${prefix}`
+            : `${prefix} ${topNames}${suffix}`;
+          summaryHtml = `<div class="hero-summary">${mainText}${windNote}</div>`;
         }
       }
       return `
