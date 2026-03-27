@@ -1,68 +1,126 @@
-# 🌿 Pollenflug – Hannover
+# Pollen App
 
-Täglicher Pollenflug-Alert via Discord + Web-Dashboard.
-Daten: Deutscher Wetterdienst (DWD), kostenlos, kein API-Key nötig.
+PWA für Pollenflug-Monitoring mit Wetter, Symptom-Tracking und persönlichen Auslösern.
 
-**Live:** https://rutkuc31m.github.io/pollen-app
+**Live:** https://pollenapp.is-a.dev · https://rutkuc31m.github.io/pollen-app
+
+---
 
 ## Features
 
-- 🌐 Web-Dashboard mit 3-Tages-Vorschau, Symptom-Tracker, Verlauf-Heatmap
-- 📱 PWA – als App auf dem Homescreen speicherbar (iOS & Android)
-- 🌍 DE / EU / US Modus (DWD + Open-Meteo)
-- 💬 Tägliche Discord-Benachrichtigung (nur bei aktiver Belastung)
-- 🌤 Wettereinfluss auf Pollenflug (Wind, Regen, UV)
-- 📊 Symptom-Korrelation mit Pearson-r
-- 🔌 Offline-fähig (Service Worker Cache)
+### Pollen-Tab
+- **Hero-Karte** mit aktuellem Belastungslevel (Balken-System)
+- **3-Tages-Streifen** mit Tagesauswahl
+- **Pollen-Liste** mit Tag-Dropdown (Heute / Morgen / Übermorgen)
+- **Verlaufschart** (letzte 7 Tage)
+- **Nearby-Regionen** mit Vergleich
+- **Saisonkalender**
+- **Allergieprofil** — eigene Sensitivität je Pollen einstellen
+- **Korrelations-Insight** — persönliche Auslöser aus Symptomhistorie (Pearson-r, letzte 90 Tage)
 
-## Setup
+### Wetter-Tab
+- **Aktuelle Bedingungen** (Temp, Wind, Feuchte, Regen, UV)
+- **Sonne/Mond-Zeile** (Aufgang, Untergang, Mondphase, Gefühlte Temp, Windrichtung)
+- **3-Tage-Vorschau** direkt in der Wetter-Karte
+- **7-Tage-Vorschau** als eigene Karte (jeder Tag eine Zeile)
+- **Temperaturkurve** stündlich (SVG, 00–21 Uhr)
+- **Regenwahrscheinlichkeit** stündlich
+- **Luftqualität** (AQI, PM10, PM2.5 via Open-Meteo)
+- **Beste Zeit draußen** (nur DE, basierend auf Pollenbelastung + Wetter)
 
-### 1. Repository forken / klonen
+### Symptom-Tracker (Drawer)
+- Täglich Symptome erfassen: Niesen, Augen, Atmung, Müdigkeit (Skala 0–3)
+- **Medikamenten-Tracking** (Antihistamin, Augentropfen, Nasenspray, Cortison)
+- **Wirksamkeitsanalyse** — Ø Symptomreduktion mit vs. ohne Medikament
+- **Symptomverlauf** (Punktediagramm)
+- **Prognose** für morgen basierend auf Verlauf
+
+### Technisch
+- Vanilla JS, Single-File PWA (`index.html`, ~4000 Zeilen)
+- **Nur Dark Mode** — kein Theme-Toggle
+- Offline-fähig via Service Worker
+- Automatische Standorterkennung (ipwho.is + Nominatim)
+- i18n: Deutsch · English · Türkçe
+
+---
+
+## Datenmodi
+
+| Modus | Quelle | Regionen |
+|-------|--------|----------|
+| `de` | DWD Open Data | 27 deutsche Regionen |
+| `om` | Open-Meteo CAMS | Weltweit |
+
+Standard beim Start: Auto-Erkennung via IP — `de` für Deutschland, `om` sonst.
+
+---
+
+## Projektstruktur
+
+```
+pollen-app/
+├── index.html              # PWA (Vanilla JS, Single File)
+├── sw.js                   # Service Worker (pollen-v12)
+├── manifest.json           # PWA Manifest
+├── icon.svg                # App-Icon
+├── apple-touch-icon.png    # iOS Icon
+├── fetch_data.py           # Holt alle 27 DWD-Regionen → data.json
+├── pollen_alert.py         # E-Mail Alert (Gmail)
+├── data.json               # Täglich via GitHub Actions aktualisiert
+├── test_app.py             # Test-Agent (83 Tests)
+├── CNAME                   # pollenapp.is-a.dev
+└── .github/workflows/
+    └── daily_pollen.yml    # Täglich: fetch → commit → E-Mail
+```
+
+---
+
+## Setup (Fork)
+
+### 1. Repository forken
 
 ```bash
 git clone https://github.com/rutkuc31m/pollen-app.git
 cd pollen-app
 ```
 
-### 2. GitHub Secret setzen
+### 2. GitHub Secrets setzen
 
-Im Repo: **Settings → Secrets and variables → Actions → New repository secret**
+**Settings → Secrets and variables → Actions**
 
-| Name | Wert |
-|------|------|
-| `DISCORD_WEBHOOK_URL` | Webhook-URL aus Discord (Kanal → Einstellungen → Integrationen → Webhooks) |
+| Secret | Beschreibung |
+|--------|-------------|
+| `GMAIL_ADDRESS` | Gmail-Adresse für den Alert |
+| `GMAIL_APP_PASSWORD` | Gmail App-Passwort (nicht das normale Passwort) |
 
 ### 3. GitHub Pages aktivieren
 
-Im Repo: **Settings → Pages → Source: Deploy from branch → main / (root)**
+**Settings → Pages → Source: Deploy from branch → `main` / (root)**
 
-→ Dashboard erreichbar unter `https://DEIN-USERNAME.github.io/pollen-app`
+Dashboard erreichbar unter `https://USERNAME.github.io/pollen-app`
 
-### 4. Testen
+### 4. Region anpassen
 
-Im Repo: **Actions → Täglicher Pollenflug-Alert → Run workflow**
+In `fetch_data.py` und `pollen_alert.py` die Region-ID anpassen.
+DWD-Regionen: `region_id` + `partregion_id` aus der [DWD-API](https://opendata.dwd.de/climate_environment/health/alerts/s31fg.json).
 
-## Automatisch
+---
 
-- Discord-Alert täglich um **12:15 Uhr** (1h nach DWD-Update)
-- Keine Nachricht bei keiner aktiver Pollenbelastung
-- `data.json` wird täglich automatisch committet
+## GitHub Actions
 
-## Projektstruktur
+Die Action läuft täglich um **11:00 UTC** (12:00 CET / 13:00 CEST):
 
-```
-pollen-app/
-├── index.html              # Web-Dashboard (Vanilla JS, Single File)
-├── pollen_alert.py         # Discord-Alert (liest DWD-Daten, sendet Webhook)
-├── fetch_data.py           # Holt alle 27 DWD-Regionen → data.json
-├── data.json               # Täglich aktualisiert via GitHub Actions
-├── sw.js                   # Service Worker (Offline / PWA)
-├── manifest.json           # PWA Manifest
-└── .github/workflows/
-    └── daily_pollen.yml    # Action: fetch → commit → Discord
-```
+1. `fetch_data.py` — aktualisiert `data.json` mit allen 27 DWD-Regionen
+2. Committet `data.json` automatisch
+3. `pollen_alert.py` — sendet E-Mail falls Belastung aktiv
 
-## Datenquelle
+Manuell auslösen: **Actions → Täglicher Pollenflug-Alert → Run workflow**
 
-DWD Open Data – kostenlos, kein API-Key:
-`https://opendata.dwd.de/climate_environment/health/alerts/s31fg.json`
+---
+
+## Datenquellen
+
+- **DWD Open Data** — kostenlos, kein API-Key: `opendata.dwd.de/climate_environment/health/alerts/s31fg.json`
+- **Open-Meteo** — Wetter + Luftqualität + CAMS Pollen: `open-meteo.com`
+- **ipwho.is** — Standorterkennung via IP
+- **Nominatim** — Reverse Geocoding (Stadtname)
