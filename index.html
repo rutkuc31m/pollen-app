@@ -1779,14 +1779,14 @@ function _renderInner() {
         </div>
         <div style="border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:10px 14px 8px;text-align:center">
           ${(()=>{ const moon=moonPhase(); return [
+            ["~°", d.apparentTemp !== null ? d.apparentTemp + weather.units.temp : "–", t("feels_like")],
+            ["↑",  windDirText(d.windDir), t("wind_dir"), null, d.windDir ?? 0],
             ["☀↑", fmtTime(d.sunrise), t("sunrise")],
             ["☀↓", fmtTime(d.sunset),  t("sunset")],
-            [moon.icon, moon.name,      t("moon_title"), "grayscale(1)"],
-            ["~°", d.apparentTemp !== null ? d.apparentTemp + weather.units.temp : "–", t("feels_like")],
-            ["↑",  windDirText(d.windDir), t("wind_dir"), null, d.windDir ?? 0]
-          ].map(([ic,val,lb,flt,rot])=>`
+            [moon.icon, moon.name,      t("moon_title"), null, null, true]
+          ].map(([ic,val,lb,flt,rot,noDi])=>`
           <div style="padding:4px 2px">
-            <div class="di" style="font-size:1rem;line-height:1.5${flt?`;filter:${flt}`:""}${rot!=null?`;transform:rotate(${rot}deg);display:inline-block`:""}">${ic}</div>
+            <div ${noDi?"":"class=\"di\""} style="font-size:1rem;line-height:1.5${flt?`;filter:${flt}`:""}${rot!=null?`;transform:rotate(${rot}deg);display:inline-block`:""}">${ic}</div>
             <div style="font-size:.82rem;font-weight:700;margin:3px 0 2px">${val}</div>
             <div style="font-size:.55rem;color:var(--text3);letter-spacing:.2px;text-transform:uppercase">${lb}</div>
           </div>`).join(""); })()}
