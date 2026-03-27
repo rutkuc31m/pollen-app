@@ -1717,7 +1717,7 @@ function _renderInner() {
       const effect = calcPollenEffect(activeDay);
       if (!effect) return "";
       return `<div style="margin-bottom:10px;padding:9px 12px;border-radius:9px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;gap:10px">
-        <span style="font-size:1.3rem">${effect.icon}</span>
+        <span style="font-size:1.3rem" class="di">${effect.icon}</span>
         <span style="font-size:.83rem;font-weight:500">${effect.text}</span>
       </div>`;
     })()}
