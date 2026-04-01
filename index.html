@@ -1763,7 +1763,7 @@ function _renderInner() {
       <div class="card" style="margin-bottom:12px">
         <div class="card-head">
           <span class="card-title"><span class="di">🌤</span> ${t("weather_title")}</span>
-          ${fetchedStr ? `<span style="font-size:.72rem;color:var(--text3)">${t("dwd_stand")} </span><span style="font-size:.72rem;color:#bae6fd">${fetchedStr} · Open-Meteo</span>` : `<span style="font-size:.72rem;color:#bae6fd">Open-Meteo</span>`}
+          <span style="font-size:.72rem;color:#bae6fd">${fetchedStr ? `${fetchedStr} · ` : ""}Open-Meteo</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:12px 14px 6px;text-align:center">
           ${[[w.code!=null?wmoIcon(w.code):"🌡",t("temp"),`${w.temp}${weather.units.temp}`],["💨",t("wind"),`${d.wind} ${weather.units.wind}`],["💧",t("humidity"),`${w.humidity}%`],["🌧",t("rain"),`${d.rain} ${weather.units.rain}`],["☀️",t("uv"),`<span class="${uvCls}">${uvLabel}</span>`]].map(([ic,lb,val])=>`
