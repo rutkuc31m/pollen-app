@@ -1892,26 +1892,6 @@ function _renderInner() {
       const d = weather.daily[activeDay] ?? weather.daily[0];
       const rows = [];
 
-      // ── Beste Zeit draußen ────────────────────────────────
-      if (db && appMode === "de") {
-        const btPol = (db.regions.find(r=>rk(r)===rKey) ?? db.regions[0])?.pollen;
-        if (btPol) {
-          const bt = calcBestTimes(btPol, activeDay);
-          rows.push(`<div class="card">
-            <div class="card-head"><span class="card-title"><span class="di">🕐</span> ${t("besttime_title")}</span></div>
-            ${bt ? `
-              <div class="time-windows">
-                ${bt.good.length
-                  ? bt.good.map(w=>`<div class="time-win good">✓ ${w}</div>`).join("")
-                  : `<div class="time-win none">⚠ ${t("besttime_none")}</div>`}
-                ${bt.avoid ? `<div class="time-win warn">⚠ ${t("besttime_avoid")}: ${bt.avoid}</div>` : ""}
-              </div>
-              <div class="time-note">${t("besttime_note")}</div>`
-            : `<div style="padding:10px 14px;font-size:.82rem;color:var(--text2)">${t("besttime_note")}</div>`}
-          </div>`);
-        }
-      }
-
       // ── Temperaturkurve (stündlich) ──────────────────────
       if (weather.hourlyTemp && weather.hourlyTime) {
         const dayDate = new Date(); dayDate.setDate(dayDate.getDate() + activeDay);
