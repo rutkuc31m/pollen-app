@@ -1697,10 +1697,6 @@ function _renderInner() {
           <div class="hero-drivers">
             ${risk.drivers.map(p=>`<span class="driver-pill ${p.pillCls}"><span class="picon">${p.icon}</span> ${t(p.key)}</span>`).join("")}
           </div>` : `<div style="font-size:.8rem;color:var(--text2);margin-top:5px">${t("no_load")}</div>`}
-        <div style="margin-top:8px">
-          <div style="font-size:.7rem;color:var(--text2)">${t("exposure_title")}: <strong style="color:var(--accent)">${expScore}</strong> <span style="opacity:.55">${t("of")} 100</span></div>
-          <div class="exp-bar"><div class="exp-bar-fill" style="width:${expScore}%;background:var(--accent)"></div></div>
-        </div>
       </div>
     </div>`;
     })()}
@@ -1891,6 +1887,26 @@ function _renderInner() {
     ${activeTab === "weather" && weather ? (() => {
       const d = weather.daily[activeDay] ?? weather.daily[0];
       const rows = [];
+
+      // ── Beste Zeit draußen ────────────────────────────────
+      if (db && appMode === "de") {
+        const btPol = (db.regions.find(r=>rk(r)===rKey) ?? db.regions[0])?.pollen;
+        if (btPol) {
+          const bt = calcBestTimes(btPol, activeDay);
+          rows.push(`<div class="card">
+            <div class="card-head"><span class="card-title"><span class="di">🕐</span> ${t("besttime_title")}</span></div>
+            ${bt ? `
+              <div class="time-windows">
+                ${bt.good.length
+                  ? bt.good.map(w=>`<div class="time-win good">✓ ${w}</div>`).join("")
+                  : `<div class="time-win none">⚠ ${t("besttime_none")}</div>`}
+                ${bt.avoid ? `<div class="time-win warn">⚠ ${t("besttime_avoid")}: ${bt.avoid}</div>` : ""}
+              </div>
+              <div class="time-note">${t("besttime_note")}</div>`
+            : `<div style="padding:10px 14px;font-size:.82rem;color:var(--text2)">${t("besttime_note")}</div>`}
+          </div>`);
+        }
+      }
 
       // ── Temperaturkurve (stündlich) ──────────────────────
       if (weather.hourlyTemp && weather.hourlyTime) {
