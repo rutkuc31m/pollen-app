@@ -1637,10 +1637,10 @@ function _renderInner() {
   const _open = new Set(openSections);
   document.getElementById("page").innerHTML = `
 
-    <!-- UPDATE LINE -->
-    <div style="font-size:.72rem;color:var(--text3);text-align:center;padding:4px 0 10px">
+    <!-- UPDATE LINE (nur Pollen-Tab) -->
+    ${activeTab !== "weather" ? `<div style="font-size:.72rem;color:var(--text3);text-align:center;padding:4px 0 10px">
       ${[db.last_update&&`${t("dwd_stand")}: ${escapeHtml(db.last_update)}`, db.next_update&&`${t("next_update")}: ${escapeHtml(db.next_update)}`].filter(Boolean).join(" · ")}
-    </div>
+    </div>` : ""}
 
     <!-- HERO: personal risk (nur Pollen-Tab) -->
     ${activeTab === "weather" ? "" : db.pollen_available === false ? `
