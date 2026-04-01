@@ -148,7 +148,11 @@
       border-radius: var(--r); box-shadow: var(--sh);
       margin-bottom: 12px; padding: 26px 20px;
       display: flex; align-items: center; gap: 16px;
+      transition: background 0.4s ease;
     }
+    .hero:has(.risk-low)  { background: radial-gradient(ellipse at 20% 50%, rgba(186,230,253,0.06) 0%, var(--card) 60%); }
+    .hero:has(.risk-mid)  { background: radial-gradient(ellipse at 20% 50%, rgba(251,146,60,0.07) 0%, var(--card) 60%); }
+    .hero:has(.risk-high) { background: radial-gradient(ellipse at 20% 50%, rgba(248,113,113,0.08) 0%, var(--card) 60%); }
     .hero-badge {
       width: 64px; height: 64px; border-radius: 16px;
       display: flex; align-items: center; justify-content: center;
