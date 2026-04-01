@@ -1642,8 +1642,8 @@ function _renderInner() {
       ${[db.last_update&&`${t("dwd_stand")}: ${escapeHtml(db.last_update)}`, db.next_update&&`${t("next_update")}: ${escapeHtml(db.next_update)}`].filter(Boolean).join(" · ")}
     </div>
 
-    <!-- HERO: personal risk -->
-    ${db.pollen_available === false ? `
+    <!-- HERO: personal risk (nur Pollen-Tab) -->
+    ${activeTab === "weather" ? "" : db.pollen_available === false ? `
     <div class="hero day-transition">
       <div class="hero-badge risk-none" style="font-size:1.6rem;font-weight:800">?</div>
       <div class="hero-body">
@@ -1699,7 +1699,7 @@ function _renderInner() {
           </div>` : `<div style="font-size:.8rem;color:var(--text2);margin-top:5px">${t("no_load")}</div>`}
       </div>
     </div>`;
-    })()}
+    })() : ""}
 
     <!-- TAB: POLLEN -->
     ${activeTab === "pollen" ? `
