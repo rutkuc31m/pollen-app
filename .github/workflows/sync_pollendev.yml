@@ -3,6 +3,7 @@ name: Sync dev → pollendev
 on:
   push:
     branches: [dev]
+  workflow_dispatch:
 
 jobs:
   sync:
