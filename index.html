@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="dark">
+<html lang="de" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -38,6 +38,55 @@
       --r:       13px;
       --sh:      0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
     }
+
+    /* ── DARK THEME OVERRIDES ───────────────────────── */
+    [data-theme="dark"] {
+      --bg:      #0a0a0b;
+      --card:    #18181b;
+      --card2:   #27272a;
+      --border:  #3f3f46;
+      --text:    #fafafa;
+      --text2:   #a1a1aa;
+      --text3:   #71717a;
+      --accent:  #bae6fd;
+      --accent2: #7cb8d4;
+      --accent-subtle: #0c2840;
+      --sh:      0 1px 3px rgba(0,0,0,.5);
+    }
+    [data-theme="dark"] .topbar {
+      background: rgba(24,24,27,0.88);
+    }
+    [data-theme="dark"] .lv-bars .b { background: rgba(255,255,255,0.12); }
+    [data-theme="dark"] .lv-bars .b.on { background: var(--accent); }
+    [data-theme="dark"] .hero:has(.risk-low)  { background: radial-gradient(ellipse at 20% 50%, rgba(186,230,253,0.06) 0%, var(--card) 60%); }
+    [data-theme="dark"] .hero:has(.risk-mid)  { background: radial-gradient(ellipse at 20% 50%, rgba(251,146,60,0.07) 0%, var(--card) 60%); }
+    [data-theme="dark"] .hero:has(.risk-high) { background: radial-gradient(ellipse at 20% 50%, rgba(248,113,113,0.08) 0%, var(--card) 60%); }
+    [data-theme="dark"] .risk-none  { --rc:#a1a1aa; --rb:#27272a; }
+    [data-theme="dark"] .risk-low   { --rc:#bae6fd; --rb:#0c2840; }
+    [data-theme="dark"] .risk-mid   { --rc:#fb923c; --rb:#1c0900; }
+    [data-theme="dark"] .risk-high  { --rc:#f87171; --rb:#1c0000; }
+    [data-theme="dark"] .b-low  { color:#bae6fd; }
+    [data-theme="dark"] .b-mid  { color:#bae6fd; }
+    [data-theme="dark"] .b-high { color:#bae6fd; }
+    [data-theme="dark"] .wh-cell[data-sc="0"] { background: color-mix(in srgb, #bae6fd 18%, #18181b); color: #bae6fd; }
+    [data-theme="dark"] .wh-cell[data-sc="1"] { background: color-mix(in srgb, #bae6fd 35%, #18181b); color: #bae6fd; }
+    [data-theme="dark"] .wh-cell[data-sc="2"] { background: color-mix(in srgb, #c2410c 45%, #18181b); color: #fb923c; }
+    [data-theme="dark"] .wh-cell[data-sc="3"] { background: color-mix(in srgb, #b91c1c 55%, #18181b); color: #fca5a5; }
+    [data-theme="dark"] .s25-cell[data-v="1"] { background: #0c2840; }
+    [data-theme="dark"] .s25-cell[data-v="2"] { background: #431407; }
+    [data-theme="dark"] .s25-cell[data-v="3"] { background: #7f1d1d; }
+    [data-theme="dark"] .time-win.warn  { background: #2d1515; color: #f87171; }
+    [data-theme="dark"] .escape-box { background: #0c2840; color: #bae6fd; border-color: color-mix(in srgb, #bae6fd 20%, transparent); }
+    [data-theme="dark"] #toast { background: #18181b; color: #fafafa; }
+    [data-theme="dark"] .np-btn-yes { color: #fff; }
+    [data-theme="dark"] .uv-hi  { color: #3f3f46; }
+    [data-theme="dark"] .uv-mid { color: #7cb8d4; }
+    [data-theme="dark"] .uv-low { color: #bae6fd; }
+    [data-theme="dark"] .corr-fill-low  { background: #bae6fd; }
+    [data-theme="dark"] .corr-fill-mid  { background: #fb923c; }
+    [data-theme="dark"] .corr-fill-high { background: #f87171; }
+    [data-theme="dark"] .icon-btn { box-shadow: none; }
+    [data-theme="dark"] .icon-btn:hover { background: var(--border); }
 
     /* ── BASE ────────────────────────────────────────── */
     *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
@@ -667,6 +716,7 @@
       <button class="icon-btn" id="lang-btn-en" onclick="setLang('en')" style="font-size:.7rem;font-weight:700;width:auto;padding:4px 10px;border-radius:0;border-right:none">EN</button>
       <button class="icon-btn" id="lang-btn-tr" onclick="setLang('tr')" style="font-size:.7rem;font-weight:700;width:auto;padding:4px 10px;border-radius:0 6px 6px 0">TR</button>
     </div>
+    <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Theme wechseln" aria-label="Theme wechseln" style="font-size:.9rem">🌙</button>
     <button class="icon-btn" id="refresh-btn" onclick="doRefresh()" title="Aktualisieren" aria-label="Aktualisieren" style="font-size:.95rem">↻</button>
   </div>
   <div class="regionbar">
@@ -692,6 +742,24 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // I18N
 // ─────────────────────────────────────────────────────────────────────────────
+// ── THEME ──────────────────────────────────────────────────────────────────
+(function initTheme() {
+  const saved = localStorage.getItem("p_theme") || "light";
+  document.documentElement.setAttribute("data-theme", saved);
+  const btn = document.getElementById("theme-btn");
+  if (btn) btn.textContent = saved === "dark" ? "☀️" : "🌙";
+})();
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  const next = isDark ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("p_theme", next);
+  document.getElementById("theme-btn").textContent = next === "dark" ? "☀️" : "🌙";
+  document.getElementById("theme-meta").content = next === "dark" ? "#18181b" : "#f4f2f9";
+  render();
+}
+function isDark() { return document.documentElement.getAttribute("data-theme") === "dark"; }
+
 let lang = localStorage.getItem("p_lang") || ((navigator.language || "de").toLowerCase().startsWith("de") ? "de" : "en");
 function t(key) { return STRINGS[lang]?.[key] ?? STRINGS.en?.[key] ?? STRINGS.de[key] ?? key; }
 function setLang(newLang) {
@@ -1455,7 +1523,7 @@ function loadFilterFor(pollenList, lsKey) {
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME (dark only)
 // ─────────────────────────────────────────────────────────────────────────────
-document.getElementById("theme-meta").content = "#f4f2f9";
+document.getElementById("theme-meta").content = isDark() ? "#18181b" : "#f4f2f9";
 
 function doRefresh() {
   const btn = document.getElementById("refresh-btn");
@@ -1839,7 +1907,7 @@ function _renderInner() {
           ${wd.rainProb !== null ? `
           <div style="margin-top:3px;display:flex;align-items:center;gap:3px">
             <div style="flex:1;height:3px;border-radius:2px;background:var(--border);overflow:hidden">
-              <div style="width:${wd.rainProb}%;height:100%;border-radius:2px;background:${wd.rainProb>60?"#268931":wd.rainProb>30?"#60c07a":"#a8dbb5"}"></div>
+              <div style="width:${wd.rainProb}%;height:100%;border-radius:2px;background:${isDark()?(wd.rainProb>60?"#3b82f6":wd.rainProb>30?"#93c5fd":"#bfdbfe"):(wd.rainProb>60?"#268931":wd.rainProb>30?"#60c07a":"#a8dbb5")}"></div>
             </div>
             <span style="font-size:.6rem;color:var(--text3);flex-shrink:0">${wd.rainProb}%</span>
           </div>` : ""}` : ""}
@@ -1935,9 +2003,9 @@ function _renderInner() {
             <div class="card-head"><span class="card-title"><span class="di">🌡</span> ${t("temp")}</span></div>
             <div style="padding:10px 0 10px">
               <svg viewBox="0 0 ${W} ${H+20}" style="width:100%;height:140px;display:block">
-                <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#03e946" stop-opacity=".18"/><stop offset="100%" stop-color="#03e946" stop-opacity="0"/></linearGradient></defs>
+                <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${isDark()?"#bae6fd":"#03e946"}" stop-opacity=".22"/><stop offset="100%" stop-color="${isDark()?"#bae6fd":"#03e946"}" stop-opacity="0"/></linearGradient></defs>
                 <path d="${area}" fill="url(#tg)"/>
-                <path d="${path}" fill="none" stroke="#268931" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                <path d="${path}" fill="none" stroke="${isDark()?"#bae6fd":"#268931"}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
                 ${valLabels}
                 ${axisLabels}
               </svg>
@@ -1951,7 +2019,9 @@ function _renderInner() {
       if (airQuality) {
         const aqi = airQuality.aqi;
         const aqiPct = aqi !== null ? Math.min(100, Math.round(aqi)) : 0;
-        const aqiCol = aqi <= 20 ? "#03e946" : aqi <= 40 ? "#268931" : aqi <= 60 ? "#c07800" : aqi <= 80 ? "#c0392b" : "#7b1a13";
+        const aqiCol = isDark()
+          ? (aqi <= 20 ? "#bae6fd" : aqi <= 40 ? "#7cb8d4" : aqi <= 60 ? "#fb923c" : aqi <= 80 ? "#f87171" : "#ef4444")
+          : (aqi <= 20 ? "#03e946" : aqi <= 40 ? "#268931" : aqi <= 60 ? "#c07800" : aqi <= 80 ? "#c0392b" : "#7b1a13");
         rows.push(`<div class="card">
           <div class="card-head"><span class="card-title"><span class="di">💨</span> ${t("air_quality_title")}</span></div>
           <div style="padding:10px 16px 14px">
@@ -2761,7 +2831,9 @@ function renderTrendChart() {
   const n = allDays.length;
 
   // Colors for top pollen types
-  const colors = ["#03e946","#268931","#c0392b","#3b82f6","#a855f7","#c07800","#ffbea0","#ec4899"];
+  const colors = isDark()
+    ? ["#bae6fd","#eab308","#b91c1c","#3b82f6","#a855f7","#f97316","#bae6fd","#ec4899"]
+    : ["#03e946","#268931","#c0392b","#3b82f6","#a855f7","#c07800","#ffbea0","#ec4899"];
 
   // Get top 3 filtered pollen by avg level
   const pollenAvgs = POLLEN.filter(p => filter.includes(p.key)).map(p => {
@@ -3080,7 +3152,10 @@ function refreshDrawer() {
       </div>
       <div style="padding:10px 14px 14px;border-top:1px solid var(--border)">
         <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:8px">${t("uv_scale")}</div>
-        ${[["0–2",t("uv_low"),"#03e946"],["3–5",t("uv_moderate"),"#268931"],["6–7",t("uv_high"),"#c07800"],["8–10",t("uv_very_high"),"#c0392b"],["11+",t("uv_extreme"),"#7b1a13"]].map(([range,cat,col])=>`
+        ${(isDark()
+          ? [["0–2",t("uv_low"),"#bae6fd"],["3–5",t("uv_moderate"),"#7cb8d4"],["6–7",t("uv_high"),"#fb923c"],["8–10",t("uv_very_high"),"#f87171"],["11+",t("uv_extreme"),"#ef4444"]]
+          : [["0–2",t("uv_low"),"#03e946"],["3–5",t("uv_moderate"),"#268931"],["6–7",t("uv_high"),"#c07800"],["8–10",t("uv_very_high"),"#c0392b"],["11+",t("uv_extreme"),"#7b1a13"]]
+        ).map(([range,cat,col])=>`
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:.8rem">
           <div style="width:10px;height:10px;border-radius:50%;background:${col};flex-shrink:0"></div>
           <span style="width:36px;color:var(--text3);flex-shrink:0">${range}</span>
