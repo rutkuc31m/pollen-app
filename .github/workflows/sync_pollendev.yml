@@ -15,11 +15,9 @@ jobs:
           fetch-depth: 0
 
       - name: Push to pollendev repo
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
-          gh auth setup-git
-          git remote add pollendev https://github.com/rutkuc31m/pollendev.git
+          git config --unset http.https://github.com/.extraheader || true
+          git remote add pollendev https://x-access-token:${{ secrets.GH_PAT }}@github.com/rutkuc31m/pollendev.git
           git push pollendev dev:main --force
