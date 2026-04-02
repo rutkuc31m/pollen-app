@@ -3301,7 +3301,7 @@ async function loadDE() {
          oninput="citySearch(this.value,'de-city-results')"
          onfocus="this.dataset.prev=this.value; this.value=''"
          onblur="if(!this.value.trim()){this.value=this.dataset.prev||''}" autocomplete="off" autocorrect="off" spellcheck="false">
-       <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.75rem;pointer-events:none;filter:grayscale(1) brightness(10)">🔍</span>
+       <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.75rem;pointer-events:none;opacity:0.45">🔍</span>
        <div id="de-city-results" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:200;overflow:hidden;box-shadow:var(--sh)"></div>
      </div>
      <button class="geo-btn" id="geo-btn" onclick="geoLocate()" title="${t("geo_title")}"><span class="di">📍</span></button>`;
@@ -3340,7 +3340,7 @@ async function loadGlobal() {
          oninput="citySearch(this.value,'om-city-results')"
          onfocus="this.dataset.prev=this.value; this.value=''"
          onblur="if(!this.value.trim()){this.value=this.dataset.prev||''}" autocomplete="off" autocorrect="off" spellcheck="false">
-       <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.75rem;pointer-events:none;filter:grayscale(1) brightness(10)">🔍</span>
+       <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.75rem;pointer-events:none;opacity:0.45">🔍</span>
        <div id="om-city-results" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:200;overflow:hidden;box-shadow:var(--sh)"></div>
      </div>
      <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}"><span class="di">📍</span></button>${srcTabsHTML()}`;
