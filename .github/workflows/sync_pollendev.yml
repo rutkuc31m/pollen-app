@@ -16,11 +16,10 @@ jobs:
 
       - name: Push to pollendev repo
         env:
-          TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
-          git config --global credential.helper ""
-          git config --global url."https://${TOKEN}@github.com/".insteadOf "https://github.com/"
+          gh auth setup-git
           git remote add pollendev https://github.com/rutkuc31m/pollendev.git
           git push pollendev dev:main --force
