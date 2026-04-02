@@ -20,5 +20,7 @@ jobs:
         run: |
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
-          git remote add pollendev https://oauth2:${TOKEN}@github.com/rutkuc31m/pollendev.git
+          git config --global credential.helper ""
+          git config --global url."https://${TOKEN}@github.com/".insteadOf "https://github.com/"
+          git remote add pollendev https://github.com/rutkuc31m/pollendev.git
           git push pollendev dev:main --force
