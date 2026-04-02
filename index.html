@@ -1548,6 +1548,13 @@ function dStr(n) {
 function lv(v)  { return LV[String(v)] ?? {cls:"b-none",sc:0,label:String(v),rc:"none"}; }
 function lvBar(sc, size="sm") {
   if (sc === 0) return `<span style="color:var(--text3);font-size:.85rem;line-height:1">–</span>`;
+  if (size === "sm") {
+    const pct = [0,33,66,100][sc];
+    const dark = isDark();
+    const col  = dark ? [null,"#bae6fd","#fb923c","#f87171"][sc] : [null,"#03e946","#c07800","#c0392b"][sc];
+    const track = dark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.12)";
+    return `<span style="display:inline-block;width:52px;height:5px;background:${track};border-radius:3px;overflow:hidden;flex-shrink:0"><span style="display:block;height:100%;width:${pct}%;background:${col};border-radius:3px"></span></span>`;
+  }
   return `<span class="lv-bars ${size}">${[1,2,3,4].map(i=>`<span class="b${i<=sc?" on":""}"></span>`).join("")}</span>`;
 }
 function windDirText(deg) {
