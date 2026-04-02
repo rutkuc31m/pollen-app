@@ -23,19 +23,20 @@
   <meta name="twitter:description" content="Tägliche Pollenflug-Vorhersage mit Allergierisiko, Symptom-Tracker und Medikamenten-Tracking.">
   <title>Pollenflug</title>
   <style>
-    /* ── TOKENS (Dark Mode only) ────────────────────── */
+    /* ── TOKENS ─────────────────────────────────────── */
     :root {
-      --bg:      #0a0a0b;
-      --card:    #18181b;
-      --card2:   #27272a;
-      --border:  #3f3f46;
-      --text:    #fafafa;
-      --text2:   #a1a1aa;
-      --text3:   #71717a;
-      --accent:  #bae6fd;
-      --accent-subtle: #0c2840;
+      --bg:      #f4f2f9;
+      --card:    #ffffff;
+      --card2:   #f8f6fd;
+      --border:  #e6e1f4;
+      --text:    #1a1620;
+      --text2:   #6f7a6b;
+      --text3:   #9aa59a;
+      --accent:  #03e946;
+      --accent2: #268931;
+      --accent-subtle: rgba(3,233,70,0.10);
       --r:       13px;
-      --sh:      0 1px 3px rgba(0,0,0,.5);
+      --sh:      0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
     }
 
     /* ── BASE ────────────────────────────────────────── */
@@ -51,7 +52,10 @@
 
     /* ── HEADER ──────────────────────────────────────── */
     .topbar {
-      background: var(--card);
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
       position: sticky; top: 0; z-index: 99;
       padding: 0 16px;
     }
@@ -62,16 +66,16 @@
     }
     .logo { font-weight: 700; font-size: 1rem; flex: 1; letter-spacing: -.2px; }
     .logo em { color: var(--accent); font-style: normal; }
-    .logo-icon, .tab-btn .tab-icon { filter: grayscale(1) brightness(10); }
+    .logo-icon, .tab-btn .tab-icon { }
     .icon-btn {
       width: 34px; height: 34px; border-radius: 8px;
       border: 1px solid var(--border);
-      background: var(--card2); color: var(--text);
+      background: var(--card); color: var(--text);
       cursor: pointer; font-size: .95rem;
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
+      flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,.06);
     }
-    .icon-btn:hover { background: var(--border); }
+    .icon-btn:hover { background: var(--card2); }
     .offline-pill {
       font-size: .7rem; background: #f97316; color: #fff;
       padding: 2px 9px; border-radius: 20px; display: none;
@@ -100,7 +104,7 @@
 
     /* ── TABS ────────────────────────────────────────── */
     .tab-bar {
-      background: var(--card);
+      background: transparent;
       border-bottom: 1px solid var(--border);
       padding: 0 16px;
     }
@@ -150,9 +154,9 @@
       display: flex; align-items: center; gap: 16px;
       transition: background 0.4s ease;
     }
-    .hero:has(.risk-low)  { background: radial-gradient(ellipse at 20% 50%, rgba(186,230,253,0.06) 0%, var(--card) 60%); }
-    .hero:has(.risk-mid)  { background: radial-gradient(ellipse at 20% 50%, rgba(251,146,60,0.07) 0%, var(--card) 60%); }
-    .hero:has(.risk-high) { background: radial-gradient(ellipse at 20% 50%, rgba(248,113,113,0.08) 0%, var(--card) 60%); }
+    .hero:has(.risk-low)  { background: radial-gradient(ellipse at 20% 50%, rgba(3,233,70,0.07) 0%, var(--card) 65%); }
+    .hero:has(.risk-mid)  { background: radial-gradient(ellipse at 20% 50%, rgba(192,120,0,0.07) 0%, var(--card) 65%); }
+    .hero:has(.risk-high) { background: radial-gradient(ellipse at 20% 50%, rgba(192,57,43,0.08) 0%, var(--card) 65%); }
     .hero-badge {
       width: 64px; height: 64px; border-radius: 16px;
       display: flex; align-items: center; justify-content: center;
@@ -173,10 +177,10 @@
     }
 
     /* colour tokens per level */
-    .risk-none  { --rc:#a1a1aa; --rb:#27272a; }
-    .risk-low   { --rc:#bae6fd; --rb:#0c2840; }
-    .risk-mid   { --rc:#fb923c; --rb:#1c0900; }
-    .risk-high  { --rc:#f87171; --rb:#1c0000; }
+    .risk-none  { --rc:#9aa59a; --rb:#f0eef8; }
+    .risk-low   { --rc:#268931; --rb:#e8fbed; }
+    .risk-mid   { --rc:#c07800; --rb:#fff3dc; }
+    .risk-high  { --rc:#c0392b; --rb:#fde8e6; }
     .risk-none,.risk-low,.risk-mid,.risk-high {
       color: var(--rc); background: var(--rb);
     }
@@ -220,7 +224,7 @@
     .ptable tr.dim { opacity: .35; }
     .ptable tr.active-row td:first-child { border-left: 3px solid var(--accent); }
     .pname  { font-weight: 500; font-size: .86rem; }
-    .picon  { font-size: 1rem; filter: grayscale(1) brightness(10); }
+    .picon  { font-size: 1rem; }
     td .picon, .corr-name .picon, .season-name .picon, .trend-leg-item .picon, .driver-pill .picon { margin-right: 3px; }
     .ps     { font-size: .68rem; display: block; margin-top: 1px; }
     .ps.on  { color: var(--accent); }
@@ -230,15 +234,15 @@
       font-size: .76rem; font-weight: 500;
     }
     .b-none { color: var(--text3); }
-    .b-low  { color:#bae6fd; }
-    .b-mid  { color:#bae6fd; }
-    .b-high { color:#bae6fd; }
+    .b-low  { color: var(--accent2); }
+    .b-mid  { color: #c07800; }
+    .b-high { color: #c0392b; }
     .col-hi { font-weight: 600; }
 
     /* ── LEVEL BARS ──────────────────────────────────── */
     .lv-bars { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; }
-    .lv-bars .b { border-radius: 2px; background: rgba(255,255,255,0.12); flex-shrink: 0; }
-    .lv-bars .b.on { background: var(--accent); }
+    .lv-bars .b { border-radius: 2px; background: rgba(0,0,0,0.10); flex-shrink: 0; }
+    .lv-bars .b.on { background: var(--accent2); }
     .lv-bars.sm .b { width: 4px; height: 10px; }
     .lv-bars.md .b { width: 5px; height: 16px; }
     .lv-bars.lg .b { width: 8px; height: 26px; }
@@ -262,14 +266,10 @@
     }
     .wh-cell.wh-today { outline: 2px solid var(--accent); outline-offset: -1px; }
     .wh-cell.wh-future { opacity: .3; }
-    .wh-cell[data-sc="0"] { background: color-mix(in srgb, #bae6fd 18%, var(--card)); color: #bae6fd; }
-    .wh-cell[data-sc="1"] { background: color-mix(in srgb, #bae6fd 35%, var(--card)); color: #bae6fd; }
-    .wh-cell[data-sc="2"] { background: color-mix(in srgb, #c2410c 45%, var(--card)); color: #7c2d12; }
-    .wh-cell[data-sc="3"] { background: color-mix(in srgb, #b91c1c 55%, var(--card)); color: #7f1d1d; }
-    .wh-cell[data-sc="0"] { color: #bae6fd; }
-    .wh-cell[data-sc="1"] { color: #bae6fd; }
-    .wh-cell[data-sc="2"] { color: #fb923c; }
-    .wh-cell[data-sc="3"] { color: #fca5a5; }
+    .wh-cell[data-sc="0"] { background: #e8fbed; color: #268931; }
+    .wh-cell[data-sc="1"] { background: #fff3dc; color: #c07800; }
+    .wh-cell[data-sc="2"] { background: #fde8cf; color: #a04800; }
+    .wh-cell[data-sc="3"] { background: #fde8e6; color: #c0392b; }
     .wh-date { font-size: .6rem; line-height: 1; }
     .wh-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; margin-top: 2px; }
     .wh-legend { display: flex; gap: 10px; padding: 8px 0 0 52px; flex-wrap: wrap; }
@@ -287,12 +287,9 @@
       background: var(--border);
       position: relative;
     }
-    .s25-cell[data-v="1"] { background: color-mix(in srgb,#bae6fd 45%,var(--card)); }
-    .s25-cell[data-v="2"] { background: color-mix(in srgb,#c2410c 58%,var(--card)); }
-    .s25-cell[data-v="3"] { background: color-mix(in srgb,#b91c1c 68%,var(--card)); }
-    .s25-cell[data-v="1"] { background: #0c2840; }
-    .s25-cell[data-v="2"] { background: #431407; }
-    .s25-cell[data-v="3"] { background: #7f1d1d; }
+    .s25-cell[data-v="1"] { background: #c6f0d0; }
+    .s25-cell[data-v="2"] { background: #ffe5a0; }
+    .s25-cell[data-v="3"] { background: #f8c4c0; }
     .s25-note { padding: 8px 0 0; font-size: .65rem; color: var(--text3); font-style: italic; }
     .s25-tip {
       position: fixed; z-index: 999;
@@ -309,7 +306,7 @@
       padding: 10px 14px; display: flex; align-items: center; gap: 10px;
       border-top: 1px solid var(--border);
     }
-    .sym-icon  { font-size: 1.1rem; width: 24px; text-align: center; flex-shrink: 0; filter: grayscale(1) brightness(10); }
+    .sym-icon  { font-size: 1.1rem; width: 24px; text-align: center; flex-shrink: 0; }
     .sym-label { font-size: .84rem; width: 70px; flex-shrink: 0; }
     .sym-scale { display: flex; gap: 4px; flex: 1; }
     .sym-btn {
@@ -391,9 +388,9 @@
     .wd-temp { font-size: .8rem; font-weight: 700; }
     .wd-rain { font-size: .62rem; color: var(--text3); margin-top: 1px; }
     .wd-uv   { font-size: .6rem; color: var(--text3); margin-top: 1px; }
-    .uv-hi   { color: #3f3f46; }
-    .uv-mid  { color: #7cb8d4; }
-    .uv-low  { color: #bae6fd; }
+    .uv-hi   { color: #c0392b; }
+    .uv-mid  { color: #c07800; }
+    .uv-low  { color: #268931; }
 
     /* ── CORRELATION ─────────────────────────────────── */
     .corr-wrap { padding: 10px 14px 14px; border-top: 1px solid var(--border); }
@@ -456,7 +453,7 @@
       font-size: .82rem; font-weight: 500;
     }
     .time-win.good  { background: color-mix(in srgb, var(--accent) 15%, var(--card)); color: var(--accent); }
-    .time-win.warn  { background: #2d1515; color: #f87171; }
+    .time-win.warn  { background: #fde8e6; color: #c0392b; }
     .time-win.none  { background: var(--card2); color: var(--text2); }
     .time-note { font-size: .67rem; color: var(--text3); padding: 2px 14px 12px; }
 
@@ -464,8 +461,8 @@
     .tips-group { padding: 10px 14px 6px; }
     .tips-group + .tips-group { padding-top: 4px; }
     .tips-group-title { font-size: .67rem; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
-    .di { filter: grayscale(1) brightness(10); }
-    .drawer-label-icon { filter: grayscale(1) brightness(10); }
+    .di { }
+    .drawer-label-icon { }
     .tip-row { display: flex; align-items: baseline; gap: 7px; font-size: .82rem; padding: 2px 0; }
     .tip-ok   { color: var(--text3); font-size: .6rem; flex-shrink: 0; }
     .tip-no   { color: var(--text3); font-size: .6rem; flex-shrink: 0; }
@@ -482,15 +479,14 @@
     .nearby-dist { font-size: .7rem; color: var(--text3); width: 50px; text-align: right; flex-shrink: 0; }
     .escape-box {
       margin: 4px 14px 14px; padding: 10px 13px; border-radius: 9px;
-      background: #0c2840; color: #bae6fd; font-size: .82rem; line-height: 1.4;
-      border: 1px solid #a5f3fc;
+      background: #e8fbed; color: #268931; font-size: .82rem; line-height: 1.4;
+      border: 1px solid rgba(38,137,49,0.25);
     }
-    .escape-box { background: #0c2840; color: #bae6fd; border-color: color-mix(in srgb, #bae6fd 20%, transparent); }
 
     /* ── TOAST ───────────────────────────────────────── */
     #toast {
       position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-      background: #18181b; color: #fafafa;
+      background: #1a1620; color: #f4f2f9;
       padding: 9px 18px; border-radius: 20px;
       font-size: .83rem; z-index: 300;
       opacity: 0; pointer-events: none;
@@ -519,7 +515,7 @@
     .np-btns { display: flex; flex-direction: column; gap: 9px; }
     .np-btn-yes {
       padding: 12px; border-radius: 12px; border: none; cursor: pointer;
-      background: var(--accent); color: #fff; font-size: .92rem; font-weight: 600;
+      background: var(--accent); color: #0a1a0e; font-size: .92rem; font-weight: 600;
     }
     .np-btn-no {
       padding: 10px; border-radius: 12px; border: 1px solid var(--border); cursor: pointer;
@@ -553,16 +549,13 @@
       font-size: .8rem; color: var(--text2);
       margin-top: 5px; line-height: 1.4;
       padding: 5px 8px; border-radius: 7px;
-      background: color-mix(in srgb, var(--rc, #71717a) 8%, var(--card));
+      background: color-mix(in srgb, var(--rc, #9aa59a) 8%, var(--card));
     }
 
     /* ── CORRELATION IMPROVEMENTS ────────────────────── */
-    .corr-fill-low  { background: #bae6fd; }
-    .corr-fill-mid  { background: #c2410c; }
-    .corr-fill-high { background: #b91c1c; }
-    .corr-fill-low  { background: #bae6fd; }
-    .corr-fill-mid  { background: #fb923c; }
-    .corr-fill-high { background: #f87171; }
+    .corr-fill-low  { background: #03e946; }
+    .corr-fill-mid  { background: #c07800; }
+    .corr-fill-high { background: #c0392b; }
     .corr-meta { font-size: .67rem; color: var(--text3); margin-top: 2px; }
     .corr-no-data { font-size: .76rem; color: var(--text3); font-style: italic; padding: 4px 0; }
     .corr-n-label { font-size: .64rem; color: var(--text3); opacity: .8; }
@@ -581,7 +574,7 @@
       padding: 8px 14px; display: flex; align-items: center; gap: 8px;
       border-top: 1px solid var(--border);
     }
-    .med-icon { font-size: 1rem; width: 24px; text-align: center; flex-shrink: 0; filter: grayscale(1) brightness(10); }
+    .med-icon { font-size: 1rem; width: 24px; text-align: center; flex-shrink: 0; }
     .med-label { font-size: .82rem; flex: 1; min-width: 0; }
     .med-toggle {
       width: 40px; height: 22px; border-radius: 11px;
@@ -1462,7 +1455,7 @@ function loadFilterFor(pollenList, lsKey) {
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME (dark only)
 // ─────────────────────────────────────────────────────────────────────────────
-document.getElementById("theme-meta").content = "#18181b";
+document.getElementById("theme-meta").content = "#f4f2f9";
 
 function doRefresh() {
   const btn = document.getElementById("refresh-btn");
@@ -1767,7 +1760,7 @@ function _renderInner() {
       <div class="card" style="margin-bottom:12px">
         <div class="card-head">
           <span class="card-title"><span class="di">🌤</span> ${t("weather_title")}</span>
-          <span style="font-size:.72rem;color:#bae6fd">${fetchedStr ? `${fetchedStr} · ` : ""}Open-Meteo</span>
+          <span style="font-size:.72rem;color:var(--text3)">${fetchedStr ? `${fetchedStr} · ` : ""}Open-Meteo</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:12px 14px 6px;text-align:center">
           ${[[w.code!=null?wmoIcon(w.code):"🌡",t("temp"),`${w.temp}${weather.units.temp}`],["💨",t("wind"),`${d.wind} ${weather.units.wind}`],["💧",t("humidity"),`${w.humidity}%`],["🌧",t("rain"),`${d.rain} ${weather.units.rain}`],["☀️",t("uv"),`<span class="${uvCls}">${uvLabel}</span>`]].map(([ic,lb,val])=>`
@@ -1846,7 +1839,7 @@ function _renderInner() {
           ${wd.rainProb !== null ? `
           <div style="margin-top:3px;display:flex;align-items:center;gap:3px">
             <div style="flex:1;height:3px;border-radius:2px;background:var(--border);overflow:hidden">
-              <div style="width:${wd.rainProb}%;height:100%;border-radius:2px;background:${wd.rainProb>60?"#3b82f6":wd.rainProb>30?"#93c5fd":"#bfdbfe"}"></div>
+              <div style="width:${wd.rainProb}%;height:100%;border-radius:2px;background:${wd.rainProb>60?"#268931":wd.rainProb>30?"#60c07a":"#a8dbb5"}"></div>
             </div>
             <span style="font-size:.6rem;color:var(--text3);flex-shrink:0">${wd.rainProb}%</span>
           </div>` : ""}` : ""}
@@ -1942,9 +1935,9 @@ function _renderInner() {
             <div class="card-head"><span class="card-title"><span class="di">🌡</span> ${t("temp")}</span></div>
             <div style="padding:10px 0 10px">
               <svg viewBox="0 0 ${W} ${H+20}" style="width:100%;height:140px;display:block">
-                <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#bae6fd" stop-opacity=".3"/><stop offset="100%" stop-color="#bae6fd" stop-opacity="0"/></linearGradient></defs>
+                <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#03e946" stop-opacity=".18"/><stop offset="100%" stop-color="#03e946" stop-opacity="0"/></linearGradient></defs>
                 <path d="${area}" fill="url(#tg)"/>
-                <path d="${path}" fill="none" stroke="#bae6fd" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                <path d="${path}" fill="none" stroke="#268931" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
                 ${valLabels}
                 ${axisLabels}
               </svg>
@@ -1958,7 +1951,7 @@ function _renderInner() {
       if (airQuality) {
         const aqi = airQuality.aqi;
         const aqiPct = aqi !== null ? Math.min(100, Math.round(aqi)) : 0;
-        const aqiCol = aqi <= 20 ? "#e0f2fe" : aqi <= 40 ? "#bae6fd" : aqi <= 60 ? "#7cb8d4" : aqi <= 80 ? "#4a7a93" : "#1e3a4a";
+        const aqiCol = aqi <= 20 ? "#03e946" : aqi <= 40 ? "#268931" : aqi <= 60 ? "#c07800" : aqi <= 80 ? "#c0392b" : "#7b1a13";
         rows.push(`<div class="card">
           <div class="card-head"><span class="card-title"><span class="di">💨</span> ${t("air_quality_title")}</span></div>
           <div style="padding:10px 16px 14px">
@@ -1979,7 +1972,7 @@ function _renderInner() {
     ${activeTab === "pollen" ? `
     ${db.pollen_available === false ? `
     <!-- POLLEN UNAVAILABLE NOTICE -->
-    <div style="margin-bottom:10px;padding:10px 14px;border-radius:10px;background:color-mix(in srgb,#71717a 10%,var(--card));border:1px solid color-mix(in srgb,#71717a 25%,transparent);font-size:.82rem;color:var(--text2);line-height:1.5;text-align:center">
+    <div style="margin-bottom:10px;padding:10px 14px;border-radius:10px;background:color-mix(in srgb,#9aa59a 10%,var(--card));border:1px solid color-mix(in srgb,#9aa59a 25%,transparent);font-size:.82rem;color:var(--text2);line-height:1.5;text-align:center">
       🌿 ${t("pollen_unavailable")}
     </div>` : `
     <!-- ALLERGY PROFILE (MAIN PAGE) -->
@@ -2768,7 +2761,7 @@ function renderTrendChart() {
   const n = allDays.length;
 
   // Colors for top pollen types
-  const colors = ["#bae6fd","#eab308","#b91c1c","#3b82f6","#a855f7","#f97316","#bae6fd","#ec4899"];
+  const colors = ["#03e946","#268931","#c0392b","#3b82f6","#a855f7","#c07800","#ffbea0","#ec4899"];
 
   // Get top 3 filtered pollen by avg level
   const pollenAvgs = POLLEN.filter(p => filter.includes(p.key)).map(p => {
@@ -3087,7 +3080,7 @@ function refreshDrawer() {
       </div>
       <div style="padding:10px 14px 14px;border-top:1px solid var(--border)">
         <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:8px">${t("uv_scale")}</div>
-        ${[["0–2",t("uv_low"),"#e0f2fe"],["3–5",t("uv_moderate"),"#bae6fd"],["6–7",t("uv_high"),"#7cb8d4"],["8–10",t("uv_very_high"),"#4a7a93"],["11+",t("uv_extreme"),"#1e3a4a"]].map(([range,cat,col])=>`
+        ${[["0–2",t("uv_low"),"#03e946"],["3–5",t("uv_moderate"),"#268931"],["6–7",t("uv_high"),"#c07800"],["8–10",t("uv_very_high"),"#c0392b"],["11+",t("uv_extreme"),"#7b1a13"]].map(([range,cat,col])=>`
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:.8rem">
           <div style="width:10px;height:10px;border-radius:50%;background:${col};flex-shrink:0"></div>
           <span style="width:36px;color:var(--text3);flex-shrink:0">${range}</span>
