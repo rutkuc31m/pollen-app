@@ -717,7 +717,7 @@
       <button class="icon-btn" id="lang-btn-tr" onclick="setLang('tr')" style="font-size:.7rem;font-weight:700;width:auto;padding:4px 10px;border-radius:0 6px 6px 0">TR</button>
     </div>
     <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Theme wechseln" aria-label="Theme wechseln" style="font-size:.9rem">🌙</button>
-    <button class="icon-btn" id="refresh-btn" onclick="doRefresh()" title="Aktualisieren" aria-label="Aktualisieren" style="font-size:.95rem">↻</button>
+    <button class="icon-btn" id="refresh-btn" onclick="doRefresh()" title="Aktualisieren" aria-label="Aktualisieren" style="font-size:.95rem">🔄</button>
   </div>
   <div class="regionbar">
     <div class="regionbar-inner" id="regionbar-inner">
@@ -729,7 +729,7 @@
   <div class="tab-bar">
     <div class="tab-bar-inner">
       <button class="tab-btn active" id="tab-pollen" onclick="setTab('pollen')"><span class="tab-icon">🌿</span> Pollen</button>
-      <button class="tab-btn" id="tab-weather" onclick="setTab('weather')"><span class="tab-icon">🌤</span> Wetter</button>
+      <button class="tab-btn" id="tab-weather" onclick="setTab('weather')"><span class="tab-icon">🌤️</span> Wetter</button>
     </div>
   </div>
 </div>
@@ -791,7 +791,7 @@ function setLang(newLang) {
   const tabPollen = document.getElementById("tab-pollen");
   const tabWeather = document.getElementById("tab-weather");
   if (tabPollen) tabPollen.innerHTML = `<span class="tab-icon">🌿</span> ` + t("tab_pollen");
-  if (tabWeather) tabWeather.innerHTML = `<span class="tab-icon">🌤</span> ` + t("tab_weather");
+  if (tabWeather) tabWeather.innerHTML = `<span class="tab-icon">🌤️</span> ` + t("tab_weather");
 }
 
 const STRINGS = {
@@ -845,7 +845,7 @@ const STRINGS = {
     season_title:"Saisonkalender",
     legend_title:"Legende",
     risk_calc_title:"Wie wird dein Risiko berechnet?",
-    risk_calc_body:"Das <strong>persönliche Risiko</strong> oben entspricht dem <strong>höchsten Einzelwert</strong> deiner ausgewählten Pollen (grüner Rand in der Tabelle).<br><br>Beispiel: Hasel = gering, Erle = hoch → Risiko = <strong>hoch</strong>.",
+    risk_calc_body:"Das <strong>persönliche Risiko</strong> oben entspricht dem <strong>höchsten Einzelwert</strong> deiner ausgewählten Pollen (grüner Rand in der Tabelle).<br><br>Beispiel: Hasel = gering, Erle = hoch ➡️ Risiko = <strong>hoch</strong>.",
     uv_scale:"UV-Index Skala (WHO, 0–11+)",
     uv_low:"niedrig", uv_moderate:"mäßig", uv_high:"hoch", uv_very_high:"sehr hoch", uv_extreme:"extrem",
     trend_rising:"steigt morgen", trend_falling:"sinkt morgen", trend_stable:"stabil",
@@ -864,9 +864,9 @@ const STRINGS = {
     geo_unsupported:"Geolocation wird nicht unterstützt.",
     n_label:"Niesen", a_label:"Augen", at_label:"Atmung", m_label:"Müdigkeit",
     logo_title:"Pollenflug",
-    ptr_pull: "↓ Ziehen",
-    ptr_release: "↺ Loslassen",
-    ptr_loading: "⟳ Aktualisiere…",
+    ptr_pull: "⬇️ Ziehen",
+    ptr_release: "🔄 Loslassen",
+    ptr_loading: "🔄 Aktualisiere…",
     sym_hints: ["keine","leicht","mäßig","stark"],
     corr_days: "Letzte 90 Tage",
     // exposure score
@@ -919,7 +919,7 @@ const STRINGS = {
     data_title: "Daten",
     data_export: "Exportieren",
     data_import: "Importieren",
-    data_import_ok: "Importiert ✓",
+    data_import_ok: "Importiert ✅",
     data_import_err: "Ungültige Datei",
     data_export_hint: "Symptome & Verlauf als JSON",
     // prediction
@@ -1038,7 +1038,7 @@ const STRINGS = {
     season_title:"Season calendar",
     legend_title:"Legend",
     risk_calc_title:"How is your risk calculated?",
-    risk_calc_body:"Your <strong>personal risk</strong> equals the <strong>highest individual value</strong> among your selected pollen (green border in the table).<br><br>Example: Hazel = low, Alder = high → Risk = <strong>high</strong>.",
+    risk_calc_body:"Your <strong>personal risk</strong> equals the <strong>highest individual value</strong> among your selected pollen (green border in the table).<br><br>Example: Hazel = low, Alder = high ➡️ Risk = <strong>high</strong>.",
     uv_scale:"UV Index Scale (WHO, 0–11+)",
     uv_low:"low", uv_moderate:"mod.", uv_high:"high", uv_very_high:"v. high", uv_extreme:"extreme",
     trend_rising:"rising tomorrow", trend_falling:"falling tomorrow", trend_stable:"stable",
@@ -1057,9 +1057,9 @@ const STRINGS = {
     geo_unsupported:"Geolocation is not supported.",
     n_label:"Sneezing", a_label:"Eyes", at_label:"Breathing", m_label:"Fatigue",
     logo_title:"Pollen",
-    ptr_pull: "↓ Pull to refresh",
-    ptr_release: "↺ Release to refresh",
-    ptr_loading: "⟳ Refreshing…",
+    ptr_pull: "⬇️ Pull to refresh",
+    ptr_release: "🔄 Release to refresh",
+    ptr_loading: "🔄 Refreshing…",
     sym_hints: ["none","mild","moderate","severe"],
     corr_days: "Last 90 days",
     // exposure score
@@ -1112,7 +1112,7 @@ const STRINGS = {
     data_title: "Data",
     data_export: "Export",
     data_import: "Import",
-    data_import_ok: "Imported ✓",
+    data_import_ok: "Imported ✅",
     data_import_err: "Invalid file",
     data_export_hint: "Symptoms & history as JSON",
     // prediction
@@ -1224,7 +1224,7 @@ const STRINGS = {
     season_title:"Sezon takvimi",
     legend_title:"Açıklama",
     risk_calc_title:"Riskiniz nasıl hesaplanır?",
-    risk_calc_body:"<strong>Kişisel risk</strong>, seçilen polenler arasındaki <strong>en yüksek değere</strong> eşittir (tabloda yeşil kenarlık).<br><br>Örnek: Huş = düşük, Zeytin = yüksek → Risk = <strong>yüksek</strong>.",
+    risk_calc_body:"<strong>Kişisel risk</strong>, seçilen polenler arasındaki <strong>en yüksek değere</strong> eşittir (tabloda yeşil kenarlık).<br><br>Örnek: Huş = düşük, Zeytin = yüksek ➡️ Risk = <strong>yüksek</strong>.",
     uv_scale:"UV Endeksi Skalası (WHO, 0–11+)",
     uv_low:"düşük", uv_moderate:"orta", uv_high:"yüksek", uv_very_high:"çok yüksek", uv_extreme:"aşırı",
     trend_rising:"yarın artıyor", trend_falling:"yarın azalıyor", trend_stable:"sabit",
@@ -1243,9 +1243,9 @@ const STRINGS = {
     geo_unsupported:"Coğrafi konum desteklenmiyor.",
     n_label:"Hapşırık", a_label:"Gözler", at_label:"Nefes", m_label:"Yorgunluk",
     logo_title:"Polen",
-    ptr_pull:"↓ Çek",
-    ptr_release:"↺ Bırak",
-    ptr_loading:"⟳ Yenileniyor…",
+    ptr_pull:"⬇️ Çek",
+    ptr_release:"🔄 Bırak",
+    ptr_loading:"🔄 Yenileniyor…",
     sym_hints:["yok","hafif","orta","şiddetli"],
     corr_days:"Son 90 gün",
     exposure_title:"Günlük polen yükü", of:"/ ",
@@ -1286,7 +1286,7 @@ const STRINGS = {
     data_title:"Veri",
     data_export:"Dışa aktar",
     data_import:"İçe aktar",
-    data_import_ok:"İçe aktarıldı ✓",
+    data_import_ok:"İçe aktarıldı ✅",
     data_import_err:"Geçersiz dosya",
     data_export_hint:"Semptomlar ve geçmiş (JSON)",
     allergy_profile:"Alerji profili",
@@ -1494,6 +1494,7 @@ let appMode      = "de";   // "de" | "om"
 let geoInfo      = null;   // { country_code, latitude, longitude, city, country }
 let db           = null;
 let weather      = null;   // { current, daily, fetchedAt }
+let weatherError = false;  // true when last loadWeather() failed
 let airQuality   = null;   // { aqi, pm10, pm2_5 }
 let _weatherAC   = null;   // AbortController for loadWeather()
 let rKey      = localStorage.getItem(LS.region)  || "30-32";
@@ -1689,7 +1690,7 @@ function render() {
         <div style="font-size:1.5rem;margin-bottom:8px">⚠️</div>
         <div style="font-size:.9rem;font-weight:600;margin-bottom:4px">${t("no_data")}</div>
         <div style="font-size:.78rem">${t("check_conn")}</div>
-        <button onclick="location.reload()" style="margin-top:12px;padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);cursor:pointer;font-size:.84rem">↻ Reload</button>
+        <button onclick="location.reload()" style="margin-top:12px;padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);cursor:pointer;font-size:.84rem">🔄 Reload</button>
       </div>`;
   }
   refreshDrawer();
@@ -1726,7 +1727,7 @@ function _renderInner() {
       const todayScore    = personalRisk(pol, 0).max;
       const tomorrowScore = personalRisk(pol, 1).max;
       const trend = activeDay === 0
-        ? (tomorrowScore > todayScore ? "↑" : tomorrowScore < todayScore ? "↓" : "→")
+        ? (tomorrowScore > todayScore ? "📈" : tomorrowScore < todayScore ? "📉" : "➡️")
         : "";
       const trendLabel = activeDay === 0
         ? (tomorrowScore > todayScore ? t("trend_rising") : tomorrowScore < todayScore ? t("trend_falling") : t("trend_stable"))
@@ -1812,7 +1813,14 @@ function _renderInner() {
     ` : `<!-- TAB: WEATHER -->`}
 
     <!-- WEATHER CARD -->
-    ${activeTab === "weather" && !weather ? `<div class="card" style="padding:20px 14px;text-align:center;color:var(--text2);font-size:.85rem">⏳ ${t("locating")}</div>` : ""}
+    ${activeTab === "weather" && !weather ? `<div class="card" style="padding:20px 14px;text-align:center;font-size:.85rem">
+      ${weatherError
+        ? `<div style="font-size:1.4rem;margin-bottom:8px">⚠️</div>
+           <div style="font-weight:600;margin-bottom:4px;color:var(--text)">${t("no_data")}</div>
+           <div style="color:var(--text3);font-size:.78rem;margin-bottom:12px">${t("check_conn")}</div>
+           <button onclick="weatherError=false;weather=null;loadWeather()" style="padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);cursor:pointer;font-size:.82rem">🔄 Retry</button>`
+        : `<div style="color:var(--text2)">⏳ ${t("locating")}</div>`}
+    </div>` : ""}
     ${activeTab === "weather" && weather ? (() => {
       const w = weather.current;
       const d = weather.daily[activeDay] ?? weather.daily[0];
@@ -1826,19 +1834,19 @@ function _renderInner() {
       // week day names
       const wkNames = lang==="de" ? ["Mo","Di","Mi","Do","Fr","Sa","So"] : lang==="tr" ? ["Pt","Sa","Ça","Pe","Cu","Ct","Pz"] : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
       function wkIcon(rain, wind) {
-        if (rain > 3) return "🌧";
-        if (rain > 0.5) return "🌦";
+        if (rain > 3) return "🌧️";
+        if (rain > 0.5) return "🌦️";
         if (wind > 25) return "💨";
         return "☀️";
       }
       return `
       <div class="card" style="margin-bottom:12px">
         <div class="card-head">
-          <span class="card-title"><span class="di">🌤</span> ${t("weather_title")}</span>
+          <span class="card-title"><span class="di">🌤️</span> ${t("weather_title")}</span>
           <span style="font-size:.72rem;color:var(--text3)">${fetchedStr ? `${fetchedStr} · ` : ""}Open-Meteo</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:12px 14px 6px;text-align:center">
-          ${[[w.code!=null?wmoIcon(w.code):"🌡",t("temp"),`${w.temp}${weather.units.temp}`],["💨",t("wind"),`${d.wind} ${weather.units.wind}`],["💧",t("humidity"),`${w.humidity}%`],["🌧",t("rain"),`${d.rain} ${weather.units.rain}`],["☀️",t("uv"),`<span class="${uvCls}">${uvLabel}</span>`]].map(([ic,lb,val])=>`
+          ${[[w.code!=null?wmoIcon(w.code):"🌡️",t("temp"),`${w.temp}${weather.units.temp}`],["💨",t("wind"),`${d.wind} ${weather.units.wind}`],["💧",t("humidity"),`${w.humidity}%`],["🌧️",t("rain"),`${d.rain} ${weather.units.rain}`],["☀️",t("uv"),`<span class="${uvCls}">${uvLabel}</span>`]].map(([ic,lb,val])=>`
           <div style="padding:6px 2px">
             <div style="font-size:1.05rem" class="di">${ic}</div>
             <div style="font-size:1.12rem;font-weight:700;margin:3px 0 2px">${val}</div>
@@ -1847,10 +1855,10 @@ function _renderInner() {
         </div>
         <div style="border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:10px 14px 8px;text-align:center">
           ${(()=>{ const moon=moonPhase(); return [
-            ["~°", d.apparentTemp !== null ? d.apparentTemp + weather.units.temp : "–", t("feels_like")],
-            ["↑",  windDirText(d.windDir), t("wind_dir"), null, d.windDir ?? 0],
-            ["☀↑", fmtTime(d.sunrise), t("sunrise")],
-            ["☀↓", fmtTime(d.sunset),  t("sunset")],
+            ["🌡️", d.apparentTemp !== null ? d.apparentTemp + weather.units.temp : "–", t("feels_like")],
+            ["⬆️",  windDirText(d.windDir), t("wind_dir"), null, d.windDir ?? 0],
+            ["🌅", fmtTime(d.sunrise), t("sunrise")],
+            ["🌇", fmtTime(d.sunset),  t("sunset")],
             [moon.icon, moon.name,      t("moon_title"), null, null, true]
           ].map(([ic,val,lb,flt,rot,noDi])=>`
           <div style="padding:4px 2px">
@@ -1939,7 +1947,9 @@ function _renderInner() {
       });
       if (!slots.length) return "";
       const bars = slots.map(s => {
-        const col = s.prob > 60 ? "#3b82f6" : s.prob > 30 ? "#93c5fd" : "#bfdbfe";
+        const col = isDark()
+          ? (s.prob > 60 ? "#3b82f6" : s.prob > 30 ? "#93c5fd" : "#bfdbfe")
+          : (s.prob > 60 ? "#268931" : s.prob > 30 ? "#60c07a" : "#a8dbb5");
         return `<div style="display:flex;align-items:center;gap:6px;font-size:.72rem">
           <span style="color:var(--text3);width:2.2em;flex-shrink:0">${String(s.h).padStart(2,"0")}h</span>
           <div style="flex:1;height:6px;border-radius:3px;background:var(--border);overflow:hidden">
@@ -1950,7 +1960,7 @@ function _renderInner() {
       }).join("");
       return `<div class="card">
         <div class="card-head">
-          <span class="card-title"><span class="di">🌧</span> ${t("rain_prob_title")}</span>
+          <span class="card-title"><span class="di">🌧️</span> ${t("rain_prob_title")}</span>
         </div>
         <div style="padding:10px 14px;display:flex;flex-direction:column;gap:5px">${bars}</div>
       </div>`;
@@ -1970,9 +1980,9 @@ function _renderInner() {
             ${bt ? `
               <div class="time-windows">
                 ${bt.good.length
-                  ? bt.good.map(w=>`<div class="time-win good">✓ ${w}</div>`).join("")
-                  : `<div class="time-win none">⚠ ${t("besttime_none")}</div>`}
-                ${bt.avoid ? `<div class="time-win warn">⚠ ${t("besttime_avoid")}: ${bt.avoid}</div>` : ""}
+                  ? bt.good.map(w=>`<div class="time-win good">✅ ${w}</div>`).join("")
+                  : `<div class="time-win none">⚠️ ${t("besttime_none")}</div>`}
+                ${bt.avoid ? `<div class="time-win warn">⚠️ ${t("besttime_avoid")}: ${bt.avoid}</div>` : ""}
               </div>
               <div class="time-note">${t("besttime_note")}</div>`
             : `<div style="padding:10px 14px;font-size:.82rem;color:var(--text2)">${t("besttime_note")}</div>`}
@@ -2003,11 +2013,11 @@ function _renderInner() {
           }).join(" ");
           const area = path + ` L${px(pts[pts.length-1].h).toFixed(1)},${H} L${px(pts[0].h).toFixed(1)},${H} Z`;
           const valLabels = pts.filter(p => p.h % 6 === 0).map(p =>
-            `<text x="${px(p.h).toFixed(1)}" y="${(py(p.v)-5).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="600" fill="#e2e8f0">${Math.round(p.v)}°</text>`).join("");
+            `<text x="${px(p.h).toFixed(1)}" y="${(py(p.v)-5).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="600" fill="${isDark()?"#e2e8f0":"#1a1620"}">${Math.round(p.v)}°</text>`).join("");
           const axisLabels = [0,3,6,9,12,15,18,21].map(h =>
             `<text x="${px(h).toFixed(1)}" y="${H+12}" text-anchor="middle" font-size="7.5" fill="var(--text3)">${String(h).padStart(2,"0")}</text>`).join("");
           rows.push(`<div class="card">
-            <div class="card-head"><span class="card-title"><span class="di">🌡</span> ${t("temp")}</span></div>
+            <div class="card-head"><span class="card-title"><span class="di">🌡️</span> ${t("temp")}</span></div>
             <div style="padding:10px 0 10px">
               <svg viewBox="0 0 ${W} ${H+20}" style="width:100%;height:140px;display:block">
                 <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${isDark()?"#bae6fd":"#03e946"}" stop-opacity=".22"/><stop offset="100%" stop-color="${isDark()?"#bae6fd":"#03e946"}" stop-opacity="0"/></linearGradient></defs>
@@ -2284,7 +2294,7 @@ function renderSeason2025() {
         ${dataRows}
       </div>
       <div class="s25-note">${note}</div>
-      <div style="font-size:.62rem;color:var(--text3);text-align:right;margin-top:2px;opacity:.6">← Jan – Dez →</div>
+      <div style="font-size:.62rem;color:var(--text3);text-align:right;margin-top:2px;opacity:.6">⬅️ Jan – Dez ➡️</div>
     </div>`;
 }
 
@@ -2319,6 +2329,7 @@ function setTab(tab) {
   document.getElementById("tab-pollen")?.classList.toggle("active", tab === "pollen");
   document.getElementById("tab-weather")?.classList.toggle("active", tab === "weather");
   render();
+  if (tab === "weather" && !weather) loadWeather();
 }
 
 
@@ -2390,12 +2401,14 @@ async function loadWeather() {
     : "";
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}`
     + `&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code,apparent_temperature`
-    + `&daily=temperature_2m_max,apparent_temperature_max,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant,uv_index_max,precipitation_probability_max,weathercode,sunrise,sunset`
+    + `&daily=temperature_2m_max,apparent_temperature_max,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant,uv_index_max,precipitation_probability_max,weather_code,sunrise,sunset`
     + `&hourly=precipitation_probability,temperature_2m`
     + `&timezone=${tz}&forecast_days=7${units}`;
+  weatherError = false;
   try {
     const res = await fetch(url, { signal });
     const data = await res.json();
+    if (data.error) throw new Error(data.reason || "API error");
     weather = {
       current: {
         temp:         Math.round(data.current.temperature_2m),
@@ -2413,7 +2426,7 @@ async function loadWeather() {
         windDir:      data.daily.wind_direction_10m_dominant?.[i] ?? null,
         uv:           data.daily.uv_index_max ? Math.round(data.daily.uv_index_max[i]) : null,
         rainProb:     data.daily.precipitation_probability_max?.[i] ?? null,
-        weatherCode:  data.daily.weathercode?.[i] ?? null,
+        weatherCode:  data.daily.weather_code?.[i] ?? null,
         sunrise:      data.daily.sunrise?.[i] ?? null,
         sunset:       data.daily.sunset?.[i] ?? null,
       })),
@@ -2427,7 +2440,7 @@ async function loadWeather() {
   } catch(e) {
     if (e.name === "AbortError") return;
     // Offline fallback: try cached weather regardless of age
-    try { const cached = JSON.parse(localStorage.getItem(wCacheKey)); if (cached) { weather = cached; } else { weather = null; } } catch(e2) { weather = null; }
+    try { const cached = JSON.parse(localStorage.getItem(wCacheKey)); if (cached) { weather = cached; } else { weather = null; weatherError = true; } } catch(e2) { weather = null; weatherError = true; }
   }
   // Air quality (parallel, non-blocking)
   try {
@@ -2445,15 +2458,15 @@ async function loadWeather() {
 
 function wmoIcon(code) {
   if (code === 0)                    return "☀️";
-  if (code <= 2)                     return "🌤";
+  if (code <= 2)                     return "🌤️";
   if (code === 3)                    return "☁️";
-  if (code <= 48)                    return "🌫";
-  if (code <= 55)                    return "🌦";
-  if (code <= 65)                    return "🌧";
-  if (code <= 77)                    return "🌨";
-  if (code <= 82)                    return "🌦";
+  if (code <= 48)                    return "🌫️";
+  if (code <= 55)                    return "🌦️";
+  if (code <= 65)                    return "🌧️";
+  if (code <= 77)                    return "🌨️";
+  if (code <= 82)                    return "🌦️";
   if (code <= 86)                    return "❄️";
-  return "⛈";
+  return "⛈️";
 }
 
 function calcPollenEffect(dayIdx) {
@@ -2463,11 +2476,11 @@ function calcPollenEffect(dayIdx) {
   const wind = d.wind ?? 0;
   const humidity = weather.current.humidity ?? 50;
 
-  if (rain > 2)               return { cls:"risk-none",  icon:"🌧", text:t("effect_rain_heavy") };
+  if (rain > 2)               return { cls:"risk-none",  icon:"🌧️", text:t("effect_rain_heavy") };
   if (wind > 25 && rain < 1)  return { cls:"risk-high",  icon:"💨", text:t("effect_wind_strong") };
   if (wind > 15 && rain < 1)  return { cls:"risk-mid",   icon:"💨", text:t("effect_wind") };
   if (humidity > 80)          return { cls:"risk-low",   icon:"💧", text:t("effect_humid") };
-  if (rain > 0.5)             return { cls:"risk-low",   icon:"🌦", text:t("effect_rain_light") };
+  if (rain > 0.5)             return { cls:"risk-low",   icon:"🌦️", text:t("effect_rain_light") };
   return                             { cls:"risk-none",  icon:"☀️", text:t("effect_neutral") };
 }
 
@@ -2946,7 +2959,7 @@ function renderCrossAllergyAlerts(pol, dayIdx) {
   const lvlWord = sc => sc >= 3 ? t("cross_high") : t("cross_mid");
   return alerts.map(({p, cross, sc}) => `
     <div class="cross-alert">
-      <span class="cross-alert-title">⚠ ${t("cross_title")}</span>
+      <span class="cross-alert-title">⚠️ ${t("cross_title")}</span>
       <span class="cross-alert-desc">${t(cross.trigger).replace("{lv}", lvlWord(sc))}</span>
       <div class="cross-foods">
         ${cross.foods().map(f => {
@@ -3100,11 +3113,34 @@ function refreshDrawer() {
                 <span class="nearby-dist">${o.dist} ${t("km_away")}</span>
               </div>`).join("")}
           </div>
-          ${escape ? `<div class="escape-box">✈ ${t("escape_hint")}: <strong>${escapeHtml(escape.r.partregion_name||escape.r.region_name)}</strong> · ${RISK[escape.sc].label} · ${escape.dist} ${t("km_away")}</div>` : ""}`;
+          ${escape ? `<div class="escape-box">✈️ ${t("escape_hint")}: <strong>${escapeHtml(escape.r.partregion_name||escape.r.region_name)}</strong> · ${RISK[escape.sc].label} · ${escape.dist} ${t("km_away")}</div>` : ""}`;
       })() : ""}
     </div>
 
 
+
+    <!-- DATA SOURCE -->
+    <div class="dsec-head" onclick="toggleDrawerSec('dsource')" id="dsource-head">
+      <span>${t("datasource_title")}</span>
+      <span class="dsec-arrow">▼</span>
+    </div>
+    <div class="dsec-body" id="dsource-body">
+      <div style="padding:10px 14px 14px;display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:.75rem;color:var(--text3);margin-bottom:2px">${t("datasource_auto")}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button onclick="setDataSource('de')" style="
+            padding:7px 14px;border-radius:8px;font-size:.82rem;cursor:pointer;
+            border:1px solid ${appMode==='de'?'var(--accent)':'var(--border)'};
+            background:${appMode==='de'?'color-mix(in srgb,var(--accent) 14%,var(--card))':'var(--card2)'};
+            color:var(--text)">${t("ds_de")}</button>
+          <button onclick="setDataSource('om')" style="
+            padding:7px 14px;border-radius:8px;font-size:.82rem;cursor:pointer;
+            border:1px solid ${appMode==='om'?'var(--accent)':'var(--border)'};
+            background:${appMode==='om'?'color-mix(in srgb,var(--accent) 14%,var(--card))':'var(--card2)'};
+            color:var(--text)">${t("ds_om")}</button>
+        </div>
+      </div>
+    </div>
 
     <!-- DATA EXPORT/IMPORT -->
     <div class="dsec-head" onclick="toggleDrawerSec('ddata')" id="ddata-head">
@@ -3570,27 +3606,34 @@ async function init() {
 
   // Only fetch geoInfo once per session; reuse if already set
   if (!geoInfo) {
-    try {
-      const ctrl = new AbortController();
-      setTimeout(() => ctrl.abort(), 5000);
-      const res = await fetch("https://ipwho.is/", { signal: ctrl.signal });
-      const json = await res.json();
-      // Validate: need at least lat/lon to be usable
-      if (json.latitude && json.longitude) {
-        geoInfo = { ...json, country_code: json.country_code || "DE" };
-        // Falls ipwho.is kein city liefert → Nominatim Reverse Geocoding
-        if (!geoInfo.city) {
-          try {
-            const nc = new AbortController(); setTimeout(() => nc.abort(), 4000);
-            const nr = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${json.latitude}&lon=${json.longitude}&format=json`, { signal: nc.signal });
-            const nj = await nr.json();
-            geoInfo.city = nj.address?.city || nj.address?.town || nj.address?.village || nj.address?.county || "";
-          } catch {}
-        }
-      } else {
-        geoInfo = { country_code:"DE", latitude:52.37, longitude:9.73, city:"Hannover", country:"Germany", _ipFallback: true };
+    // Try multiple IP geolocation services in order
+    const ipServices = [
+      async () => {
+        const ctrl = new AbortController();
+        setTimeout(() => ctrl.abort(), 5000);
+        const res = await fetch("https://ip-api.com/json/?fields=status,country,countryCode,city,lat,lon", { signal: ctrl.signal });
+        const j = await res.json();
+        if (j.status === "success" && j.lat && j.lon)
+          return { latitude: j.lat, longitude: j.lon, city: j.city || "", country: j.country || "", country_code: j.countryCode || "DE" };
+        return null;
+      },
+      async () => {
+        const ctrl = new AbortController();
+        setTimeout(() => ctrl.abort(), 5000);
+        const res = await fetch("https://ipapi.co/json/", { signal: ctrl.signal });
+        const j = await res.json();
+        if (j.latitude && j.longitude)
+          return { latitude: j.latitude, longitude: j.longitude, city: j.city || "", country: j.country_name || "", country_code: j.country_code || "DE" };
+        return null;
       }
-    } catch {
+    ];
+    let resolved = null;
+    for (const svc of ipServices) {
+      try { resolved = await svc(); if (resolved) break; } catch {}
+    }
+    if (resolved) {
+      geoInfo = resolved;
+    } else {
       geoInfo = { country_code:"DE", latitude:52.37, longitude:9.73, city:"Hannover", country:"Germany", _ipFallback: true };
     }
   }
@@ -3680,7 +3723,7 @@ let gesture_dir = null; // "v" = vertical PTR, "h" = horizontal swipe, null = un
 
 const ptr_el = document.createElement("div");
 ptr_el.id = "ptr";
-ptr_el.innerHTML = `<div id="ptr-icon">↓</div>`;
+ptr_el.innerHTML = `<div id="ptr-icon">⬇️</div>`;
 ptr_el.style.cssText = `
   position:fixed; top:0; left:0; right:0; z-index:200;
   display:flex; justify-content:center; align-items:center;
@@ -3784,7 +3827,7 @@ window.addEventListener("appinstalled", () => {
   _pwaInstallPrompt = null;
   const btn = document.getElementById("pwa-install-btn");
   if (btn) btn.classList.remove("show");
-  showToast("✓ App installiert");
+  showToast("✅ App installiert");
 });
 
 </script>
