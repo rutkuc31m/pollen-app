@@ -215,7 +215,7 @@
     .dc-ring { background: transparent !important; }
     .hero-body { flex: 1; min-width: 0; }
     .hero-risk { font-size: 1.42rem; font-weight: 700; line-height: 1.2; background: transparent !important; }
-    .hero-loc  { font-size: .8rem; color: var(--text2); margin-top: 2px; }
+    .hero-loc  { font-size: .8rem; color: var(--text2); margin-top: 2px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .hero-drivers { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
     .driver-pill {
       display: inline-flex; align-items: center; gap: 4px;
@@ -848,7 +848,7 @@ const STRINGS = {
     risk_calc_body:"Das <strong>persönliche Risiko</strong> oben entspricht dem <strong>höchsten Einzelwert</strong> deiner ausgewählten Pollen (grüner Rand in der Tabelle).<br><br>Beispiel: Hasel = gering, Erle = hoch ➡️ Risiko = <strong>hoch</strong>.",
     uv_scale:"UV-Index Skala (WHO, 0–11+)",
     uv_low:"niedrig", uv_moderate:"mäßig", uv_high:"hoch", uv_very_high:"sehr hoch", uv_extreme:"extrem",
-    trend_rising:"steigt morgen", trend_falling:"sinkt morgen", trend_stable:"stabil",
+    trend_rising:"morgen schlimmer", trend_falling:"morgen besser", trend_stable:"stabil",
     tendency:"Tendenz",
     no_load:"Keine Belastung für deine Allergene.",
     in_season:"Saison", off_season:"außer Saison",
@@ -1041,7 +1041,7 @@ const STRINGS = {
     risk_calc_body:"Your <strong>personal risk</strong> equals the <strong>highest individual value</strong> among your selected pollen (green border in the table).<br><br>Example: Hazel = low, Alder = high ➡️ Risk = <strong>high</strong>.",
     uv_scale:"UV Index Scale (WHO, 0–11+)",
     uv_low:"low", uv_moderate:"mod.", uv_high:"high", uv_very_high:"v. high", uv_extreme:"extreme",
-    trend_rising:"rising tomorrow", trend_falling:"falling tomorrow", trend_stable:"stable",
+    trend_rising:"worse tomorrow", trend_falling:"better tomorrow", trend_stable:"stable",
     tendency:"Trend",
     no_load:"No exposure for your allergens.",
     in_season:"season", off_season:"off season",
@@ -1227,7 +1227,7 @@ const STRINGS = {
     risk_calc_body:"<strong>Kişisel risk</strong>, seçilen polenler arasındaki <strong>en yüksek değere</strong> eşittir (tabloda yeşil kenarlık).<br><br>Örnek: Huş = düşük, Zeytin = yüksek ➡️ Risk = <strong>yüksek</strong>.",
     uv_scale:"UV Endeksi Skalası (WHO, 0–11+)",
     uv_low:"düşük", uv_moderate:"orta", uv_high:"yüksek", uv_very_high:"çok yüksek", uv_extreme:"aşırı",
-    trend_rising:"yarın artıyor", trend_falling:"yarın azalıyor", trend_stable:"sabit",
+    trend_rising:"yarın daha kötü", trend_falling:"yarın daha iyi", trend_stable:"sabit",
     tendency:"Eğilim",
     no_load:"Seçili polenler için risk yok.",
     in_season:"sezon", off_season:"sezon dışı",
@@ -1726,12 +1726,9 @@ function _renderInner() {
     </div>` : (() => {
       const todayScore    = personalRisk(pol, 0).max;
       const tomorrowScore = personalRisk(pol, 1).max;
-      const trend = activeDay === 0
-        ? (tomorrowScore > todayScore ? "🔺" : tomorrowScore < todayScore ? "🔽" : "🔹")
-        : "";
-      const trendLabel = activeDay === 0
-        ? (tomorrowScore > todayScore ? t("trend_rising") : tomorrowScore < todayScore ? t("trend_falling") : t("trend_stable"))
-        : "";
+      const trendDir = activeDay === 0
+        ? (tomorrowScore > todayScore ? "up" : tomorrowScore < todayScore ? "down" : "stable")
+        : null;
       const expScore = calcExposureScore(pol, activeDay);
       // Hero summary sentence based on filter + risk
       let summaryHtml = "";
@@ -1761,10 +1758,13 @@ function _renderInner() {
       </div>
       <div class="hero-body">
         <div class="hero-risk" style="font-size:1.42rem;color:var(--accent)">
-          ${risk.label}${trend ? ` <span style="font-size:1rem;opacity:.8">${trend}</span>` : ""}
+          ${risk.label}
         </div>
-        ${trendLabel ? `<div style="font-size:.76rem;color:var(--text2);margin-top:1px">${t("tendency")}: ${trendLabel}</div>` : ""}
-        <div class="hero-loc">${escapeHtml(geoInfo?.city || reg.partregion_name || reg.region_name)} · ${DAY_NAMES()[activeDay]}</div>
+        <div class="hero-loc">${escapeHtml(geoInfo?.city || reg.partregion_name || reg.region_name)} · ${DAY_NAMES()[activeDay]}${trendDir && trendDir !== "stable" ? ` <span style="padding:1px 8px;border-radius:10px;font-size:.65rem;font-weight:600;white-space:nowrap;${
+          trendDir === "up"
+            ? `background:color-mix(in srgb,${isDark()?"#fca5a5":"#c0392b"} 15%,var(--card));color:${isDark()?"#fca5a5":"#c0392b"}`
+            : `background:color-mix(in srgb,${isDark()?"#86efac":"#268931"} 15%,var(--card));color:${isDark()?"#86efac":"#268931"}`
+        }">${trendDir === "up" ? "↗ " + t("trend_rising") : "↘ " + t("trend_falling")}</span>` : ""}</div>
         ${summaryHtml}
         ${risk.drivers.length ? `
           <div class="hero-drivers">
