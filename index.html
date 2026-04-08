@@ -1727,7 +1727,7 @@ function _renderInner() {
       const todayScore    = personalRisk(pol, 0).max;
       const tomorrowScore = personalRisk(pol, 1).max;
       const trend = activeDay === 0
-        ? (tomorrowScore > todayScore ? "📈" : tomorrowScore < todayScore ? "📉" : "➡️")
+        ? (tomorrowScore > todayScore ? "🔺" : tomorrowScore < todayScore ? "🔽" : "🔹")
         : "";
       const trendLabel = activeDay === 0
         ? (tomorrowScore > todayScore ? t("trend_rising") : tomorrowScore < todayScore ? t("trend_falling") : t("trend_stable"))
