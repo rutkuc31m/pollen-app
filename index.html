@@ -110,12 +110,10 @@
     }
     .topbar-inner {
       max-width: 640px; margin: 0 auto;
-      height: 52px;
+      height: 44px;
       display: flex; align-items: center; gap: 6px;
     }
-    .logo { font-weight: 700; font-size: 1rem; flex: 1; letter-spacing: -.2px; }
-    .logo em { color: var(--accent); font-style: normal; }
-    .logo-icon, .tab-btn .tab-icon { }
+    .tab-btn .tab-icon { }
     .icon-btn {
       width: 34px; height: 34px; border-radius: 8px;
       border: 1px solid var(--border);
@@ -131,19 +129,19 @@
     }
     .offline-pill.show { display: inline-block; }
 
-    /* region bar */
-    .regionbar {
-      border-top: 1px solid var(--border);
-      padding: 8px 16px 6px;
+    /* region select (inline in topbar) */
+    #region-sel {
+      background: transparent; border: none;
+      color: var(--text); border-radius: 0;
+      padding: 4px 2px; font-size: .75rem; font-weight: 600;
+      outline: none; cursor: pointer;
+      -webkit-appearance: none; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239aa59a'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 2px center;
+      padding-right: 16px;
     }
-    .regionbar-inner { max-width: 640px; margin: 0 auto; }
-    .regionbar select {
-      width: 100%;
-      background: var(--card2); border: 1px solid var(--border);
-      color: var(--text); border-radius: 8px;
-      padding: 7px 12px; font-size: .84rem; outline: none; cursor: pointer;
-    }
-    .regionbar select:focus { border-color: var(--accent); }
+    #region-sel:focus { color: var(--accent); }
     .src-bar { display: none; }
     .src-share-btn {
       flex-shrink: 0; padding: 5px 9px; border-radius: 8px;
@@ -151,29 +149,37 @@
       color: var(--text2); cursor: pointer; font-size: .84rem;
     }
 
-    /* ── TABS ────────────────────────────────────────── */
+    /* ── BOTTOM TAB BAR ──────────────────────────────── */
     .tab-bar {
-      background: transparent;
-      border-bottom: 1px solid var(--border);
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 99;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
       padding: 0 16px;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    [data-theme="dark"] .tab-bar {
+      background: rgba(24,24,27,0.92);
     }
     .tab-bar-inner {
       max-width: 640px; margin: 0 auto;
       display: flex; gap: 0;
     }
     .tab-btn {
-      flex: 1; padding: 10px 0; font-size: .88rem; font-weight: 600;
-      border: none; background: none; color: var(--text2);
-      cursor: pointer; border-bottom: 2px solid transparent;
-      margin-bottom: -1px;
+      flex: 1; padding: 12px 0 10px; font-size: .82rem; font-weight: 600;
+      border: none; background: none; color: var(--text3);
+      cursor: pointer; border-top: 2px solid transparent;
       transition: color .15s, border-color .15s;
       font-family: inherit;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
     }
-    .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
-    .tab-btn:hover:not(.active) { color: var(--text); }
+    .tab-btn .tab-icon { font-size: 1.2rem; }
+    .tab-btn.active { color: var(--text); border-top-color: var(--accent); }
+    .tab-btn:hover:not(.active) { color: var(--text2); }
 
     /* ── PAGE ────────────────────────────────────────── */
-    .page { max-width: 640px; margin: 0 auto; padding: 14px 14px 80px; }
+    .page { max-width: 640px; margin: 0 auto; padding: 14px 14px 100px; }
 
     /* ── CARD ────────────────────────────────────────── */
     .card {
@@ -410,18 +416,13 @@
     /* ── GEO BUTTON ──────────────────────────────────── */
     .regionbar-inner { display: flex; gap: 6px; align-items: center; }
     .geo-btn {
-      flex-shrink: 0; padding: 7px 10px; border-radius: 8px;
-      border: 1px solid var(--border); background: var(--card2);
-      color: var(--text2); cursor: pointer; font-size: .84rem;
+      flex-shrink: 0; padding: 5px 8px; border-radius: 8px;
+      border: none; background: transparent;
+      color: var(--text2); cursor: pointer; font-size: .9rem;
       white-space: nowrap;
     }
     .geo-btn:hover { background: var(--border); }
     .geo-btn:disabled { opacity: .5; cursor: not-allowed; }
-
-    /* ── SWIPE DOTS ───────────────────────────────────── */
-    .swipe-dots { display: flex; justify-content: center; gap: 6px; margin: -4px 0 8px; }
-    .swipe-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background .2s; }
-    .swipe-dot.active { background: var(--accent); }
 
     /* ── WEEK WEATHER ────────────────────────────────── */
     .week-strip { padding: 0 14px 12px; display: flex; gap: 4px; justify-content: center; overflow-x: auto; }
@@ -470,13 +471,8 @@
     #drawer.open { transform: translateX(0); }
     #drawer-head {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 14px 16px; border-bottom: 1px solid var(--border);
-      font-weight: 600; font-size: .95rem;
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
       position: sticky; top: 0; background: var(--card); z-index: 1;
-    }
-    #drawer-head button {
-      background: none; border: none; font-size: 1.2rem;
-      cursor: pointer; color: var(--text2); padding: 2px 6px;
     }
     .dsec-head {
       padding: 12px 16px; cursor: pointer; user-select: none;
@@ -687,8 +683,16 @@
 <div id="drawer-overlay" onclick="closeDrawer()"></div>
 <div id="drawer" role="dialog" aria-modal="true" aria-label="Menü">
   <div id="drawer-head">
-    <span id="drawer-head-title">Menü</span>
-    <button onclick="closeDrawer()" aria-label="Menü schließen" id="drawer-close-btn">✕</button>
+    <div style="display:flex;align-items:center;gap:2px">
+      <button class="icon-btn" onclick="setLang('de')" id="dlang-de-head" style="font-size:.65rem;font-weight:700;width:auto;padding:3px 8px;border-radius:6px 0 0 6px">DE</button>
+      <button class="icon-btn" onclick="setLang('en')" id="dlang-en-head" style="font-size:.65rem;font-weight:700;width:auto;padding:3px 8px;border-radius:0">EN</button>
+      <button class="icon-btn" onclick="setLang('tr')" id="dlang-tr-head" style="font-size:.65rem;font-weight:700;width:auto;padding:3px 8px;border-radius:0 6px 6px 0">TR</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="icon-btn" onclick="geoLocate();closeDrawer()" style="font-size:.85rem;width:32px;height:32px">📍</button>
+      <button class="icon-btn" onclick="toggleTheme()" id="drawer-theme-btn" style="font-size:.85rem;width:32px;height:32px">🌙</button>
+      <button onclick="closeDrawer()" aria-label="Menü schließen" id="drawer-close-btn" style="font-size:1rem;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);cursor:pointer">✕</button>
+    </div>
   </div>
   <div id="drawer-content"></div>
 </div>
@@ -708,29 +712,28 @@
 <div class="topbar">
   <div class="topbar-inner">
     <button class="icon-btn" onclick="openDrawer()" aria-label="Menü">☰</button>
-    <div class="logo"><span class="logo-icon">🌿</span> <em>Pollen</em></div>
+    <div class="regionbar-inner" id="regionbar-inner" style="flex:1;display:flex;align-items:center;gap:6px">
+      <select id="region-sel" aria-label="Region wählen" style="flex:1"><option>Lade Regionen…</option></select>
+    </div>
     <span class="offline-pill" id="offline-pill">Offline</span>
     <button id="pwa-install-btn" onclick="pwaDoPwaInstall()" aria-label="App installieren">⬇ App</button>
-    <div style="display:flex;gap:2px">
-      <button class="icon-btn" id="lang-btn-de" onclick="setLang('de')" style="font-size:.7rem;font-weight:700;width:auto;padding:4px 10px;border-radius:6px 0 0 6px;border-right:none">DE</button>
-      <button class="icon-btn" id="lang-btn-en" onclick="setLang('en')" style="font-size:.7rem;font-weight:700;width:auto;padding:4px 10px;border-radius:0;border-right:none">EN</button>
-      <button class="icon-btn" id="lang-btn-tr" onclick="setLang('tr')" style="font-size:.7rem;font-weight:700;width:auto;padding:4px 10px;border-radius:0 6px 6px 0">TR</button>
-    </div>
-    <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Theme wechseln" aria-label="Theme wechseln" style="font-size:.9rem">🌙</button>
-    <button class="icon-btn" id="refresh-btn" onclick="doRefresh()" title="Aktualisieren" aria-label="Aktualisieren" style="font-size:.95rem">🔄</button>
   </div>
-  <div class="regionbar">
-    <div class="regionbar-inner" id="regionbar-inner">
-      <select id="region-sel" aria-label="Region wählen"><option>Lade Regionen…</option></select>
-      <button class="geo-btn" onclick="geoLocate()"><span class="di">📍</span></button>
-    </div>
-    <div class="src-bar" id="src-bar"></div>
-  </div>
-  <div class="tab-bar">
-    <div class="tab-bar-inner">
-      <button class="tab-btn active" id="tab-pollen" onclick="setTab('pollen')"><span class="tab-icon">🌿</span> Pollen</button>
-      <button class="tab-btn" id="tab-weather" onclick="setTab('weather')"><span class="tab-icon">🌤️</span> Wetter</button>
-    </div>
+  <div class="src-bar" id="src-bar" style="max-width:640px;margin:0 auto"></div>
+</div>
+
+<!-- Language & Theme buttons (hidden, controlled from drawer) -->
+<div style="display:none">
+  <button id="lang-btn-de"></button>
+  <button id="lang-btn-en"></button>
+  <button id="lang-btn-tr"></button>
+  <button id="theme-btn"></button>
+</div>
+
+<!-- BOTTOM TAB BAR -->
+<div class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" id="tab-pollen" onclick="setTab('pollen')"><span class="tab-icon">🌿</span> Pollen</button>
+    <button class="tab-btn" id="tab-weather" onclick="setTab('weather')"><span class="tab-icon">🌤️</span> Wetter</button>
   </div>
 </div>
 
@@ -744,7 +747,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // ── THEME ──────────────────────────────────────────────────────────────────
 (function initTheme() {
-  const saved = localStorage.getItem("p_theme") || "light";
+  const saved = localStorage.getItem("p_theme")
+    || (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light");
   document.documentElement.setAttribute("data-theme", saved);
   const btn = document.getElementById("theme-btn");
   if (btn) btn.textContent = saved === "dark" ? "☀️" : "🌙";
@@ -754,34 +758,34 @@ function toggleTheme() {
   const next = isDark ? "light" : "dark";
   document.documentElement.setAttribute("data-theme", next);
   localStorage.setItem("p_theme", next);
-  document.getElementById("theme-btn").textContent = next === "dark" ? "☀️" : "🌙";
+  const _tb = document.getElementById("theme-btn"); if (_tb) _tb.textContent = next === "dark" ? "☀️" : "🌙";
+  const _dtb = document.getElementById("drawer-theme-btn"); if (_dtb) _dtb.textContent = next === "dark" ? "☀️" : "🌙";
   document.getElementById("theme-meta").content = next === "dark" ? "#18181b" : "#f4f2f9";
   render();
 }
 function isDark() { return document.documentElement.getAttribute("data-theme") === "dark"; }
 
-let lang = localStorage.getItem("p_lang") || ((navigator.language || "de").toLowerCase().startsWith("de") ? "de" : "en");
+let lang = localStorage.getItem("p_lang") || (()=>{ const b=(navigator.language||"").toLowerCase(); return b.startsWith("de")?"de":b.startsWith("tr")?"tr":"en"; })();
 function t(key) { return STRINGS[lang]?.[key] ?? STRINGS.en?.[key] ?? STRINGS.de[key] ?? key; }
 function setLang(newLang) {
   lang = newLang;
   localStorage.setItem("p_lang", lang);
   document.documentElement.lang = lang;
-  document.querySelector(".logo").innerHTML = `<span class="logo-icon">🌿</span> <em>Pollen</em>`;
   ["de","en","tr"].forEach(l => {
-    const btn = document.getElementById("lang-btn-" + l);
-    if (!btn) return;
-    if (l === lang) {
-      btn.style.background = "color-mix(in srgb,var(--accent) 20%,var(--card))";
-      btn.style.color      = "var(--accent)";
-      btn.style.border     = "1px solid var(--accent)";
-    } else {
-      btn.style.background  = "";
-      btn.style.color       = "";
-      btn.style.border      = "";
-      if (l !== "tr") btn.style.borderRight = "none";
-    }
+    [`lang-btn-${l}`, `dlang-${l}`, `dlang-${l}-head`].forEach(id => {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      if (l === lang) {
+        btn.style.background = "color-mix(in srgb,var(--accent) 20%,var(--card))";
+        btn.style.color      = "var(--accent)";
+        btn.style.border     = "1px solid var(--accent)";
+      } else {
+        btn.style.background  = "";
+        btn.style.color       = "";
+        btn.style.border      = "";
+      }
+    });
   });
-  document.getElementById("drawer-head-title").textContent = t("menu");
   const geoBtn2 = document.getElementById("geo-btn");
   if (geoBtn2) geoBtn2.title = t("geo_title");
   document.querySelector(".offline-pill").textContent = t("offline");
@@ -1701,6 +1705,7 @@ function _renderInner() {
   const month = new Date().getMonth()+1;
   const risk  = personalRisk(pol, activeDay);
 
+
   // pre-fill draft from today's saved entry
   const ts = symptoms[todayISO()];
   if (ts) draft = {niesen:ts.niesen, augen:ts.augen, atmung:ts.atmung, muedigkeit:ts.muedigkeit||0};
@@ -1929,9 +1934,6 @@ function _renderInner() {
         </div>`;
       }).join("")}
     </div>
-    ${activeTab!=="weather"?`<div class="swipe-dots">
-      ${DAYS.map((_,i)=>`<div class="swipe-dot${i===activeDay?" active":""}"></div>`).join("")}
-    </div>`:""}
 
     ${activeTab === "weather" ? (() => {
       if (!weather?.hourlyRainProb || !weather?.hourlyTime) return "";
@@ -3206,6 +3208,7 @@ function refreshDrawer() {
         </div>`).join("")}
       </div>
     </div>
+
   `;
 }
 
@@ -3421,8 +3424,8 @@ async function loadDE() {
          onblur="if(!this.value.trim()){this.value=this.dataset.prev||''}" autocomplete="off" autocorrect="off" spellcheck="false">
        <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.75rem;pointer-events:none;opacity:0.45">🔍</span>
        <div id="de-city-results" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:200;overflow:hidden;box-shadow:var(--sh)"></div>
-     </div>
-     <button class="geo-btn" id="geo-btn" onclick="geoLocate()" title="${t("geo_title")}"><span class="di">📍</span></button>`;
+     </div>`;
+
 
   // store today's history
   const reg = db.regions.find(r=>rk(r)===rKey) ?? db.regions[0];
@@ -3461,7 +3464,7 @@ async function loadGlobal() {
        <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.75rem;pointer-events:none;opacity:0.45">🔍</span>
        <div id="om-city-results" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:200;overflow:hidden;box-shadow:var(--sh)"></div>
      </div>
-     <button class="geo-btn" onclick="relocate()" title="${t("reloc_btn")}"><span class="di">📍</span></button>${srcTabsHTML()}`;
+     </div>${srcTabsHTML()}`;
 
   const url = `https://air-quality-api.open-meteo.com/v1/air-quality`
     + `?latitude=${lat}&longitude=${lon}`
@@ -3767,12 +3770,12 @@ document.addEventListener("touchend", e => {
       ptr_el.style.height = "0";
     }
   } else {
-    // swipe left/right for day navigation
+    // swipe left/right for tab navigation
     const dx = e.changedTouches[0].clientX - swipe_startX;
     const dy = e.changedTouches[0].clientY - swipe_startY;
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-      if (dx < 0 && activeDay < DAYS.length - 1) setDay(activeDay + 1);
-      if (dx > 0 && activeDay > 0) setDay(activeDay - 1);
+      if (dx < 0 && activeTab === "pollen") setTab("weather");
+      if (dx > 0 && activeTab === "weather") setTab("pollen");
     }
   }
   ptr_startY = 0; ptr_pulling = false; gesture_dir = null;
