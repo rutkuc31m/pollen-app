@@ -7,7 +7,7 @@
   <link rel="manifest" href="./manifest.json">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Pollenflug">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -752,6 +752,7 @@
   document.documentElement.setAttribute("data-theme", saved);
   const btn = document.getElementById("theme-btn");
   if (btn) btn.textContent = saved === "dark" ? "☀️" : "🌙";
+  document.getElementById("theme-meta").content = saved === "dark" ? "#18181b" : "#f4f2f9";
 })();
 function toggleTheme() {
   const isDark = document.documentElement.getAttribute("data-theme") === "dark";
