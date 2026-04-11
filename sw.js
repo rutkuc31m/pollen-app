@@ -2,7 +2,7 @@
 // SERVICE WORKER · Pollenflug PWA
 // Cache-first for static assets, Network-first for data.json
 // ─────────────────────────────────────────────────────────────────────────────
-const CACHE_VERSION = "pollen-v13";
+const CACHE_VERSION = "pollen-v15";
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const DATA_CACHE    = `${CACHE_VERSION}-data`;
 
@@ -59,7 +59,13 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  // For external APIs (Open-Meteo, ipwho.is) — network only, no caching
+  // Network-first for Open-Meteo (weather/pollen), with cache fallback for offline
+  if (url.hostname.includes("open-meteo.com")) {
+    event.respondWith(networkFirstData(event.request));
+    return;
+  }
+
+  // For other external APIs — network only, no caching
   event.respondWith(fetch(event.request).catch(() => new Response("", { status: 503 })));
 });
 

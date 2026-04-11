@@ -2,7 +2,7 @@
 <html lang="de" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#ffffff" id="theme-meta">
   <link rel="manifest" href="./manifest.json">
   <meta name="mobile-web-app-capable" content="yes">
@@ -31,7 +31,7 @@
       --border:  #e6e1f4;
       --text:    #1a1620;
       --text2:   #6f7a6b;
-      --text3:   #9aa59a;
+      --text3:   #6b756b;
       --accent:  #03e946;
       --accent2: #268931;
       --accent-subtle: rgba(3,233,70,0.10);
@@ -97,7 +97,11 @@
       transition: background .2s, color .2s;
       min-height: 100vh;
     }
+    .theme-transitioning, .theme-transitioning *, .theme-transitioning *::before, .theme-transitioning *::after {
+      transition: background-color .3s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease !important;
+    }
     button, select { font-family: inherit; }
+    input, select, textarea { font-size: 16px !important; }
 
     /* ── HEADER ──────────────────────────────────────── */
     .topbar {
@@ -691,14 +695,14 @@
       <button class="icon-btn" onclick="setLang('tr')" id="dlang-tr-head" style="font-size:.65rem;font-weight:700;width:auto;padding:3px 8px;border-radius:0 6px 6px 0">TR</button>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
-      <button class="icon-btn" onclick="geoLocate();closeDrawer()" style="font-size:.85rem;width:32px;height:32px">📍</button>
-      <button class="icon-btn" onclick="toggleTheme()" id="drawer-theme-btn" style="font-size:.85rem;width:32px;height:32px">🌙</button>
+      <button class="icon-btn" onclick="geoLocate()" aria-label="Standort" style="font-size:.85rem;width:32px;height:32px">📍</button>
+      <button class="icon-btn" onclick="toggleTheme()" id="drawer-theme-btn" aria-label="Theme wechseln" style="font-size:.85rem;width:32px;height:32px">🌙</button>
       <button onclick="closeDrawer()" aria-label="Menü schließen" id="drawer-close-btn" style="font-size:1rem;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);cursor:pointer">✕</button>
     </div>
   </div>
   <div id="drawer-content"></div>
 </div>
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 <div id="notif-prompt-overlay">
   <div id="notif-prompt-box">
     <div class="np-icon">🔔</div>
@@ -717,6 +721,7 @@
     <div class="regionbar-inner" id="regionbar-inner" style="flex:1;display:flex;align-items:center;gap:6px">
       <select id="region-sel" aria-label="Region wählen" style="flex:1"><option>Lade Regionen…</option></select>
     </div>
+    <button class="icon-btn" onclick="shareSummary()" aria-label="Teilen" style="font-size:1rem">📤</button>
     <span class="offline-pill" id="offline-pill">Offline</span>
     <button id="pwa-install-btn" onclick="pwaDoPwaInstall()" aria-label="App installieren">⬇ App</button>
   </div>
@@ -734,12 +739,13 @@
 <!-- BOTTOM TAB BAR -->
 <div class="tab-bar">
   <div class="tab-bar-inner">
-    <button class="tab-btn active" id="tab-pollen" onclick="setTab('pollen')"><span class="tab-icon">🌿</span> Pollen</button>
-    <button class="tab-btn" id="tab-weather" onclick="setTab('weather')"><span class="tab-icon">🌤️</span> Wetter</button>
+    <button class="tab-btn active" id="tab-pollen" onclick="setTab('pollen')" aria-label="Pollen"><span class="tab-icon">🌿</span> Pollen</button>
+    <button class="tab-btn" id="tab-weather" onclick="setTab('weather')" aria-label="Wetter"><span class="tab-icon">🌤️</span> Wetter</button>
   </div>
 </div>
 
-<div class="page" id="page">
+<a href="#page" class="skip-link" style="position:absolute;left:-9999px;top:0;z-index:999;padding:8px 16px;background:var(--accent);color:#fff;font-size:.85rem;border-radius:0 0 8px 0" onfocus="this.style.left='0'" onblur="this.style.left='-9999px'">Skip to content</a>
+<div class="page" id="page" aria-live="polite">
   <div class="center"><div class="spin"></div>Lade DWD-Daten…</div>
 </div>
 
@@ -757,9 +763,12 @@
   document.getElementById("theme-meta").content = saved === "dark" ? "#18181b" : "#f4f2f9";
 })();
 function toggleTheme() {
+  haptic(20);
   const isDark = document.documentElement.getAttribute("data-theme") === "dark";
   const next = isDark ? "light" : "dark";
+  document.documentElement.classList.add("theme-transitioning");
   document.documentElement.setAttribute("data-theme", next);
+  setTimeout(() => document.documentElement.classList.remove("theme-transitioning"), 400);
   localStorage.setItem("p_theme", next);
   const _tb = document.getElementById("theme-btn"); if (_tb) _tb.textContent = next === "dark" ? "☀️" : "🌙";
   const _dtb = document.getElementById("drawer-theme-btn"); if (_dtb) _dtb.textContent = next === "dark" ? "☀️" : "🌙";
@@ -767,6 +776,7 @@ function toggleTheme() {
   render();
 }
 function isDark() { return document.documentElement.getAttribute("data-theme") === "dark"; }
+function haptic(ms=10) { navigator.vibrate?.(ms); }
 
 let lang = localStorage.getItem("p_lang") || (()=>{ const b=(navigator.language||"").toLowerCase(); return b.startsWith("de")?"de":b.startsWith("tr")?"tr":"en"; })();
 function t(key) { return STRINGS[lang]?.[key] ?? STRINGS.en?.[key] ?? STRINGS.de[key] ?? key; }
@@ -939,6 +949,12 @@ const STRINGS = {
     allergy_profile: "Allergieprofil",
     // PWA
     pwa_install: "App installieren",
+    share_summary:"Teilen", share_copied:"Zusammenfassung kopiert",
+    cmp_title:"Vergleich zu gestern", cmp_better:"Insgesamt besser als gestern", cmp_worse:"Insgesamt schlechter als gestern", cmp_same:"Wie gestern", cmp_up:"gestiegen", cmp_down:"gesunken",
+    fav_title:"Favoriten", fav_add:"Favorit hinzufügen", fav_remove:"Entfernen", fav_max:"Max. 5 Favoriten", fav_empty:"Keine Favoriten gespeichert",
+    days_trend:"Tage", hourly_pollen:"Stündlicher Verlauf",
+    travel_title:"Reiseplaner", travel_search:"Zielort suchen…", travel_compare:"Vergleich", travel_here:"Hier", travel_there:"Dort", travel_no_data:"Keine Daten für diesen Ort",
+    map_title:"Pollenbelastung",
     // hero summary sentences
     hero_good_day: "Heute ein guter Tag für", hero_bad_day: "Heute ein schlechter Tag für", hero_ok_day: "Heute: mittlere Belastung für",
     hero_low_day: "Geringe Belastung heute für",
@@ -1132,6 +1148,12 @@ const STRINGS = {
     allergy_profile: "Allergy profile",
     // PWA
     pwa_install: "Install app",
+    share_summary:"Share", share_copied:"Summary copied",
+    cmp_title:"Compared to yesterday", cmp_better:"Overall better than yesterday", cmp_worse:"Overall worse than yesterday", cmp_same:"Same as yesterday", cmp_up:"increased", cmp_down:"decreased",
+    fav_title:"Favorites", fav_add:"Add favorite", fav_remove:"Remove", fav_max:"Max 5 favorites", fav_empty:"No favorites saved",
+    days_trend:"days", hourly_pollen:"Hourly trend",
+    travel_title:"Travel planner", travel_search:"Search destination…", travel_compare:"Comparison", travel_here:"Here", travel_there:"There", travel_no_data:"No data for this location",
+    map_title:"Pollen levels",
     // hero summary sentences
     hero_good_day: "Today is a good day for", hero_bad_day: "Today is a bad day for", hero_ok_day: "Moderate exposure today for",
     hero_low_day: "Low exposure today for",
@@ -1301,6 +1323,12 @@ const STRINGS = {
     severity_low:"Düşük", severity_mid:"Orta", severity_high:"Şiddetli",
     profile_onboarding:"Kişisel riskinizi hesaplamak için alerjilerinizi seçin:",
     pwa_install:"Uygulamayı yükle",
+    share_summary:"Paylaş", share_copied:"Özet kopyalandı",
+    cmp_title:"Düne kıyasla", cmp_better:"Genel olarak dünden iyi", cmp_worse:"Genel olarak dünden kötü", cmp_same:"Dünle aynı", cmp_up:"arttı", cmp_down:"azaldı",
+    fav_title:"Favoriler", fav_add:"Favori ekle", fav_remove:"Kaldır", fav_max:"Maks. 5 favori", fav_empty:"Kayıtlı favori yok",
+    days_trend:"gün", hourly_pollen:"Saatlik seyir",
+    travel_title:"Seyahat planlayıcı", travel_search:"Hedef ara…", travel_compare:"Karşılaştırma", travel_here:"Burası", travel_there:"Orası", travel_no_data:"Bu konum için veri yok",
+    map_title:"Polen yoğunluğu",
     hero_good_day:"bugün iyi bir gün", hero_bad_day:"bugün zor bir gün", hero_ok_day:"bugün fena değil",
     hero_low_day:"bugün düşük düzeyde",
     hero_allergen_suffix:" alerjisi için",
@@ -1476,7 +1504,7 @@ function DAY_NAMES() {
 }
 function MONTHS_ARR() { return t("months").split(","); }
 
-const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", cache_ts:"p_cache_ts", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev", lang:"p_lang", meds:"p_meds", notifDate:"p_notif_date", notifAsked:"p_notif_asked" };
+const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", cache_ts:"p_cache_ts", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev", lang:"p_lang", meds:"p_meds", notifDate:"p_notif_date", notifAsked:"p_notif_asked", favs:"p_favs" };
 
 // Koordinaten je DWD-Region für Wetter-API
 const REGION_COORDS = {
@@ -1501,6 +1529,7 @@ let appMode      = "de";   // "de" | "om"
 let geoInfo      = null;   // { country_code, latitude, longitude, city, country }
 let db           = null;
 let weather      = null;   // { current, daily, fetchedAt }
+let omHourlyRaw  = null;   // raw Open-Meteo hourly pollen data for graph
 let weatherError = false;  // true when last loadWeather() failed
 let airQuality   = null;   // { aqi, pm10, pm2_5 }
 let _weatherAC   = null;   // AbortController for loadWeather()
@@ -1511,6 +1540,7 @@ let activeTab = "pollen"; // "pollen" | "weather"
 let symptoms  = (() => { const s = JSON.parse(localStorage.getItem(LS.syms) || "{}"); Object.values(s).forEach(e => ["niesen","augen","atmung","muedigkeit"].forEach(k => { if (e[k] > 3) e[k] = 3; })); return s; })();
 let history   = JSON.parse(localStorage.getItem(LS.hist)  || "{}");
 let severity  = JSON.parse(localStorage.getItem(LS.sev)  || "{}");
+let favorites = JSON.parse(localStorage.getItem(LS.favs) || "[]");
 // migrate old 3-level severity to 4-level
 for (const k in severity) { if (severity[k]==="mild") severity[k]="low"; if (severity[k]==="strong") severity[k]="high"; }
 localStorage.setItem(LS.sev, JSON.stringify(severity));
@@ -1805,8 +1835,114 @@ function _renderInner() {
         + '</div>';
     })()}
 
+    <!-- TODAY vs YESTERDAY -->
+    ${(() => {
+      if (activeDay !== 0 || db.pollen_available === false) return "";
+      const yISO = new Date(Date.now()-864e5).toISOString().slice(0,10);
+      const yh = history[yISO];
+      if (!yh) return "";
+      let up=0, down=0, rows="";
+      for (const p of POLLEN) {
+        if (!filter.includes(p.key)) continue;
+        const tLv = lv(pol?.[p.key]?.today ?? "-1");
+        const yLv = lv(yh[p.key] ?? "-1");
+        if (tLv.sc > yLv.sc) up++;
+        else if (tLv.sc < yLv.sc) down++;
+        if (tLv.sc === yLv.sc && tLv.sc === 0) continue;
+        const arrow = tLv.sc > yLv.sc ? "↑" : tLv.sc < yLv.sc ? "↓" : "=";
+        const arrowColor = tLv.sc > yLv.sc ? "#ef4444" : tLv.sc < yLv.sc ? "#22c55e" : "var(--text3)";
+        rows += `<div style="display:flex;align-items:center;gap:6px;font-size:.78rem;padding:3px 0"><span class="picon">${p.icon}</span><span style="flex:1">${t(p.key)}</span><span style="color:${arrowColor};font-weight:600">${arrow}</span><span class="${tLv.cls}" style="width:50px;height:6px;border-radius:3px;display:inline-block"></span></div>`;
+      }
+      if (!rows) return "";
+      const summary = up > down ? t("cmp_worse") : down > up ? t("cmp_better") : t("cmp_same");
+      const summaryColor = up > down ? "#ef4444" : down > up ? "#22c55e" : "var(--text3)";
+      return `<div class="card" style="padding:10px 14px;margin-bottom:10px">
+        <div style="font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:6px">${t("cmp_title")}</div>
+        ${rows}
+        <div style="font-size:.72rem;color:${summaryColor};margin-top:6px;text-align:center">${summary}</div>
+      </div>`;
+    })()}
+
     <!-- CROSS-ALLERGY ALERTS -->
     ${renderCrossAllergyAlerts(pol, activeDay)}
+
+    <!-- WEEKLY CALENDAR -->
+    ${(() => {
+      if (db.pollen_available === false) return "";
+      const now = new Date();
+      const dow = (now.getDay() + 6) % 7; // 0=Mon
+      const dayLabels = t("months").split(",").length ? ["Mo","Di","Mi","Do","Fr","Sa","So"] : ["Mo","Tu","We","Th","Fr","Sa","Su"];
+      if (lang === "en") { dayLabels.splice(0, 7, "Mo","Tu","We","Th","Fr","Sa","Su"); }
+      if (lang === "tr") { dayLabels.splice(0, 7, "Pt","Sa","Ça","Pe","Cu","Ct","Pa"); }
+      let cells = "";
+      for (let d = 0; d < 7; d++) {
+        const diff = d - dow;
+        const dt = new Date(now); dt.setDate(dt.getDate() + diff);
+        const iso = dt.toISOString().slice(0, 10);
+        const dayNum = dt.getDate();
+        const isToday = diff === 0;
+        let dots = "";
+        if (diff >= 0 && diff < DAYS.length) {
+          for (const p of POLLEN) {
+            if (!filter.includes(p.key)) continue;
+            const sc = lv(pol?.[p.key]?.[DAYS[diff]] ?? "-1").sc;
+            if (sc > 0) dots += `<span class="${["","risk-low","risk-mid","risk-high"][sc]}" style="width:6px;height:6px;border-radius:50%;display:inline-block"></span>`;
+          }
+        } else if (diff < 0 && history[iso]) {
+          for (const p of POLLEN) {
+            if (!filter.includes(p.key)) continue;
+            const sc = lv(history[iso][p.key] ?? "-1").sc;
+            if (sc > 0) dots += `<span class="${["","risk-low","risk-mid","risk-high"][sc]}" style="width:6px;height:6px;border-radius:50%;display:inline-block"></span>`;
+          }
+        }
+        cells += `<div style="text-align:center;padding:4px 0${isToday?";font-weight:700":""}">
+          <div style="font-size:.65rem;color:var(--text3)">${dayLabels[d]}</div>
+          <div style="font-size:.82rem;${isToday?"color:var(--accent)":""}">${dayNum}</div>
+          <div style="display:flex;gap:2px;justify-content:center;flex-wrap:wrap;min-height:10px;margin-top:2px">${dots}</div>
+        </div>`;
+      }
+      return `<div class="card" style="padding:10px 12px;margin-bottom:10px">
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">${cells}</div>
+      </div>`;
+    })()}
+
+    <!-- HOURLY POLLEN GRAPH -->
+    ${(() => {
+      if (appMode !== "om" || !omHourlyRaw?.hourly?.time) return "";
+      const dayDate = new Date(); dayDate.setDate(dayDate.getDate() + activeDay);
+      const dayStr = dayDate.toISOString().slice(0,10);
+      // collect hourly values for filtered pollen
+      const omVars = Object.entries(OM_KEY);
+      const hours = [], maxVals = [];
+      omHourlyRaw.hourly.time.forEach((ts, i) => {
+        if (!ts.startsWith(dayStr)) return;
+        const h = parseInt(ts.slice(11,13));
+        let total = 0;
+        for (const [v, key] of omVars) {
+          if (!filter.includes(key)) continue;
+          total += omHourlyRaw.hourly[v]?.[i] ?? 0;
+        }
+        hours.push(h);
+        maxVals.push(total);
+      });
+      if (!hours.length) return "";
+      const peak = Math.max(...maxVals, 1);
+      const w = 240, ht = 50;
+      const pts = maxVals.map((v,i) => `${(i/(hours.length-1))*w},${ht-(v/peak)*ht}`).join(" ");
+      const nowH = new Date().getHours();
+      const nowIdx = hours.indexOf(nowH);
+      const nowMark = activeDay === 0 && nowIdx >= 0 ? `<circle cx="${(nowIdx/(hours.length-1))*w}" cy="${ht-(maxVals[nowIdx]/peak)*ht}" r="3" fill="var(--accent)"/>` : "";
+      return `<div class="card" style="padding:10px 12px;margin-bottom:10px">
+        <div style="font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:6px">⏱️ ${t("hourly_pollen") || "Stündlicher Verlauf"}</div>
+        <svg viewBox="0 0 ${w} ${ht}" style="width:100%;height:50px" preserveAspectRatio="none">
+          <polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          ${nowMark}
+        </svg>
+        <div style="display:flex;justify-content:space-between;font-size:.6rem;color:var(--text3);margin-top:2px">
+          <span>${hours[0]}h</span><span>${hours[Math.floor(hours.length/2)]}h</span><span>${hours[hours.length-1]}h</span>
+        </div>
+      </div>`;
+    })()}
 
     <!-- POLLEN-WEATHER EFFECT -->
     ${(() => {
@@ -2140,6 +2276,40 @@ function _renderInner() {
         ${renderTrendChart()}
       </div>
     </div>`}
+
+    <!-- POLLEN MAP (DE only) -->
+    ${appMode === "de" && db.pollen_available !== false ? (() => {
+      const minLat=47.2, maxLat=55.1, minLon=5.8, maxLon=15.2;
+      const w=220, h=280;
+      const toX = lon => ((lon-minLon)/(maxLon-minLon))*w;
+      const toY = lat => ((maxLat-lat)/(maxLat-minLat))*h;
+      // Germany border (Natural Earth GeoJSON) [lon,lat]
+      const border = [[9.92,54.98],[9.94,54.60],[10.95,54.36],[10.94,54.01],[11.96,54.20],[12.52,54.47],[13.65,54.08],[14.12,53.76],[14.35,53.25],[14.07,52.98],[14.44,52.62],[14.69,52.09],[14.61,51.75],[15.02,51.11],[14.57,51.00],[14.31,51.12],[14.06,50.93],[13.34,50.73],[12.97,50.48],[12.24,50.27],[12.42,49.97],[12.52,49.55],[13.03,49.31],[13.60,48.88],[13.24,48.42],[12.88,48.29],[13.03,47.64],[12.93,47.47],[12.62,47.67],[12.14,47.70],[11.43,47.52],[10.54,47.57],[10.40,47.30],[9.90,47.58],[9.59,47.53],[8.52,47.83],[8.32,47.61],[7.47,47.62],[7.59,48.33],[8.10,49.02],[6.66,49.20],[6.19,49.46],[6.24,49.90],[6.04,50.13],[6.16,50.80],[5.99,51.85],[6.59,51.85],[6.84,52.23],[7.09,53.14],[6.91,53.48],[7.10,53.69],[7.94,53.75],[8.12,53.53],[8.80,54.02],[8.57,54.40],[8.53,54.96],[9.28,54.83],[9.92,54.98]];
+      const outline = "M" + border.map(p => `${toX(p[0]).toFixed(1)},${toY(p[1]).toFixed(1)}`).join("L") + "Z";
+
+      let dots = "";
+      for (const reg of db.regions) {
+        const key = `${reg.region_id}-${reg.partregion_id}`;
+        const c = REGION_COORDS[key];
+        if (!c) continue;
+        const risk = personalRisk(reg.pollen, activeDay);
+        const colors = ["#a3a3a3","#22c55e","#eab308","#ef4444"];
+        const col = colors[risk.max];
+        const r = key === rKey ? 4 : 2.5;
+        const stroke = key === rKey ? "stroke='var(--text)' stroke-width='2'" : "";
+        const name = reg.partregion_name || reg.region_name;
+        dots += `<circle cx="${toX(c.lon)}" cy="${toY(c.lat)}" r="${r}" fill="${col}" ${stroke} style="cursor:pointer" onclick="rKey='${key}';localStorage.setItem(LS.region,rKey);render();"><title>${name}: ${risk.label}</title></circle>`;
+      }
+      return `<div class="card" style="padding:12px;margin-bottom:10px">
+        <div style="font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:6px">🗺️ ${t("map_title") || "Pollenbelastung"}</div>
+        <svg viewBox="0 0 ${w} ${h}" style="width:100%;max-width:280px;margin:0 auto;display:block">
+          <path d="${outline}" fill="color-mix(in srgb, var(--border) 20%, transparent)" stroke="var(--text3)" stroke-width="1" stroke-linejoin="round" opacity=".6"/>
+          ${dots}
+        </svg>
+        <div style="text-align:center;font-size:.6rem;color:var(--text3);margin-top:4px;opacity:.5">Deutschland · ${DAY_NAMES()[activeDay]}</div>
+      </div>`;
+    })() : ""}
+
     ` /* end pollen tab */ : ""}
 
   `;
@@ -2308,9 +2478,44 @@ function renderSymHistory() {
   const entries = Object.entries(symptoms).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,5);
   if (!entries.length) return "";
   const sc = v => !v ? "var(--border)" : "var(--accent)";
+
+  // 14-day sparkline
+  let sparkline = "";
+  const last14 = Object.entries(symptoms).sort((a,b)=>a[0].localeCompare(b[0])).slice(-14);
+  if (last14.length >= 3) {
+    const vals = last14.map(([,s]) => (s.niesen||0)+(s.augen||0)+(s.atmung||0)+(s.muedigkeit||0));
+    const maxV = Math.max(...vals, 1);
+    const w = 200, h = 40;
+    const pts = vals.map((v,i) => `${(i/(vals.length-1))*w},${h - (v/maxV)*h}`).join(" ");
+    // 7-day rolling average
+    const avg7 = vals.length >= 7 ? (vals.slice(-7).reduce((a,b)=>a+b,0)/7).toFixed(1) : null;
+    sparkline = `<div style="margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:.7rem;color:var(--text3)">14 ${t("days_trend") || "Tage"}</span>
+        ${avg7 ? `<span style="font-size:.65rem;color:var(--text2);margin-left:auto">ø7d: ${avg7}/12</span>` : ""}
+      </div>
+      <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:40px" preserveAspectRatio="none">
+        <polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>`;
+  }
+
+  // 4-week heatmap
+  let heatmap = "";
+  const last28 = Object.entries(symptoms).sort((a,b)=>a[0].localeCompare(b[0])).slice(-28);
+  if (last28.length >= 7) {
+    const heatCols = last28.map(([,s]) => {
+      const total = (s.niesen||0)+(s.augen||0)+(s.atmung||0)+(s.muedigkeit||0);
+      return total === 0 ? "var(--border)" : total <= 3 ? "#22c55e" : total <= 6 ? "#eab308" : total <= 9 ? "#f97316" : "#ef4444";
+    });
+    heatmap = `<div style="display:flex;gap:2px;flex-wrap:wrap;margin-bottom:8px">${heatCols.map(c => `<div style="width:10px;height:10px;border-radius:2px;background:${c}"></div>`).join("")}</div>`;
+  }
+
   return `
     <div class="sym-hist">
       <div class="sym-hist-title">${t("saved_entries")}</div>
+      ${sparkline}
+      ${heatmap}
       <div style="display:grid;grid-template-columns:42px repeat(4,1fr);gap:4px;margin-bottom:4px;align-items:center">
         <div></div>
         ${[t("n_label"),t("a_label"),t("at_label"),t("m_label")].map(l=>`
@@ -2331,6 +2536,7 @@ function renderSymHistory() {
 function setDay(i) { activeDay=i; render(); }
 function setTab(tab) {
   if (tab === activeTab) return;
+  haptic();
   const page = document.getElementById("page");
   const dir = tab === "weather" ? "left" : "right";
   page.classList.add("slide-out-" + dir);
@@ -2350,6 +2556,7 @@ function setTab(tab) {
 
 
 function setSym(key, val) {
+  haptic();
   draft[key] = val;
   const map = Object.fromEntries(SYM_KEYS.map(([k])=>[k,t(k)]));
   document.querySelectorAll(".sym-row").forEach(row => {
@@ -2505,13 +2712,10 @@ function calcPollenEffect(dayIdx) {
 // ─────────────────────────────────────────────────────────────────────────────
 function geoLocate() {
   if (!navigator.geolocation) { showToast(t("geo_unsupported")); return; }
-  const btn = document.getElementById("geo-btn");
-  btn.disabled = true; btn.innerHTML = "⏳";
+  showToast("📍 " + (t("locating") || "…"));
   navigator.geolocation.getCurrentPosition(async pos => {
     const { latitude: lat, longitude: lon } = pos.coords;
-    // Detect if coordinates are within Germany bounds
     const inDE = lat >= 47.3 && lat <= 55.1 && lon >= 5.9 && lon <= 15.1;
-    // Try to get city name via reverse geocoding
     let cityName = "";
     try {
       const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=${lang}`, { headers: {"Accept-Language": lang} });
@@ -2519,8 +2723,8 @@ function geoLocate() {
       cityName = j.address?.city || j.address?.town || j.address?.village || j.address?.county || "";
     } catch {}
 
+    closeDrawer();
     if (inDE) {
-      // Switch to DWD mode, find nearest region
       geoInfo = { latitude: lat, longitude: lon, city: cityName, country: "Germany", country_code: "DE", _gps: true };
       if (appMode !== "de") { localStorage.setItem(LS.mode, "de"); location.reload(); return; }
       let best = null, bestDist = Infinity;
@@ -2535,16 +2739,14 @@ function geoLocate() {
       }
       weather = null; render(); loadWeather();
     } else {
-      // Switch to OM mode with GPS coords
       geoInfo = { latitude: lat, longitude: lon, city: cityName, country: "", country_code: "", _gps: true };
       if (appMode !== "om") { localStorage.setItem(LS.mode, "om"); location.reload(); return; }
       weather = null; loadGlobal();
     }
-    btn.disabled = false; btn.innerHTML = '<span class="di">📍</span>';
+    showToast("📍 " + (cityName || `${lat.toFixed(1)}, ${lon.toFixed(1)}`));
   }, () => {
     showToast(t("geo_error"));
-    btn.disabled = false; btn.innerHTML = '<span class="di">📍</span>';
-  }, { timeout: 8000 });
+  }, { timeout: 10000 });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -2690,6 +2892,7 @@ function showToast(msg, duration=3000) {
 
 let _drawerOpener = null;
 function openDrawer() {
+  haptic();
   _drawerOpener = document.activeElement;
   document.getElementById("drawer").classList.add("open");
   document.getElementById("drawer-overlay").classList.add("show");
@@ -2698,13 +2901,25 @@ function openDrawer() {
   document.getElementById("page").style.overflow = "hidden";
 }
 function closeDrawer() {
+  haptic();
   document.getElementById("drawer").classList.remove("open");
   document.getElementById("drawer-overlay").classList.remove("show");
   document.body.style.overflow = "";
   document.getElementById("page").style.overflow = "";
   if (_drawerOpener) { _drawerOpener.focus(); _drawerOpener = null; }
 }
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") closeDrawer();
+  // Focus trap in drawer
+  if (e.key === "Tab" && document.getElementById("drawer").classList.contains("open")) {
+    const drawer = document.getElementById("drawer");
+    const focusable = drawer.querySelectorAll("button, input, select, [tabindex]:not([tabindex='-1'])");
+    if (!focusable.length) return;
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // BROWSER NOTIFICATIONS (once per day, opt-in)
@@ -2999,6 +3214,19 @@ function refreshDrawer() {
   if (ms) medDraft = {antihistamine:!!ms.antihistamine, eyedrops:!!ms.eyedrops, nasal:!!ms.nasal, cortisone:!!ms.cortisone};
 
   el.innerHTML = `
+    <!-- FAVORITES -->
+    <div class="dsec-head" onclick="toggleDrawerSec('dfav')" id="dfav-head">
+      <span>⭐ ${t("fav_title")}</span>
+      <span class="dsec-arrow">▼</span>
+    </div>
+    <div class="dsec-body" id="dfav-body">
+      ${favorites.length ? favorites.map((f,i) => `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.82rem">
+        <span style="cursor:pointer;flex:1" onclick="loadFavorite(${i})">📍 ${escapeHtml(f.city || f.lat.toFixed(1)+","+f.lon.toFixed(1))}${f.country ? " · "+escapeHtml(f.country) : ""}</span>
+        <button onclick="removeFavorite(${i})" style="background:none;border:none;color:var(--text3);font-size:.75rem;cursor:pointer">✕</button>
+      </div>`).join("") : `<div style="font-size:.78rem;color:var(--text3);padding:6px 0">${t("fav_empty")}</div>`}
+      <button onclick="addFavorite()" style="margin-top:6px;padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:.78rem;cursor:pointer">+ ${t("fav_add")}</button>
+    </div>
+
     <!-- SYMPTOM TRACKER -->
     <div class="dsec-head" onclick="toggleDrawerSec('dsym')" id="dsym-head">
       <span>${t("sym_title")}</span>
@@ -3134,6 +3362,17 @@ function refreshDrawer() {
     </div>
 
 
+
+    <!-- TRAVEL PLANNER -->
+    <div class="dsec-head" onclick="toggleDrawerSec('dtravel')" id="dtravel-head">
+      <span>✈️ ${t("travel_title")}</span>
+      <span class="dsec-arrow">▼</span>
+    </div>
+    <div class="dsec-body" id="dtravel-body">
+      <input id="travel-input" type="text" placeholder="${t("travel_search")}" oninput="travelSearch(this.value)" autocomplete="off" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:.82rem;box-sizing:border-box">
+      <div id="travel-results" style="display:none;max-height:160px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;margin-top:4px;background:var(--card)"></div>
+      <div id="travel-compare" style="margin-top:8px"></div>
+    </div>
 
     <!-- DATA SOURCE -->
     <div class="dsec-head" onclick="toggleDrawerSec('dsource')" id="dsource-head">
@@ -3357,6 +3596,30 @@ function shareUrl() {
     _fallbackCopyUrl(url);
   }
 }
+function shareSummary() {
+  const reg = db?.regions?.find(r => `${r.region_id}-${r.partregion_id}` === rKey);
+  if (!reg) return;
+  const city = geoInfo?.city || reg.partregion_name || reg.region_name;
+  const risk = personalRisk(reg.pollen, 0);
+  const drivers = risk.drivers.slice(0, 3).map(d => t(d.key)).join(", ");
+  let text = `🌿 ${city} · ${DAY_NAMES()[0]}\n${risk.label}`;
+  if (drivers) text += ` (${drivers})`;
+  if (weather?.current) {
+    text += `\n${wmoIcon(weather.current.code)} ${Math.round(weather.current.temp)}°C`;
+    if (weather.current.rain > 0) text += ` 🌧️ ${weather.current.rain}mm`;
+  }
+  text += `\n${location.origin}${location.pathname}`;
+  if (navigator.share) {
+    navigator.share({ title: "Pollenflug", text }).catch(() => {});
+  } else if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast("📤 " + t("share_copied")))
+      .catch(() => _fallbackCopyUrl(text));
+  } else {
+    _fallbackCopyUrl(text);
+  }
+}
+
 function _fallbackCopyUrl(url) {
   const ta = document.createElement("textarea");
   ta.value = url; ta.style.cssText = "position:fixed;opacity:0;top:0;left:0";
@@ -3367,9 +3630,35 @@ function _fallbackCopyUrl(url) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// FAVORITES
+// ─────────────────────────────────────────────────────────────────────────────
+function addFavorite() {
+  if (!geoInfo) return;
+  if (favorites.length >= 5) { showToast(t("fav_max")); return; }
+  const city = geoInfo.city || db?.regions?.find(r=>`${r.region_id}-${r.partregion_id}`===rKey)?.region_name || "";
+  if (favorites.some(f => f.lat === geoInfo.latitude && f.lon === geoInfo.longitude)) return;
+  favorites.push({ lat: geoInfo.latitude, lon: geoInfo.longitude, city, country: geoInfo.country || "", cc: geoInfo.country_code || "", mode: appMode });
+  localStorage.setItem(LS.favs, JSON.stringify(favorites));
+  refreshDrawer();
+  showToast("⭐ " + city);
+}
+function removeFavorite(i) {
+  favorites.splice(i, 1);
+  localStorage.setItem(LS.favs, JSON.stringify(favorites));
+  refreshDrawer();
+}
+function loadFavorite(i) {
+  const f = favorites[i];
+  if (!f) return;
+  citySelect(f.lat, f.lon, f.city, f.country, f.cc, "");
+  closeDrawer();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // ALLERGY SEVERITY
 // ─────────────────────────────────────────────────────────────────────────────
 function setSeverity(key, level) {
+  haptic();
   severity[key] = level;
   localStorage.setItem(LS.sev, JSON.stringify(severity));
   if (level === "off") {
@@ -3459,7 +3748,7 @@ async function loadGlobal() {
   // Immer OM-Modus sicherstellen – egal von wo aufgerufen
   appMode = "om";
   POLLEN  = POLLEN_OM;
-  DAYS    = ["today","tomorrow","dayafter_to","day3","day4"];
+  DAYS    = ["today","tomorrow","dayafter_to"];
 
   const lat = geoInfo.latitude;
   const lon = geoInfo.longitude;
@@ -3483,7 +3772,7 @@ async function loadGlobal() {
   const url = `https://air-quality-api.open-meteo.com/v1/air-quality`
     + `?latitude=${lat}&longitude=${lon}`
     + `&hourly=${vars.join(",")}`
-    + `&forecast_days=5&timezone=auto`;
+    + `&forecast_days=3&timezone=auto`;
 
   let raw = null;
   let pollenAvailable = false;
@@ -3511,6 +3800,7 @@ async function loadGlobal() {
   }
 
   const { pollen, dates } = parseOpenMeteoPollen(raw, vars, pollenAvailable);
+  omHourlyRaw = pollenAvailable ? raw : null;
 
   db = {
     last_update: dates[0] ?? todayISO(),
@@ -3553,6 +3843,64 @@ async function citySearch(query, resultsId) {
       results.style.display = "block";
     } catch { results.style.display = "none"; }
   }, 350);
+}
+
+let _travelTimer;
+function travelSearch(query) {
+  const results = document.getElementById("travel-results");
+  if (!results) return;
+  clearTimeout(_travelTimer);
+  if (query.length < 2) { results.style.display = "none"; return; }
+  _travelTimer = setTimeout(async () => {
+    try {
+      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=6&language=${lang}&format=json`);
+      const data = await res.json();
+      if (!data.results?.length) { results.style.display = "none"; return; }
+      results.innerHTML = data.results.map(r => {
+        const label = [r.name, r.admin1, r.country].filter(Boolean).join(", ");
+        return `<div onclick="travelCompare(${r.latitude},${r.longitude},'${escapeHtml(r.name)}')" style="padding:8px 12px;font-size:.84rem;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text)" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">📍 ${escapeHtml(label)}</div>`;
+      }).join("");
+      results.style.display = "block";
+    } catch { results.style.display = "none"; }
+  }, 350);
+}
+
+async function travelCompare(lat, lon, city) {
+  document.getElementById("travel-results").style.display = "none";
+  document.getElementById("travel-input").value = city;
+  const box = document.getElementById("travel-compare");
+  box.innerHTML = `<div style="text-align:center;padding:10px;font-size:.82rem;color:var(--text3)">⏳</div>`;
+  try {
+    const vars = "alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,ragweed_pollen,olive_pollen";
+    const res = await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=${vars}&forecast_days=3&timezone=auto`);
+    const raw = await res.json();
+    const avail = ["alder_pollen","birch_pollen","grass_pollen","mugwort_pollen","ragweed_pollen","olive_pollen"].filter(v => raw.hourly?.[v]?.some(x => x !== null));
+    if (!avail.length) { box.innerHTML = `<div style="font-size:.82rem;color:var(--text3);padding:8px">${t("travel_no_data")}</div>`; return; }
+    const { pollen: destPol } = parseOpenMeteoPollen(raw, avail, true);
+    const herePol = db?.regions?.find(r=>`${r.region_id}-${r.partregion_id}`===rKey)?.pollen;
+    if (!herePol) { box.innerHTML = ""; return; }
+    let rows = "";
+    for (const p of POLLEN) {
+      const hLv = lv(herePol[p.key]?.today ?? "-1");
+      const dLv = lv(destPol[p.key]?.today ?? "-1");
+      if (hLv.sc === 0 && dLv.sc === 0) continue;
+      const better = dLv.sc < hLv.sc;
+      const worse = dLv.sc > hLv.sc;
+      rows += `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.78rem">
+        <span class="picon">${p.icon}</span><span style="flex:1">${t(p.key)}</span>
+        <span class="${hLv.cls}" style="width:30px;height:6px;border-radius:3px;display:inline-block"></span>
+        <span style="color:${better?"#22c55e":worse?"#ef4444":"var(--text3)"};font-weight:600">${better?"↓":worse?"↑":"="}</span>
+        <span class="${dLv.cls}" style="width:30px;height:6px;border-radius:3px;display:inline-block"></span>
+      </div>`;
+    }
+    if (!rows) rows = `<div style="font-size:.78rem;color:var(--text3);padding:4px 0">${t("travel_no_data")}</div>`;
+    box.innerHTML = `<div style="padding:8px 0">
+      <div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--text3);margin-bottom:4px;padding:0 24px 0 22px"><span>${t("travel_here")}</span><span>${city}</span></div>
+      ${rows}
+    </div>`;
+  } catch {
+    box.innerHTML = `<div style="font-size:.82rem;color:var(--text3);padding:8px">${t("travel_no_data")}</div>`;
+  }
 }
 
 function citySelect(lat, lon, city, country, country_code, resultsId) {
@@ -3668,7 +4016,7 @@ async function init() {
   } else {
     appMode = "om";
     POLLEN  = POLLEN_OM;
-    DAYS = ["today","tomorrow","dayafter_to","day3","day4"];
+    DAYS = ["today","tomorrow","dayafter_to"];
     try {
       await loadGlobal();
     } catch(e) {
@@ -3813,6 +4161,21 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js")
       .catch(err => console.warn("SW registration failed:", err));
   });
+}
+
+// ── ONLINE / OFFLINE ────────────────────────────────────────────────────────
+window.addEventListener("offline", () => {
+  const pill = document.getElementById("offline-pill");
+  pill.textContent = t("offline");
+  pill.classList.add("show");
+});
+window.addEventListener("online", () => {
+  document.getElementById("offline-pill").classList.remove("show");
+});
+if (!navigator.onLine) {
+  const pill = document.getElementById("offline-pill");
+  pill.textContent = t("offline");
+  pill.classList.add("show");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
