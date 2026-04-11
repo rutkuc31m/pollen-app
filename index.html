@@ -179,7 +179,9 @@
     .tab-btn:hover:not(.active) { color: var(--text2); }
 
     /* ── PAGE ────────────────────────────────────────── */
-    .page { max-width: 640px; margin: 0 auto; padding: 14px 14px 100px; }
+    .page { max-width: 640px; margin: 0 auto; padding: 14px 14px 100px; transition: opacity .18s ease, transform .18s ease; }
+    .page.slide-out-left  { opacity: 0; transform: translateX(-40px); }
+    .page.slide-out-right { opacity: 0; transform: translateX(40px); }
 
     /* ── CARD ────────────────────────────────────────── */
     .card {
@@ -2328,11 +2330,22 @@ function renderSymHistory() {
 // ─────────────────────────────────────────────────────────────────────────────
 function setDay(i) { activeDay=i; render(); }
 function setTab(tab) {
-  activeTab = tab;
-  document.getElementById("tab-pollen")?.classList.toggle("active", tab === "pollen");
-  document.getElementById("tab-weather")?.classList.toggle("active", tab === "weather");
-  render();
-  if (tab === "weather" && !weather) loadWeather();
+  if (tab === activeTab) return;
+  const page = document.getElementById("page");
+  const dir = tab === "weather" ? "left" : "right";
+  page.classList.add("slide-out-" + dir);
+  setTimeout(() => {
+    activeTab = tab;
+    document.getElementById("tab-pollen")?.classList.toggle("active", tab === "pollen");
+    document.getElementById("tab-weather")?.classList.toggle("active", tab === "weather");
+    render();
+    if (tab === "weather" && !weather) loadWeather();
+    page.classList.remove("slide-out-" + dir);
+    page.classList.add("slide-out-" + (dir === "left" ? "right" : "left"));
+    requestAnimationFrame(() => {
+      page.classList.remove("slide-out-right", "slide-out-left");
+    });
+  }, 180);
 }
 
 
