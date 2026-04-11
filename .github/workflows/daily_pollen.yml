@@ -23,11 +23,14 @@ jobs:
       - name: Pollendaten für Web-Dashboard aktualisieren
         run: python fetch_data.py
 
-      - name: data.json committen
+      - name: Cache-bust sw.js
+        run: sed -i "s/pollen-v[0-9]*/pollen-$(date +%s)/" sw.js
+
+      - name: data.json + sw.js committen
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data.json
+          git add data.json sw.js
           git diff --cached --quiet || git commit -m "Update pollen data $(date +%Y-%m-%d)"
           git pull --rebase origin main
           git push
