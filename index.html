@@ -2,8 +2,12 @@
 <html lang="de" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#ffffff" id="theme-meta">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f6fa" id="theme-meta">
+  <script>try{if(localStorage.getItem("p_theme")==="dark"){document.getElementById("theme-meta").content="#0e1319";document.documentElement.setAttribute("data-theme","dark")}}catch(e){}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap">
   <link rel="manifest" href="./manifest.json">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -25,78 +29,82 @@
   <style>
     /* ── TOKENS ─────────────────────────────────────── */
     :root {
-      --bg:      #f4f2f9;
+      /* spacing scale (4-based) */
+      --sp-1: 4px; --sp-2: 6px; --sp-3: 8px; --sp-4: 12px;
+      --sp-5: 16px; --sp-6: 20px; --sp-7: 24px; --sp-8: 32px;
+      /* radii */
+      --rad-sm: 6px; --rad-md: 10px; --rad-lg: 14px; --rad-xl: 20px;
+      --r: var(--rad-lg);
+      /* surface — cool spring paper */
+      --bg:      #f4f6fa;
       --card:    #ffffff;
-      --card2:   #f8f6fd;
-      --border:  #e6e1f4;
-      --text:    #1a1620;
-      --text2:   #6f7a6b;
-      --text3:   #6b756b;
-      --accent:  #03e946;
-      --accent2: #268931;
-      --accent-subtle: rgba(3,233,70,0.10);
-      --r:       13px;
-      --sh:      0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+      --card2:   #ebf0f6;
+      --border:  #dde4ed;
+      /* text */
+      --text:    #16202b;
+      --text2:   #5a6778;
+      --text3:   #97a3b4;
+      /* brand — soft sky blue (weather/spring) */
+      --accent:       #4a8fbc;
+      --accent2:      #356d94;
+      --accent-ink:   #ffffff;
+      --accent-subtle: color-mix(in srgb, var(--accent) 10%, var(--card));
+      /* risk semantic ladder (spring-tuned, brand-independent) */
+      --risk-none-fg: #97a3b4; --risk-none-bg: #eef1f6; --risk-none-ring: #dae1ec;
+      --risk-low-fg:  #3f8155; --risk-low-bg:  #e4f0e7; --risk-low-ring:  #bdd9c3;
+      --risk-mid-fg:  #b8801a; --risk-mid-bg:  #fbeed3; --risk-mid-ring:  #ecd196;
+      --risk-high-fg: #c24a3a; --risk-high-bg: #f7dcd5; --risk-high-ring: #e9b1a4;
+      /* elevation */
+      --sh:      0 1px 2px rgba(20,40,70,.05), 0 6px 22px rgba(20,40,70,.06);
+      /* type */
+      --font-body:    "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     /* ── DARK THEME OVERRIDES ───────────────────────── */
     [data-theme="dark"] {
-      --bg:      #0a0a0b;
-      --card:    #18181b;
-      --card2:   #27272a;
-      --border:  #3f3f46;
-      --text:    #fafafa;
-      --text2:   #a1a1aa;
-      --text3:   #71717a;
-      --accent:  #bae6fd;
-      --accent2: #7cb8d4;
-      --accent-subtle: #0c2840;
-      --sh:      0 1px 3px rgba(0,0,0,.5);
+      --bg:      #0e1319;
+      --card:    #171d26;
+      --card2:   #202836;
+      --border:  #2c3542;
+      --text:    #e8edf4;
+      --text2:   #97a3b4;
+      --text3:   #5b6776;
+      --accent:       #7ab3d9;
+      --accent2:      #4a8fbc;
+      --accent-ink:   #0a1420;
+      --accent-subtle: color-mix(in srgb, var(--accent) 14%, var(--card));
+      --risk-none-fg: #5b6776; --risk-none-bg: #202836; --risk-none-ring: #2c3542;
+      --risk-low-fg:  #8ec39a; --risk-low-bg:  color-mix(in srgb, #3f8155 22%, var(--card)); --risk-low-ring: color-mix(in srgb, #3f8155 40%, var(--card));
+      --risk-mid-fg:  #e4b970; --risk-mid-bg:  color-mix(in srgb, #b8801a 26%, var(--card)); --risk-mid-ring: color-mix(in srgb, #b8801a 48%, var(--card));
+      --risk-high-fg: #ef8e7a; --risk-high-bg: color-mix(in srgb, #c24a3a 34%, var(--card)); --risk-high-ring: color-mix(in srgb, #c24a3a 54%, var(--card));
+      --sh:      0 1px 2px rgba(0,0,0,.4), 0 6px 24px rgba(0,0,0,.5);
     }
-    [data-theme="dark"] .topbar {
-      background: rgba(24,24,27,0.88);
-    }
-    [data-theme="dark"] .lv-bars .b { background: rgba(255,255,255,0.12); }
+    [data-theme="dark"] .topbar { background: var(--bg); }
+    [data-theme="dark"] .lv-bars .b { background: rgba(255,255,255,0.10); }
     [data-theme="dark"] .lv-bars .b.on { background: var(--accent); }
-    [data-theme="dark"] .hero:has(.risk-low)  { background: radial-gradient(ellipse at 20% 50%, rgba(186,230,253,0.06) 0%, var(--card) 60%); }
-    [data-theme="dark"] .hero:has(.risk-mid)  { background: radial-gradient(ellipse at 20% 50%, rgba(251,146,60,0.07) 0%, var(--card) 60%); }
-    [data-theme="dark"] .hero:has(.risk-high) { background: radial-gradient(ellipse at 20% 50%, rgba(248,113,113,0.14) 0%, var(--card) 70%); }
-    [data-theme="dark"] .risk-none  { --rc:#a1a1aa; --rb:#27272a; }
-    [data-theme="dark"] .risk-low   { --rc:#bae6fd; --rb:#0c2840; }
-    [data-theme="dark"] .risk-mid   { --rc:#fb923c; --rb:#1c0900; }
-    [data-theme="dark"] .risk-high  { --rc:#f87171; --rb:#1c0000; }
-    [data-theme="dark"] .b-low  { color:#bae6fd; }
-    [data-theme="dark"] .b-mid  { color:#bae6fd; }
-    [data-theme="dark"] .b-high { color:#bae6fd; }
-    [data-theme="dark"] .wh-cell[data-sc="0"] { background: color-mix(in srgb, #bae6fd 18%, #18181b); color: #bae6fd; }
-    [data-theme="dark"] .wh-cell[data-sc="1"] { background: color-mix(in srgb, #bae6fd 35%, #18181b); color: #bae6fd; }
-    [data-theme="dark"] .wh-cell[data-sc="2"] { background: color-mix(in srgb, #c2410c 45%, #18181b); color: #fb923c; }
-    [data-theme="dark"] .wh-cell[data-sc="3"] { background: color-mix(in srgb, #b91c1c 55%, #18181b); color: #fca5a5; }
-    [data-theme="dark"] .s25-cell[data-v="1"] { background: #0c2840; }
-    [data-theme="dark"] .s25-cell[data-v="2"] { background: #431407; }
-    [data-theme="dark"] .s25-cell[data-v="3"] { background: #7f1d1d; }
-    [data-theme="dark"] .time-win.warn  { background: #2d1515; color: #f87171; }
-    [data-theme="dark"] .escape-box { background: #0c2840; color: #bae6fd; border-color: color-mix(in srgb, #bae6fd 20%, transparent); }
-    [data-theme="dark"] #toast { background: #18181b; color: #fafafa; }
-    [data-theme="dark"] .np-btn-yes { color: #fff; }
-    [data-theme="dark"] .uv-hi  { color: #3f3f46; }
-    [data-theme="dark"] .uv-mid { color: #7cb8d4; }
-    [data-theme="dark"] .uv-low { color: #bae6fd; }
-    [data-theme="dark"] .corr-fill-low  { background: #bae6fd; }
-    [data-theme="dark"] .corr-fill-mid  { background: #fb923c; }
-    [data-theme="dark"] .corr-fill-high { background: #f87171; }
+    [data-theme="dark"] #toast { background: var(--card); color: var(--accent); }
     [data-theme="dark"] .icon-btn { box-shadow: none; }
     [data-theme="dark"] .icon-btn:hover { background: var(--border); }
 
     /* ── BASE ────────────────────────────────────────── */
     *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+      font-family: var(--font-body);
+      font-feature-settings: "ss01", "ss02", "cv11";
       background: var(--bg);
       color: var(--text);
       transition: background .2s, color .2s;
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      position: relative;
     }
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 500;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.22  0 0 0 0 0.30  0 0 0 0 0.42  0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+      opacity: .035; mix-blend-mode: multiply;
+    }
+    [data-theme="dark"] body::before { opacity: .04; mix-blend-mode: overlay; }
     .theme-transitioning, .theme-transitioning *, .theme-transitioning *::before, .theme-transitioning *::after {
       transition: background-color .3s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease !important;
     }
@@ -105,30 +113,31 @@
 
     /* ── HEADER ──────────────────────────────────────── */
     .topbar {
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: var(--bg);
       border-bottom: 1px solid var(--border);
-      position: sticky; top: 0; z-index: 99;
-      padding: 0 16px;
+      padding: env(safe-area-inset-top, 0) 16px 0;
     }
     .topbar-inner {
       max-width: 640px; margin: 0 auto;
-      height: 44px;
-      display: flex; align-items: center; gap: 6px;
+      height: 52px;
+      display: flex; align-items: center; gap: var(--sp-2);
     }
     .tab-btn .tab-icon { }
     .icon-btn {
-      width: 34px; height: 34px; border-radius: 8px;
+      width: 40px; height: 40px; border-radius: var(--rad-md);
       border: 1px solid var(--border);
       background: var(--card); color: var(--text);
-      cursor: pointer; font-size: .95rem;
+      cursor: pointer; font-size: .98rem;
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      flex-shrink: 0; box-shadow: 0 1px 2px rgba(42,28,10,.05);
+      transition: background .2s ease, transform .15s ease;
     }
+    .icon-btn:active { transform: scale(.92); }
     .icon-btn:hover { background: var(--card2); }
     .offline-pill {
-      font-size: .7rem; background: #f97316; color: #fff;
+      font-size: .68rem; letter-spacing: .02em;
+      background: var(--risk-mid-bg); color: var(--risk-mid-fg);
+      border: 1px solid var(--risk-mid-ring);
       padding: 2px 9px; border-radius: 20px; display: none;
     }
     .offline-pill.show { display: inline-block; }
@@ -164,22 +173,37 @@
       padding-bottom: env(safe-area-inset-bottom, 0);
     }
     [data-theme="dark"] .tab-bar {
-      background: rgba(24,24,27,0.92);
+      background: rgba(23,29,38,0.92);
     }
     .tab-bar-inner {
       max-width: 640px; margin: 0 auto;
-      display: flex; gap: 0;
+      display: flex; gap: var(--sp-2); padding: var(--sp-2) 0 var(--sp-3);
     }
     .tab-btn {
-      flex: 1; padding: 12px 0 10px; font-size: .82rem; font-weight: 600;
-      border: none; background: none; color: var(--text3);
-      cursor: pointer; border-top: 2px solid transparent;
-      transition: color .15s, border-color .15s;
+      flex: 1; padding: var(--sp-3) var(--sp-2); font-size: .78rem; font-weight: 500;
+      border: none; background: transparent; color: var(--text3);
+      cursor: pointer; border-radius: var(--rad-md);
+      transition: color .18s ease, background .25s ease, transform .2s ease;
       font-family: inherit;
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      position: relative;
     }
-    .tab-btn .tab-icon { font-size: 1.2rem; }
-    .tab-btn.active { color: var(--text); border-top-color: var(--accent); }
+    .tab-btn .tab-icon { font-size: 1.15rem; transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
+    .tab-btn::before {
+      content: ""; position: absolute; top: 0; left: 50%;
+      width: 32px; height: 2px; border-radius: 0 0 2px 2px;
+      background: var(--accent);
+      transform: translateX(-50%) scaleX(0);
+      transform-origin: center;
+      transition: transform .22s cubic-bezier(.34,1.56,.64,1);
+    }
+    .tab-btn.active::before { transform: translateX(-50%) scaleX(1); }
+    .tab-btn.active {
+      color: var(--accent2);
+      font-weight: 600;
+    }
+    [data-theme="dark"] .tab-btn.active { color: var(--accent); }
+    .tab-btn.active .tab-icon { transform: scale(1.08); }
     .tab-btn:hover:not(.active) { color: var(--text2); }
 
     /* ── PAGE ────────────────────────────────────────── */
@@ -200,7 +224,7 @@
     }
     .card-head.collapsible { cursor: pointer; user-select: none; border-bottom: none; }
     .card-head.collapsible.open { border-bottom: 1px solid var(--border); }
-    .card-title { font-size: .78rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; }
+    .card-title { font-size: .72rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .12em; font-feature-settings: "ss01"; }
     .card-action { font-size: .78rem; color: var(--accent); background: none; border: none; cursor: pointer; padding: 0; }
     .collapse-arrow { font-size: .75rem; color: var(--text3); transition: transform .2s; }
     .card-head.collapsible.open .collapse-arrow { transform: rotate(180deg); }
@@ -211,22 +235,40 @@
     .hero {
       background: var(--card); border: 1px solid var(--border);
       border-radius: var(--r); box-shadow: var(--sh);
-      margin-bottom: 12px; padding: 26px 20px;
-      display: flex; align-items: center; gap: 16px;
+      margin-bottom: var(--sp-4); padding: var(--sp-7) var(--sp-6);
+      display: flex; align-items: center; gap: var(--sp-5);
       transition: background 0.4s ease;
+      position: relative; overflow: hidden;
     }
-    .hero:has(.risk-low)  { background: radial-gradient(ellipse at 20% 50%, rgba(3,233,70,0.07) 0%, var(--card) 65%); }
-    .hero:has(.risk-mid)  { background: radial-gradient(ellipse at 20% 50%, rgba(192,120,0,0.07) 0%, var(--card) 65%); }
-    .hero:has(.risk-high) { background: radial-gradient(ellipse at 20% 50%, rgba(192,57,43,0.13) 0%, var(--card) 70%); }
+    .hero::before {
+      content: ""; position: absolute; inset: 0 0 auto 0; height: 3px;
+      background: linear-gradient(90deg, var(--rc, var(--border)), transparent 85%);
+      opacity: .75;
+    }
+    .hero:has(.risk-none) { --rc: var(--risk-none-fg); }
+    .hero:has(.risk-low)  { --rc: var(--risk-low-fg);  background: radial-gradient(ellipse at 15% 40%, var(--risk-low-bg)  0%, var(--card) 60%); }
+    .hero:has(.risk-mid)  { --rc: var(--risk-mid-fg);  background: radial-gradient(ellipse at 15% 40%, var(--risk-mid-bg)  0%, var(--card) 60%); }
+    .hero:has(.risk-high) { --rc: var(--risk-high-fg); background: radial-gradient(ellipse at 15% 40%, var(--risk-high-bg) 0%, var(--card) 65%); }
     .hero-badge {
-      width: 64px; height: 64px; border-radius: 16px;
+      width: 68px; height: 68px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.7rem; flex-shrink: 0; font-weight: 800;
+      font-size: 1.8rem; flex-shrink: 0; font-weight: 700;
       background: transparent !important;
+      border: 2px solid var(--rc, var(--border));
+      box-shadow: inset 0 0 0 6px color-mix(in srgb, var(--rc, var(--border)) 8%, var(--card));
+      transition: transform .4s ease;
+    }
+    @keyframes breathe {
+      0%,100% { transform: scale(1); box-shadow: inset 0 0 0 6px color-mix(in srgb, var(--rc) 8%, var(--card)), 0 0 0 0 color-mix(in srgb, var(--rc) 30%, transparent); }
+      50%     { transform: scale(1.035); box-shadow: inset 0 0 0 6px color-mix(in srgb, var(--rc) 10%, var(--card)), 0 0 0 8px color-mix(in srgb, var(--rc) 0%, transparent); }
+    }
+    .hero:has(.risk-high) .hero-badge { animation: breathe 3s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) {
+      .hero:has(.risk-high) .hero-badge { animation: none; }
     }
     .dc-ring { background: transparent !important; }
     .hero-body { flex: 1; min-width: 0; }
-    .hero-risk { font-size: 1.42rem; font-weight: 700; line-height: 1.2; background: transparent !important; }
+    .hero-risk { font-size: 1.5rem; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; background: transparent !important; }
     .hero-loc  { font-size: .8rem; color: var(--text2); margin-top: 2px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .hero-drivers { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
     .driver-pill {
@@ -237,11 +279,11 @@
       color: var(--accent) !important;
     }
 
-    /* colour tokens per level */
-    .risk-none  { --rc:#9aa59a; --rb:#f0eef8; }
-    .risk-low   { --rc:#268931; --rb:#e8fbed; }
-    .risk-mid   { --rc:#c07800; --rb:#fff3dc; }
-    .risk-high  { --rc:#c0392b; --rb:#fde8e6; }
+    /* colour tokens per level — semantic, theme-aware */
+    .risk-none  { --rc: var(--risk-none-fg); --rb: var(--risk-none-bg); }
+    .risk-low   { --rc: var(--risk-low-fg);  --rb: var(--risk-low-bg);  }
+    .risk-mid   { --rc: var(--risk-mid-fg);  --rb: var(--risk-mid-bg);  }
+    .risk-high  { --rc: var(--risk-high-fg); --rb: var(--risk-high-bg); }
     .risk-none,.risk-low,.risk-mid,.risk-high {
       color: var(--rc); background: var(--rb);
     }
@@ -254,8 +296,15 @@
       padding: 12px 10px; text-align: center; cursor: pointer;
       transition: border-color .15s;
     }
-    .day-card.active { border-color: var(--accent); border-width: 2px; }
-    .day-card.today-card { background: var(--accent-subtle); }
+    .day-card.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-subtle), var(--sh);
+    }
+    .day-card.today-card::after {
+      content: ""; display: block; width: 4px; height: 4px;
+      border-radius: 50%; background: var(--accent);
+      margin: 3px auto 0;
+    }
     .day-card .dc-label { font-size: .78rem; font-weight: 600; color: var(--text); }
     .day-card .dc-date  { font-size: .68rem; color: var(--text3); margin-top: 1px; }
     .day-card .dc-ring  {
@@ -295,18 +344,22 @@
       font-size: .76rem; font-weight: 500;
     }
     .b-none { color: var(--text3); }
-    .b-low  { color: var(--accent2); }
-    .b-mid  { color: #c07800; }
-    .b-high { color: #c0392b; }
+    .b-low  { color: var(--risk-low-fg); }
+    .b-mid  { color: var(--risk-mid-fg); }
+    .b-high { color: var(--risk-high-fg); }
     .col-hi { font-weight: 600; }
 
     /* ── LEVEL BARS ──────────────────────────────────── */
-    .lv-bars { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; }
-    .lv-bars .b { border-radius: 2px; background: rgba(0,0,0,0.18); flex-shrink: 0; }
-    .lv-bars .b.on { background: var(--accent2); }
+    .lv-bars { display: inline-flex; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+    .lv-bars .b { border-radius: 2px; background: color-mix(in srgb, var(--text3) 25%, transparent); flex-shrink: 0; transition: background .3s ease; }
+    .lv-bars .b.on:nth-child(1) { background: var(--risk-low-fg); }
+    .lv-bars .b.on:nth-child(2) { background: color-mix(in srgb, var(--risk-low-fg) 60%, var(--risk-mid-fg)); }
+    .lv-bars .b.on:nth-child(3) { background: var(--risk-mid-fg); }
+    .lv-bars .b.on:nth-child(4) { background: color-mix(in srgb, var(--risk-mid-fg) 40%, var(--risk-high-fg)); }
+    .lv-bars .b.on:nth-child(5) { background: var(--risk-high-fg); }
     .lv-bars.sm .b { width: 4px; height: 10px; }
     .lv-bars.md .b { width: 5px; height: 16px; }
-    .lv-bars.lg .b { width: 8px; height: 26px; }
+    .lv-bars.lg .b { width: 8px; height: 28px; }
 
     /* ── WEEKLY HISTORY HEATMAP ──────────────────────── */
     .week-heatmap { padding: 10px 14px 14px; overflow-x: auto; }
@@ -327,10 +380,10 @@
     }
     .wh-cell.wh-today { outline: 2px solid var(--accent); outline-offset: -1px; }
     .wh-cell.wh-future { opacity: .3; }
-    .wh-cell[data-sc="0"] { background: #e8fbed; color: #268931; }
-    .wh-cell[data-sc="1"] { background: #fff3dc; color: #c07800; }
-    .wh-cell[data-sc="2"] { background: #fde8cf; color: #a04800; }
-    .wh-cell[data-sc="3"] { background: #fde8e6; color: #c0392b; }
+    .wh-cell[data-sc="0"] { background: var(--risk-low-bg);  color: var(--risk-low-fg);  }
+    .wh-cell[data-sc="1"] { background: var(--risk-mid-bg);  color: var(--risk-mid-fg);  }
+    .wh-cell[data-sc="2"] { background: color-mix(in srgb, var(--risk-mid-bg) 50%, var(--risk-high-bg)); color: var(--risk-high-fg); }
+    .wh-cell[data-sc="3"] { background: var(--risk-high-bg); color: var(--risk-high-fg); }
     .wh-date { font-size: .6rem; line-height: 1; }
     .wh-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; margin-top: 2px; }
     .wh-legend { display: flex; gap: 10px; padding: 8px 0 0 52px; flex-wrap: wrap; }
@@ -348,9 +401,9 @@
       background: var(--border);
       position: relative;
     }
-    .s25-cell[data-v="1"] { background: #c6f0d0; }
-    .s25-cell[data-v="2"] { background: #ffe5a0; }
-    .s25-cell[data-v="3"] { background: #f8c4c0; }
+    .s25-cell[data-v="1"] { background: var(--risk-low-ring); }
+    .s25-cell[data-v="2"] { background: var(--risk-mid-ring); }
+    .s25-cell[data-v="3"] { background: var(--risk-high-ring); }
     .s25-note { padding: 8px 0 0; font-size: .65rem; color: var(--text3); font-style: italic; }
     .s25-tip {
       position: fixed; z-index: 999;
@@ -378,19 +431,17 @@
     }
     .sym-btn:active { transform: scale(.88); }
     .sym-btn.on {
-      background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700;
+      background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700;
       box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 40%, transparent);
       transform: scale(1.08);
     }
-    .sym-btn.on { color: #000; }
     .sym-save {
       display: block; margin: 10px 14px;
       width: calc(100% - 28px); padding: 10px;
-      background: var(--accent); color: #fff;
+      background: var(--accent); color: var(--accent-ink);
       border: none; border-radius: 9px;
       font-size: .9rem; font-weight: 600; cursor: pointer;
     }
-    .sym-save { color: #000; }
     .sym-save:hover { opacity: .85; }
     .sym-hist { padding: 8px 14px 12px; border-top: 1px solid var(--border); }
     .sym-hist-title { font-size: .72rem; text-transform: uppercase; letter-spacing: .4px; color: var(--text3); margin-bottom: 7px; }
@@ -444,9 +495,9 @@
     .wd-temp { font-size: .8rem; font-weight: 700; }
     .wd-rain { font-size: .62rem; color: var(--text3); margin-top: 1px; }
     .wd-uv   { font-size: .6rem; color: var(--text3); margin-top: 1px; }
-    .uv-hi   { color: #c0392b; }
-    .uv-mid  { color: #c07800; }
-    .uv-low  { color: #268931; }
+    .uv-hi   { color: var(--risk-high-fg); }
+    .uv-mid  { color: var(--risk-mid-fg); }
+    .uv-low  { color: var(--risk-low-fg); }
 
     /* ── CORRELATION ─────────────────────────────────── */
     .corr-wrap { padding: 10px 14px 14px; border-top: 1px solid var(--border); }
@@ -503,8 +554,8 @@
       padding: 6px 12px; border-radius: 9px;
       font-size: .82rem; font-weight: 500;
     }
-    .time-win.good  { background: color-mix(in srgb, var(--accent) 15%, var(--card)); color: var(--accent); }
-    .time-win.warn  { background: #fde8e6; color: #c0392b; }
+    .time-win.good  { background: var(--risk-low-bg);  color: var(--risk-low-fg);  }
+    .time-win.warn  { background: var(--risk-high-bg); color: var(--risk-high-fg); }
     .time-win.none  { background: var(--card2); color: var(--text2); }
     .time-note { font-size: .67rem; color: var(--text3); padding: 2px 14px 12px; }
 
@@ -530,15 +581,20 @@
     .nearby-dist { font-size: .7rem; color: var(--text3); width: 50px; text-align: right; flex-shrink: 0; }
     .escape-box {
       margin: 4px 14px 14px; padding: 10px 13px; border-radius: 9px;
-      background: #e8fbed; color: #268931; font-size: .82rem; line-height: 1.4;
-      border: 1px solid rgba(38,137,49,0.25);
+      background: var(--risk-low-bg); color: var(--risk-low-fg);
+      font-size: .82rem; line-height: 1.4;
+      border: 1px solid var(--risk-low-ring);
     }
 
     /* ── TOAST ───────────────────────────────────────── */
     #toast {
       position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-      background: #1a1620; color: #f4f2f9;
+      background: var(--card);
+      color: var(--accent2);
+      border: 1px solid var(--accent);
+      box-shadow: 0 6px 22px color-mix(in srgb, var(--accent) 25%, transparent), var(--sh);
       padding: 9px 18px; border-radius: 20px;
+      font-weight: 500;
       font-size: .83rem; z-index: 300;
       opacity: 0; pointer-events: none;
       transition: opacity .25s;
@@ -566,7 +622,7 @@
     .np-btns { display: flex; flex-direction: column; gap: 9px; }
     .np-btn-yes {
       padding: 12px; border-radius: 12px; border: none; cursor: pointer;
-      background: var(--accent); color: #0a1a0e; font-size: .92rem; font-weight: 600;
+      background: var(--accent); color: var(--accent-ink); font-size: .92rem; font-weight: 600;
     }
     .np-btn-no {
       padding: 10px; border-radius: 12px; border: 1px solid var(--border); cursor: pointer;
@@ -590,10 +646,23 @@
 
     /* ── DAY TRANSITION ──────────────────────────────── */
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .day-transition { animation: fadeInUp .18s ease; }
+    .day-transition { animation: fadeInUp .22s ease; }
+    /* Staggered entrance for page children */
+    .page > * { animation: fadeInUp .38s cubic-bezier(.2,.8,.2,1) both; }
+    .page > *:nth-child(1) { animation-delay: 0ms; }
+    .page > *:nth-child(2) { animation-delay: 45ms; }
+    .page > *:nth-child(3) { animation-delay: 90ms; }
+    .page > *:nth-child(4) { animation-delay: 135ms; }
+    .page > *:nth-child(5) { animation-delay: 180ms; }
+    .page > *:nth-child(6) { animation-delay: 220ms; }
+    .page > *:nth-child(n+7) { animation-delay: 260ms; }
+    @media (prefers-reduced-motion: reduce) {
+      .page > * { animation: none; }
+      .day-transition { animation: none; }
+    }
 
     /* ── HERO SUMMARY SENTENCE ───────────────────────── */
     .hero-summary {
@@ -604,9 +673,9 @@
     }
 
     /* ── CORRELATION IMPROVEMENTS ────────────────────── */
-    .corr-fill-low  { background: #03e946; }
-    .corr-fill-mid  { background: #c07800; }
-    .corr-fill-high { background: #c0392b; }
+    .corr-fill-low  { background: var(--risk-low-fg);  }
+    .corr-fill-mid  { background: var(--risk-mid-fg);  }
+    .corr-fill-high { background: var(--risk-high-fg); }
     .corr-meta { font-size: .67rem; color: var(--text3); margin-top: 2px; }
     .corr-no-data { font-size: .76rem; color: var(--text3); font-style: italic; padding: 4px 0; }
     .corr-n-label { font-size: .64rem; color: var(--text3); opacity: .8; }
@@ -666,21 +735,37 @@
     .trend-leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .trend-note { font-size: .65rem; color: var(--text3); margin-top: 4px; }
 
-    /* ── CROSS-ALLERGY ALERT ────────────────────────── */
-    .cross-alert {
-      margin-bottom: 8px; padding: 8px 12px; border-radius: 10px;
-      background: color-mix(in srgb, var(--accent) 15%, var(--card));
-      border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
-      font-size: .8rem; color: var(--text); line-height: 1.4;
-      display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 6px;
+    /* ── CALLOUT FAMILY ─────────────────────────────── */
+    .callout {
+      margin-bottom: var(--sp-3); padding: var(--sp-4);
+      border-radius: var(--rad-md);
+      border-left: 3px solid var(--cc, var(--accent));
+      background: var(--cb, var(--accent-subtle));
+      font-size: .82rem; color: var(--text); line-height: 1.45;
+      display: flex; flex-direction: column; gap: var(--sp-1);
     }
-    .cross-alert-title { font-weight: 700; color: var(--accent); white-space: nowrap; }
-    .cross-alert-desc { flex: 1; min-width: 0; }
-    .cross-foods { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; width: 100%; }
+    .callout.tone-warn { --cc: var(--risk-high-fg); --cb: var(--risk-high-bg); }
+    .callout.tone-good { --cc: var(--risk-low-fg);  --cb: var(--risk-low-bg);  }
+    .callout.tone-info { --cc: var(--accent);        --cb: var(--accent-subtle); }
+    .callout-title { font-weight: 700; color: var(--cc, var(--accent)); font-size: .78rem; letter-spacing: .01em; }
+
+    /* ── CROSS-ALLERGY ALERT (uses callout, kept for compat) ── */
+    .cross-alert {
+      margin-bottom: var(--sp-3); padding: var(--sp-4);
+      border-radius: var(--rad-md);
+      border-left: 3px solid var(--risk-mid-fg);
+      background: var(--risk-mid-bg);
+      font-size: .82rem; color: var(--text); line-height: 1.45;
+      display: flex; flex-direction: column; gap: var(--sp-1);
+    }
+    .cross-alert-title { font-weight: 700; color: var(--risk-mid-fg); display: block; font-size: .78rem; }
+    .cross-alert-desc { display: block; }
+    .cross-foods { display: flex; flex-wrap: wrap; gap: var(--sp-1); margin-top: var(--sp-1); }
     .cross-food {
-      display: inline-block; padding: 1px 7px; border-radius: 20px;
-      font-size: .72rem; background: color-mix(in srgb, var(--accent) 20%, var(--card));
-      color: var(--accent); font-weight: 500;
+      display: inline-block; padding: 2px 9px; border-radius: 20px;
+      font-size: .72rem; background: var(--card);
+      color: var(--risk-mid-fg); font-weight: 500;
+      border: 1px solid var(--risk-mid-ring);
     }
   </style>
 </head>
@@ -695,7 +780,7 @@
       <button class="icon-btn" onclick="setLang('tr')" id="dlang-tr-head" style="font-size:.65rem;font-weight:700;width:auto;padding:3px 8px;border-radius:0 6px 6px 0">TR</button>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
-      <button class="icon-btn" onclick="geoLocate()" aria-label="Standort" style="font-size:.85rem;width:32px;height:32px">📍</button>
+      <button class="icon-btn" onclick="shareSummary()" aria-label="Teilen" style="font-size:.85rem;width:32px;height:32px">📤</button>
       <button class="icon-btn" onclick="toggleTheme()" id="drawer-theme-btn" aria-label="Theme wechseln" style="font-size:.85rem;width:32px;height:32px">🌙</button>
       <button onclick="closeDrawer()" aria-label="Menü schließen" id="drawer-close-btn" style="font-size:1rem;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);cursor:pointer">✕</button>
     </div>
@@ -718,10 +803,10 @@
 <div class="topbar">
   <div class="topbar-inner">
     <button class="icon-btn" onclick="openDrawer()" aria-label="Menü">☰</button>
+    <button class="icon-btn" onclick="geoLocate()" aria-label="Standort" style="font-size:.95rem">📍</button>
     <div class="regionbar-inner" id="regionbar-inner" style="flex:1;display:flex;align-items:center;gap:6px">
       <select id="region-sel" aria-label="Region wählen" style="flex:1"><option>Lade Regionen…</option></select>
     </div>
-    <button class="icon-btn" onclick="shareSummary()" aria-label="Teilen" style="font-size:1rem">📤</button>
     <span class="offline-pill" id="offline-pill">Offline</span>
     <button id="pwa-install-btn" onclick="pwaDoPwaInstall()" aria-label="App installieren">⬇ App</button>
   </div>
@@ -737,10 +822,10 @@
 </div>
 
 <!-- BOTTOM TAB BAR -->
-<div class="tab-bar">
+<div class="tab-bar" role="tablist" aria-label="Ansichten">
   <div class="tab-bar-inner">
-    <button class="tab-btn active" id="tab-pollen" onclick="setTab('pollen')" aria-label="Pollen"><span class="tab-icon">🌿</span> Pollen</button>
-    <button class="tab-btn" id="tab-weather" onclick="setTab('weather')" aria-label="Wetter"><span class="tab-icon">🌤️</span> Wetter</button>
+    <button class="tab-btn active" id="tab-pollen" onclick="setTab('pollen')" role="tab" aria-selected="true" aria-controls="page"><span class="tab-icon" aria-hidden="true">🌿</span> Pollen</button>
+    <button class="tab-btn" id="tab-weather" onclick="setTab('weather')" role="tab" aria-selected="false" aria-controls="page"><span class="tab-icon" aria-hidden="true">🌤️</span> Wetter</button>
   </div>
 </div>
 
@@ -760,7 +845,7 @@
   document.documentElement.setAttribute("data-theme", saved);
   const btn = document.getElementById("theme-btn");
   if (btn) btn.textContent = saved === "dark" ? "☀️" : "🌙";
-  document.getElementById("theme-meta").content = saved === "dark" ? "#18181b" : "#f4f2f9";
+  document.getElementById("theme-meta").content = saved === "dark" ? "#0e1319" : "#f4f6fa";
 })();
 function toggleTheme() {
   haptic(20);
@@ -772,7 +857,7 @@ function toggleTheme() {
   localStorage.setItem("p_theme", next);
   const _tb = document.getElementById("theme-btn"); if (_tb) _tb.textContent = next === "dark" ? "☀️" : "🌙";
   const _dtb = document.getElementById("drawer-theme-btn"); if (_dtb) _dtb.textContent = next === "dark" ? "☀️" : "🌙";
-  document.getElementById("theme-meta").content = next === "dark" ? "#18181b" : "#f4f2f9";
+  document.getElementById("theme-meta").content = next === "dark" ? "#0e1319" : "#f4f6fa";
   render();
 }
 function isDark() { return document.documentElement.getAttribute("data-theme") === "dark"; }
@@ -939,6 +1024,12 @@ const STRINGS = {
     data_import_ok: "Importiert ✅",
     data_import_err: "Ungültige Datei",
     data_export_hint: "Symptome & Verlauf als JSON",
+    // cloud
+    cloud_title:"Cloud-Backup", cloud_on:"Cloud-Backup aktiviert", cloud_off:"Cloud-Backup deaktiviert", cloud_error:"Verbindung fehlgeschlagen", cloud_restore:"Wiederherstellen", cloud_code_label:"Backup-Code", cloud_code_hint:"Code auf neuem Gerät eingeben", cloud_code_invalid:"Ungültiger Code (4 Ziffern)", cloud_restored:"Daten wiederhergestellt!", cloud_no_backup:"Kein Backup gefunden", cloud_last:"Letztes Backup", cloud_enabled:"Aktiv", cloud_disabled:"Inaktiv",
+    // community
+    comm_users:"{n} Nutzer melden heute {level} Symptome", comm_low:"leichte", comm_mid:"mittlere", comm_high:"starke", comm_no_data:"Noch nicht genug Daten aus deiner Region",
+    // doctor report
+    report_title:"Arztbericht", report_btn:"PDF erstellen", report_period:"Zeitraum", report_allergy:"Allergieprofil", report_symptom_avg:"Ø Symptome/Tag", report_top_triggers:"Hauptauslöser", report_med_usage:"Medikamenteneinnahme", report_days:"Tage",
     // prediction
     pred_tomorrow: "Morgen erwartet",
     based_on_history: "aus Verlauf",
@@ -968,7 +1059,7 @@ const STRINGS = {
     corr_r_val: "r", corr_strong: "Starker Zusammenhang mit Symptomen", corr_moderate: "Möglicher Zusammenhang mit Symptomen",
     corr_strong_short: "Starker Auslöser", corr_moderate_short: "Wahrscheinlicher Auslöser", corr_weak_short: "Schwacher Zusammenhang",
     notif_title:"Tägliche Benachrichtigung", notif_enable:"Aktivieren", notif_on:"aktiv", notif_enabled:"Benachrichtigungen aktiviert", notif_denied:"Zugriff verweigert", notif_unsupported:"Nicht unterstützt", notif_blocked:"Gesperrt – in Browser-Einstellungen freigeben", notif_ios_hint:"Auf dem Startbildschirm installieren für Benachrichtigungen (iOS 16.4+)",
-    notif_prompt_title:"Pollenwarnung aktivieren?", notif_prompt_body:"Wenn du die App öffnest und Pollenbelastung vorliegt, erhältst du eine Benachrichtigung.", notif_prompt_yes:"Ja, aktivieren", notif_prompt_no:"Nein danke", notif_prompt_hint:"Du kannst Benachrichtigungen jederzeit im Menü unter Daten aktivieren.",
+    notif_prompt_title:"Pollenwarnung aktivieren?", notif_prompt_body:"Du erhältst täglich eine Push-Benachrichtigung, wenn Pollenbelastung in deiner Region vorliegt.", notif_prompt_yes:"Ja, aktivieren", notif_prompt_no:"Nein danke", notif_prompt_hint:"Du kannst Benachrichtigungen jederzeit im Menü unter Daten aktivieren.",
     // accuracy
     accuracy_title: "Prognose-Genauigkeit (DWD)", accuracy_days: "Tage Datenbasis", accuracy_na: "Noch nicht genug Daten (>7 Tage nötig)",
     // season region note
@@ -1138,6 +1229,12 @@ const STRINGS = {
     data_import_ok: "Imported ✅",
     data_import_err: "Invalid file",
     data_export_hint: "Symptoms & history as JSON",
+    // cloud
+    cloud_title:"Cloud Backup", cloud_on:"Cloud backup enabled", cloud_off:"Cloud backup disabled", cloud_error:"Connection failed", cloud_restore:"Restore", cloud_code_label:"Backup code", cloud_code_hint:"Enter code on new device", cloud_code_invalid:"Invalid code (4 digits)", cloud_restored:"Data restored!", cloud_no_backup:"No backup found", cloud_last:"Last backup", cloud_enabled:"Active", cloud_disabled:"Inactive",
+    // community
+    comm_users:"{n} users report {level} symptoms today", comm_low:"mild", comm_mid:"moderate", comm_high:"strong", comm_no_data:"Not enough data from your region yet",
+    // doctor report
+    report_title:"Doctor report", report_btn:"Generate PDF", report_period:"Period", report_allergy:"Allergy profile", report_symptom_avg:"Avg symptoms/day", report_top_triggers:"Top triggers", report_med_usage:"Medication usage", report_days:"days",
     // prediction
     pred_tomorrow: "Expected tomorrow",
     based_on_history: "from history",
@@ -1167,7 +1264,7 @@ const STRINGS = {
     corr_r_val: "r", corr_strong: "Strong correlation with symptoms", corr_moderate: "Possible correlation with symptoms",
     corr_strong_short: "Strong trigger", corr_moderate_short: "Likely trigger", corr_weak_short: "Weak correlation",
     notif_title:"Daily notification", notif_enable:"Enable", notif_on:"active", notif_enabled:"Notifications enabled", notif_denied:"Permission denied", notif_unsupported:"Not supported", notif_blocked:"Blocked – allow in browser settings", notif_ios_hint:"Add to home screen to enable notifications (iOS 16.4+)",
-    notif_prompt_title:"Enable pollen alerts?", notif_prompt_body:"When you open the app and pollen levels are elevated, you'll get a notification.", notif_prompt_yes:"Yes, enable", notif_prompt_no:"No thanks", notif_prompt_hint:"You can enable notifications anytime in the menu under Data.",
+    notif_prompt_title:"Enable pollen alerts?", notif_prompt_body:"You'll receive a daily push notification when pollen levels are elevated in your region.", notif_prompt_yes:"Yes, enable", notif_prompt_no:"No thanks", notif_prompt_hint:"You can enable notifications anytime in the menu under Data.",
     // accuracy
     accuracy_title: "Forecast Accuracy (DWD)", accuracy_days: "days data", accuracy_na: "Not enough data yet (need >7 days)",
     // season region note
@@ -1318,6 +1415,12 @@ const STRINGS = {
     data_import_ok:"İçe aktarıldı ✅",
     data_import_err:"Geçersiz dosya",
     data_export_hint:"Semptomlar ve geçmiş (JSON)",
+    // cloud
+    cloud_title:"Bulut Yedekleme", cloud_on:"Bulut yedekleme aktif", cloud_off:"Bulut yedekleme kapatıldı", cloud_error:"Bağlantı başarısız", cloud_restore:"Geri yükle", cloud_code_label:"Yedek kodu", cloud_code_hint:"Yeni cihazda kodu girin", cloud_code_invalid:"Geçersiz kod (4 haneli)", cloud_restored:"Veriler geri yüklendi!", cloud_no_backup:"Yedek bulunamadı", cloud_last:"Son yedekleme", cloud_enabled:"Aktif", cloud_disabled:"Pasif",
+    // community
+    comm_users:"{n} kullanıcı bugün {level} semptom bildirdi", comm_low:"hafif", comm_mid:"orta", comm_high:"şiddetli", comm_no_data:"Bölgenden henüz yeterli veri yok",
+    // doctor report
+    report_title:"Doktor raporu", report_btn:"PDF oluştur", report_period:"Dönem", report_allergy:"Alerji profili", report_symptom_avg:"Ort. semptom/gün", report_top_triggers:"Ana tetikleyiciler", report_med_usage:"İlaç kullanımı", report_days:"gün",
     allergy_profile:"Alerji profili",
     severity_off:"Yok", severity_mild:"Hafif", severity_strong:"Şiddetli",
     severity_low:"Düşük", severity_mid:"Orta", severity_high:"Şiddetli",
@@ -1340,7 +1443,7 @@ const STRINGS = {
     corr_r_val:"r", corr_strong:"Semptomlarla güçlü korelasyon", corr_moderate:"Semptomlarla olası korelasyon",
     corr_strong_short:"Güçlü tetikleyici", corr_moderate_short:"Olası tetikleyici", corr_weak_short:"Zayıf ilişki",
     notif_title:"Günlük bildirim", notif_enable:"Etkinleştir", notif_on:"aktif", notif_enabled:"Bildirimler etkinleştirildi", notif_denied:"İzin reddedildi", notif_unsupported:"Desteklenmiyor", notif_blocked:"Engellendi – tarayıcı ayarlarından izin ver", notif_ios_hint:"Bildirimler için ana ekrana ekle (iOS 16.4+)",
-    notif_prompt_title:"Polen uyarılarını etkinleştir?", notif_prompt_body:"Uygulama açıldığında polen yükü yüksekse bildirim gönderilir.", notif_prompt_yes:"Evet, etkinleştir", notif_prompt_no:"Hayır teşekkürler", notif_prompt_hint:"Bildirimleri menüdeki Veri bölümünden istediğin zaman etkinleştirebilirsin.",
+    notif_prompt_title:"Polen uyarılarını etkinleştir?", notif_prompt_body:"Bölgendeki polen yükü yüksekse günlük push bildirimi alırsın.", notif_prompt_yes:"Evet, etkinleştir", notif_prompt_no:"Hayır teşekkürler", notif_prompt_hint:"Bildirimleri menüdeki Veri bölümünden istediğin zaman etkinleştirebilirsin.",
     accuracy_title:"Tahmin Doğruluğu (DWD)", accuracy_days:"gün veri", accuracy_na:"Henüz yeterli veri yok (>7 gün gerekli)",
     season_north:"İklim normu · Kuzey Almanya",
     season_central:"İklim normu · Orta Almanya",
@@ -1504,7 +1607,256 @@ function DAY_NAMES() {
 }
 function MONTHS_ARR() { return t("months").split(","); }
 
-const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", cache_ts:"p_cache_ts", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev", lang:"p_lang", meds:"p_meds", notifDate:"p_notif_date", notifAsked:"p_notif_asked", favs:"p_favs" };
+const LS = { region:"p_rgn", filter:"p_flt", syms:"p_sym", cache:"p_cache", cache_ts:"p_cache_ts", theme:"p_theme", hist:"p_hist", open:"p_open", mode:"p_mode", sev:"p_sev", lang:"p_lang", meds:"p_meds", notifDate:"p_notif_date", notifAsked:"p_notif_asked", favs:"p_favs", deviceId:"p_device", backupCode:"p_backup", cloudOn:"p_cloud" };
+
+// ── Cloud API ────────────────────────────────────────────────────────────────
+const API_BASE = "https://api.rutkuc.com/api";
+let _backupTimer = null;
+
+async function apiCall(path, opts = {}) {
+  const token = localStorage.getItem(LS.deviceId);
+  const headers = { "Content-Type": "application/json", ...(opts.headers || {}) };
+  if (token) headers["X-Device-Token"] = token;
+  try {
+    const res = await fetch(API_BASE + path, {
+      ...opts,
+      headers,
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) throw new Error(res.status);
+    return await res.json();
+  } catch (e) {
+    console.warn("API", path, e.message);
+    return null;
+  }
+}
+
+async function ensureDevice() {
+  if (localStorage.getItem(LS.deviceId)) return true;
+  const res = await apiCall("/register", { method: "POST" });
+  if (!res) return false;
+  localStorage.setItem(LS.deviceId, res.device_id);
+  localStorage.setItem(LS.backupCode, res.backup_code);
+  return true;
+}
+
+async function cloudBackupNow() {
+  if (localStorage.getItem(LS.cloudOn) !== "1") return;
+  if (!(await ensureDevice())) return;
+  const data = {
+    symptoms: JSON.parse(localStorage.getItem(LS.syms) || "{}"),
+    history: JSON.parse(localStorage.getItem(LS.hist) || "{}"),
+    medications: JSON.parse(localStorage.getItem(LS.meds) || "{}"),
+    filter: JSON.parse(localStorage.getItem(LS.filter) || "[]"),
+    severity: JSON.parse(localStorage.getItem(LS.sev) || "{}"),
+    favorites: JSON.parse(localStorage.getItem(LS.favs) || "[]"),
+  };
+  return apiCall("/backup", { method: "POST", body: JSON.stringify(data) });
+}
+
+function scheduleBackup() {
+  if (_backupTimer) clearTimeout(_backupTimer);
+  _backupTimer = setTimeout(() => { _backupTimer = null; cloudBackupNow(); }, 5000);
+}
+
+async function toggleCloud() {
+  const on = localStorage.getItem(LS.cloudOn) === "1";
+  if (on) {
+    localStorage.setItem(LS.cloudOn, "0");
+    showToast(t("cloud_off"));
+  } else {
+    if (!(await ensureDevice())) { showToast("⚠️ " + t("cloud_error")); return; }
+    localStorage.setItem(LS.cloudOn, "1");
+    showToast(t("cloud_on"));
+    cloudBackupNow();
+  }
+  refreshDrawer();
+}
+
+// Auto-enable cloud on first visit + migrate old 8-char codes
+(async function autoCloudInit() {
+  // Migrate old 8-char backup codes to new 4-digit
+  const oldCode = localStorage.getItem(LS.backupCode);
+  if (oldCode && oldCode.length !== 4) {
+    localStorage.removeItem(LS.deviceId);
+    localStorage.removeItem(LS.backupCode);
+  }
+  if (localStorage.getItem(LS.cloudOn) !== null && localStorage.getItem(LS.deviceId)) return;
+  if (await ensureDevice()) {
+    localStorage.setItem(LS.cloudOn, "1");
+  }
+})();
+
+async function restoreFromCode() {
+  const input = document.getElementById("restore-code-input");
+  const code = input?.value?.trim().toUpperCase();
+  if (!code || code.length !== 4) { showToast("⚠️ " + t("cloud_code_invalid")); return; }
+  const res = await apiCall("/restore", { method: "POST", body: JSON.stringify({ backup_code: code }) });
+  if (!res) { showToast("⚠️ " + t("cloud_code_invalid")); return; }
+  localStorage.setItem(LS.deviceId, res.device_id);
+  localStorage.setItem(LS.backupCode, res.backup_code);
+  localStorage.setItem(LS.cloudOn, "1");
+  // Download backup
+  const backup = await apiCall("/backup");
+  if (backup?.data) {
+    if (backup.data.symptoms) { localStorage.setItem(LS.syms, JSON.stringify(backup.data.symptoms)); symptoms = backup.data.symptoms; }
+    if (backup.data.history) { localStorage.setItem(LS.hist, JSON.stringify(backup.data.history)); history = backup.data.history; }
+    if (backup.data.medications) { localStorage.setItem(LS.meds, JSON.stringify(backup.data.medications)); medications = backup.data.medications; }
+    if (backup.data.filter) localStorage.setItem(LS.filter, JSON.stringify(backup.data.filter));
+    if (backup.data.severity) localStorage.setItem(LS.sev, JSON.stringify(backup.data.severity));
+    if (backup.data.favorites) { localStorage.setItem(LS.favs, JSON.stringify(backup.data.favorites)); favorites = backup.data.favorites; }
+    render();
+    showToast(t("cloud_restored"));
+  } else {
+    showToast(t("cloud_no_backup"));
+  }
+  refreshDrawer();
+}
+
+// ── Web Push ─────────────────────────────────────────────────────────────────
+const VAPID_PUBLIC = "BAC6yIkjslU39qK6JiH2886-fk8gDMl56F7LhW4JTVhisG0tDgWvln4v_sveSqGU2jC_dxhRSzgN7as-zK6wXPY";
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+async function subscribePush() {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    showToast("⚠️ Push nicht unterstützt"); return;
+  }
+  const perm = await Notification.requestPermission();
+  if (perm !== "granted") { showToast("⚠️ " + t("notif_denied")); return; }
+  if (!(await ensureDevice())) { showToast("⚠️ " + t("cloud_error")); return; }
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC),
+    });
+    const key = sub.getKey("p256dh");
+    const auth = sub.getKey("auth");
+    await apiCall("/push/subscribe", { method: "POST", body: JSON.stringify({
+      endpoint: sub.endpoint,
+      p256dh: btoa(String.fromCharCode(...new Uint8Array(key))),
+      auth: btoa(String.fromCharCode(...new Uint8Array(auth))),
+      region: rKey || null,
+      severity_threshold: 2,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    })});
+    localStorage.setItem("p_push", "1");
+    showToast("🔔 " + t("notif_enabled"));
+  } catch (e) {
+    console.error("Push subscribe error:", e);
+    showToast("⚠️ " + t("cloud_error"));
+  }
+  refreshDrawer();
+}
+
+async function unsubscribePush() {
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) await sub.unsubscribe();
+    await apiCall("/push/subscribe", { method: "DELETE" });
+    localStorage.removeItem("p_push");
+    showToast(t("cloud_off"));
+  } catch (e) { console.error(e); }
+  refreshDrawer();
+}
+
+// ── Community Stats ──────────────────────────────────────────────────────────
+async function loadCommunityStats() {
+  const el = document.getElementById("community-card");
+  if (!el || !rKey) return;
+  const res = await apiCall("/community/stats?region=" + encodeURIComponent(rKey));
+  if (!res || !res.has_data) return;
+  const avg = res.avg_symptom_score;
+  const level = avg <= 4 ? t("comm_low") : avg <= 8 ? t("comm_mid") : t("comm_high");
+  const text = t("comm_users").replace("{n}", res.reporters_count).replace("{level}", level);
+  el.innerHTML = `<div style="margin-bottom:10px;padding:9px 12px;border-radius:9px;background:var(--accent-subtle);border:1px solid color-mix(in srgb, var(--accent) 20%, transparent);display:flex;align-items:center;gap:10px">
+    <span style="font-size:1.1rem">👥</span>
+    <span style="font-size:.8rem;color:var(--text)">${text}</span>
+  </div>`;
+}
+
+// ── Doctor Report (Print) ───────────────────────────────────────────────────
+function generateReport() {
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
+  const cutoffStr = cutoff.toISOString().slice(0,10);
+  const todayStr = todayISO();
+
+  // Gather data
+  const symEntries = Object.entries(symptoms).filter(([d]) => d >= cutoffStr).sort((a,b)=>a[0].localeCompare(b[0]));
+  const histEntries = Object.entries(history).filter(([d]) => d >= cutoffStr).sort((a,b)=>a[0].localeCompare(b[0]));
+  const medEntries = Object.entries(medications).filter(([d]) => d >= cutoffStr);
+
+  if (symEntries.length < 3) { showToast("⚠️ " + t("comm_no_data")); return; }
+
+  // Avg symptom score
+  const avgSym = (symEntries.reduce((s,[,v]) => s + sumSymptoms(v), 0) / symEntries.length).toFixed(1);
+
+  // Top triggers: correlate high-symptom days with pollen
+  const triggers = {};
+  for (const [date, sym] of symEntries) {
+    const score = sumSymptoms(sym);
+    if (score < 3) continue;
+    const h = history[date];
+    if (!h) continue;
+    for (const p of POLLEN) {
+      const lev = lv(h[p.key] ?? "-1").sc;
+      if (lev >= 2) triggers[p.key] = (triggers[p.key]||0) + 1;
+    }
+  }
+  const topTriggers = Object.entries(triggers).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  // Medication usage
+  const medCounts = {};
+  for (const [,m] of medEntries) {
+    for (const mt of MED_TYPES) { if (m[mt.key]) medCounts[mt.key] = (medCounts[mt.key]||0) + 1; }
+  }
+
+  // Profile
+  const profile = filter.map(k => { const p = POLLEN.find(pp=>pp.key===k); return p ? `${p.icon} ${t(p.key)}` : k; }).join(", ") || "–";
+
+  const win = window.open("", "_blank");
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${t("report_title")}</title>
+    <style>
+      body { font-family: -apple-system, system-ui, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; color: #1a1620; line-height: 1.6; }
+      h1 { font-family: Georgia, serif; font-size: 1.5rem; font-weight: 600; letter-spacing: -.01em; border-bottom: 2px solid #4a8fbc; padding-bottom: 8px; }
+      h2 { font-size: 1rem; color: #5a6778; margin-top: 24px; }
+      .stat { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #ebe2d0; }
+      .bar { height: 8px; background: #4a8fbc; border-radius: 4px; }
+      .trigger-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+      @media print { body { margin: 20px; } }
+    </style></head><body>
+    <h1>🌿 ${t("report_title")} – Pollenflug</h1>
+    <div class="stat"><span>${t("report_period")}</span><span>${cutoffStr} – ${todayStr} (${symEntries.length} ${t("report_days")})</span></div>
+    <div class="stat"><span>${t("report_allergy")}</span><span>${profile}</span></div>
+    <div class="stat"><span>${t("report_symptom_avg")}</span><span><strong>${avgSym}</strong> / 12</span></div>
+
+    <h2>${t("report_top_triggers")}</h2>
+    ${topTriggers.length ? topTriggers.map(([k,count]) => {
+      const p = POLLEN.find(pp=>pp.key===k);
+      const pct = Math.round((count / symEntries.length) * 100);
+      return `<div class="trigger-row"><span>${p?.icon||""} ${t(k)}</span><span style="flex:1;margin:0 12px"><div class="bar" style="width:${pct}%"></div></span><span>${pct}%</span></div>`;
+    }).join("") : "<p>–</p>"}
+
+    <h2>${t("report_med_usage")}</h2>
+    ${MED_TYPES.map(mt => {
+      const count = medCounts[mt.key] || 0;
+      return `<div class="stat"><span>${mt.icon} ${t("med_"+mt.key)}</span><span>${count} ${t("report_days")}</span></div>`;
+    }).join("")}
+
+    <div style="margin-top:40px;font-size:.75rem;color:#999;text-align:center">
+      Generated by Pollenflug · ${todayStr}
+    </div>
+    <script>window.print();<\/script>
+    </body></html>`);
+  win.document.close();
+}
 
 // Koordinaten je DWD-Region für Wetter-API
 const REGION_COORDS = {
@@ -1561,7 +1913,7 @@ function loadFilterFor(pollenList, lsKey) {
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME (dark only)
 // ─────────────────────────────────────────────────────────────────────────────
-document.getElementById("theme-meta").content = isDark() ? "#18181b" : "#f4f2f9";
+document.getElementById("theme-meta").content = isDark() ? "#0e1319" : "#f4f6fa";
 
 function doRefresh() {
   const btn = document.getElementById("refresh-btn");
@@ -1708,12 +2060,25 @@ function storeHistoryDay(pol) {
     entry[p.key] = pol?.[p.key]?.today ?? "-1";
   }
   history[today] = entry;
-  // keep only last 90 days (needed for symptom correlation)
-  const keys = Object.keys(history).sort().slice(-90);
+  // Cloud: unlimited history; Local: keep 90 days
+  const cloudOn = localStorage.getItem(LS.cloudOn) === "1";
+  const limit = cloudOn ? 999 : 90;
+  const keys = Object.keys(history).sort().slice(-limit);
   const trimmed = {};
   keys.forEach(k => trimmed[k] = history[k]);
   history = trimmed;
   localStorage.setItem(LS.hist, JSON.stringify(history));
+  // Sync to cloud
+  if (cloudOn) {
+    const sym = symptoms[today];
+    const med = medications[today];
+    apiCall("/history", { method: "POST", body: JSON.stringify({
+      date: today,
+      pollen_data: entry,
+      symptoms: sym || null,
+      medications: med || null,
+    })});
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1731,6 +2096,7 @@ function render() {
       </div>`;
   }
   refreshDrawer();
+  loadCommunityStats();
 }
 function _renderInner() {
   const reg   = region();
@@ -1791,11 +2157,9 @@ function _renderInner() {
       }
       return `
     <div class="hero day-transition" onclick="openSection('pollen')" style="cursor:pointer" title="${t("all_pollen")}">
-      <div class="hero-badge" style="display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px">
-        ${lvBar(risk.max, "lg")}
-      </div>
+      <div class="hero-badge"></div>
       <div class="hero-body">
-        <div class="hero-risk" style="font-size:1.42rem;color:var(--accent)">
+        <div class="hero-risk" style="color:var(--rc)">
           ${risk.label}
         </div>
         <div class="hero-loc">${escapeHtml(geoInfo?.city || reg.partregion_name || reg.region_name)} · ${DAY_NAMES()[activeDay]}${trendDir && trendDir !== "stable" ? ` <span style="padding:1px 8px;border-radius:10px;font-size:.65rem;font-weight:600;white-space:nowrap;${
@@ -1943,6 +2307,9 @@ function _renderInner() {
         </div>
       </div>`;
     })()}
+
+    <!-- COMMUNITY STATS -->
+    <div id="community-card"></div>
 
     <!-- POLLEN-WEATHER EFFECT -->
     ${(() => {
@@ -2542,8 +2909,9 @@ function setTab(tab) {
   page.classList.add("slide-out-" + dir);
   setTimeout(() => {
     activeTab = tab;
-    document.getElementById("tab-pollen")?.classList.toggle("active", tab === "pollen");
-    document.getElementById("tab-weather")?.classList.toggle("active", tab === "weather");
+    const tp = document.getElementById("tab-pollen"), tw = document.getElementById("tab-weather");
+    tp?.classList.toggle("active", tab === "pollen"); tp?.setAttribute("aria-selected", tab === "pollen");
+    tw?.classList.toggle("active", tab === "weather"); tw?.setAttribute("aria-selected", tab === "weather");
     render();
     if (tab === "weather" && !weather) loadWeather();
     page.classList.remove("slide-out-" + dir);
@@ -2577,6 +2945,11 @@ function saveSym() {
   // Also save medications
   saveMeds();
   symSaved = true;
+  scheduleBackup();
+  // Community report (anonymous, opt-in via cloud)
+  if (localStorage.getItem(LS.cloudOn) === "1" && rKey) {
+    apiCall("/community/report", { method: "POST", body: JSON.stringify({ region: rKey, symptom_sum: sumSymptoms(draft) }) });
+  }
   render();
 }
 
@@ -2737,10 +3110,14 @@ function geoLocate() {
         const sel = document.getElementById("region-sel");
         if (sel) sel.value = rKey;
       }
+      const deInp = document.getElementById("de-city-input");
+      if (deInp) { deInp.value = cityName || ""; deInp.dataset.prev = deInp.value; }
       weather = null; render(); loadWeather();
     } else {
       geoInfo = { latitude: lat, longitude: lon, city: cityName, country: "", country_code: "", _gps: true };
       if (appMode !== "om") { localStorage.setItem(LS.mode, "om"); location.reload(); return; }
+      const omInp = document.getElementById("om-city-input");
+      if (omInp) { omInp.value = cityName || ""; omInp.dataset.prev = omInp.value; }
       weather = null; loadGlobal();
     }
     showToast("📍 " + (cityName || `${lat.toFixed(1)}, ${lon.toFixed(1)}`));
@@ -2964,7 +3341,11 @@ function _closeNotifPrompt() {
 }
 async function notifPromptYes() {
   _closeNotifPrompt();
-  await requestNotifPermission();
+  if ("PushManager" in window) {
+    await subscribePush();
+  } else {
+    await requestNotifPermission();
+  }
 }
 function notifPromptNo() {
   _closeNotifPrompt();
@@ -3406,35 +3787,65 @@ function refreshDrawer() {
       <div style="padding:10px 14px 14px;display:flex;flex-direction:column;gap:8px">
         ${appMode === "de" ? renderForecastAccuracy() : ""}
         <div style="font-size:.75rem;color:var(--text3)">${t("data_export_hint")}</div>
-        <div style="display:flex;gap:8px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="card-action" style="padding:6px 14px;border:1px solid var(--border);border-radius:8px;font-size:.8rem;cursor:pointer;background:var(--card2);color:var(--text)" onclick="exportData()">${t("data_export")}</button>
           <label style="padding:6px 14px;border:1px solid var(--border);border-radius:8px;font-size:.8rem;cursor:pointer;background:var(--card2);color:var(--text)">
             ${t("data_import")} <input type="file" accept=".json" style="display:none" onchange="importData(event)">
           </label>
+          <button style="padding:6px 14px;border:1px solid var(--accent);border-radius:8px;font-size:.8rem;cursor:pointer;background:color-mix(in srgb,var(--accent) 12%,var(--card));color:var(--text)" onclick="generateReport()">🩺 ${t("report_btn")}</button>
         </div>
         ${(() => {
           const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+          const hasPush = "PushManager" in window;
           const supported = "Notification" in window;
-          if (!supported) {
+          if (!supported || (!hasPush && !isIOS)) {
             const hint = isIOS ? t("notif_ios_hint") : t("notif_unsupported");
             return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:6px;border-top:1px solid var(--border)">
               <span style="font-size:.76rem;color:var(--text2)"><span class="di">🔔</span> ${t("notif_title")}</span>
               <span style="font-size:.72rem;color:var(--text2);opacity:.7;text-align:right;max-width:60%">${hint}</span>
             </div>`;
           }
-          const perm = Notification.permission;
+          const pushOn = localStorage.getItem("p_push") === "1";
           let right = "";
-          if (perm === "granted")
-            right = `<span style="color:var(--accent);font-size:.75rem">(${t("notif_on")})</span>`;
-          else if (perm === "default")
-            right = `<button onclick="requestNotifPermission()" style="padding:4px 10px;border-radius:7px;border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card));color:var(--text);font-size:.75rem;cursor:pointer">${t("notif_enable")}</button>`;
-          else
+          if (pushOn)
+            right = `<button onclick="unsubscribePush()" style="padding:4px 10px;border-radius:7px;border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card));color:var(--text);font-size:.75rem;cursor:pointer">${t("notif_on")} ✓</button>`;
+          else if (Notification.permission === "denied")
             right = `<span style="font-size:.72rem;color:var(--text2);opacity:.7">${t("notif_blocked")}</span>`;
+          else
+            right = `<button onclick="subscribePush()" style="padding:4px 10px;border-radius:7px;border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card));color:var(--text);font-size:.75rem;cursor:pointer">${t("notif_enable")}</button>`;
           return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:6px;border-top:1px solid var(--border)">
             <span style="font-size:.76rem;color:var(--text2)"><span class="di">🔔</span> ${t("notif_title")}</span>
             ${right}
           </div>`;
         })()}
+      </div>
+    </div>
+
+    <!-- CLOUD BACKUP -->
+    <div class="dsec-head" onclick="toggleDrawerSec('dcloud')" id="dcloud-head">
+      <span>☁️ ${t("cloud_title")}</span>
+      <span class="dsec-arrow">▼</span>
+    </div>
+    <div class="dsec-body" id="dcloud-body">
+      <div style="padding:10px 14px 14px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:.82rem;color:var(--text)">${t("cloud_title")}</span>
+          <div class="med-toggle${localStorage.getItem(LS.cloudOn)==="1"?" on":""}" onclick="toggleCloud()"></div>
+        </div>
+        ${localStorage.getItem(LS.cloudOn)==="1" && localStorage.getItem(LS.backupCode) ? `
+          <div style="padding:8px 12px;border-radius:8px;background:var(--card2);border:1px solid var(--border)">
+            <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:4px">${t("cloud_code_label")}</div>
+            <div style="font-size:1.1rem;font-weight:700;letter-spacing:2px;font-family:monospace;color:var(--accent)">${localStorage.getItem(LS.backupCode)}</div>
+            <div style="font-size:.65rem;color:var(--text3);margin-top:4px;opacity:.5">${t("cloud_code_hint")}</div>
+          </div>
+        ` : ""}
+        <div style="border-top:1px solid var(--border);padding-top:8px">
+          <div style="font-size:.68rem;color:var(--text3);margin-bottom:6px;opacity:.5">${t("cloud_restore")}</div>
+          <div style="display:flex;gap:6px">
+            <input id="restore-code-input" type="text" maxlength="4" placeholder="1234" inputmode="numeric" style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:.85rem;font-family:monospace;letter-spacing:1px;text-transform:uppercase">
+            <button onclick="restoreFromCode()" style="padding:7px 14px;border-radius:8px;border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card));color:var(--text);font-size:.8rem;cursor:pointer;white-space:nowrap">${t("cloud_restore")}</button>
+          </div>
+        </div>
       </div>
     </div>
 
