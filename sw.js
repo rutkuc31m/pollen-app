@@ -2,7 +2,7 @@
 // SERVICE WORKER · Pollenflug PWA
 // Cache-first for static assets, Network-first for data.json
 // ─────────────────────────────────────────────────────────────────────────────
-const CACHE_VERSION = "pollen-1775993648";
+const CACHE_VERSION = "pollen-1776012500";
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const DATA_CACHE    = `${CACHE_VERSION}-data`;
 
@@ -67,6 +67,35 @@ self.addEventListener("fetch", event => {
 
   // For other external APIs — network only, no caching
   event.respondWith(fetch(event.request).catch(() => new Response("", { status: 503 })));
+});
+
+// ── PUSH NOTIFICATIONS ──────────────────────────────────────────────────────
+self.addEventListener("push", event => {
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || "🌿 Pollenflug";
+  const options = {
+    body: data.body || "",
+    icon: "./apple-touch-icon.png",
+    badge: "./apple-touch-icon.png",
+    tag: "pollen-push",
+    data: { url: data.url || "./" },
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", event => {
+  event.notification.close();
+  const url = event.notification.data?.url || "./";
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then(wins => {
+      for (const w of wins) {
+        if (new URL(w.url).pathname === new URL(url, self.location.origin).pathname) {
+          return w.focus();
+        }
+      }
+      return clients.openWindow(url);
+    })
+  );
 });
 
 // Network-first strategy with data cache fallback

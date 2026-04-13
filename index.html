@@ -111,6 +111,15 @@
     button, select { font-family: inherit; }
     input, select, textarea { font-size: 16px !important; }
 
+    /* ── STATUS BAR SHIELD (iOS notch/Dynamic Island) ── */
+    #status-shield {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: env(safe-area-inset-top, 0);
+      background: var(--bg);
+      z-index: 9999;
+      pointer-events: none;
+    }
+
     /* ── HEADER ──────────────────────────────────────── */
     .topbar {
       background: var(--bg);
@@ -749,28 +758,96 @@
     .callout.tone-info { --cc: var(--accent);        --cb: var(--accent-subtle); }
     .callout-title { font-weight: 700; color: var(--cc, var(--accent)); font-size: .78rem; letter-spacing: .01em; }
 
-    /* ── CROSS-ALLERGY ALERT (uses callout, kept for compat) ── */
+    /* ── 24h HOURLY STRIP ── */
+    .h24-strip {
+      display: flex; overflow-x: auto; gap: 2px; padding: 10px 8px 12px;
+      scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+    }
+    .h24-strip::-webkit-scrollbar { height: 3px; }
+    .h24-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .h24-cell {
+      flex: 0 0 auto; min-width: 44px; padding: 6px 4px;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      border-radius: 10px; scroll-snap-align: start;
+      transition: background .2s;
+    }
+    .h24-cell.h24-now {
+      background: var(--accent-subtle);
+      box-shadow: inset 0 0 0 1.5px var(--accent);
+    }
+    .h24-h { font-size: .62rem; color: var(--text3); font-weight: 600; letter-spacing: .3px; text-transform: uppercase; }
+    .h24-now .h24-h { color: var(--accent2); }
+    [data-theme="dark"] .h24-now .h24-h { color: var(--accent); }
+    .h24-icon { font-size: .95rem; line-height: 1; }
+    .h24-temp { font-size: .78rem; font-weight: 700; }
+    .h24-tempbar {
+      width: 5px; height: 22px; background: var(--border);
+      border-radius: 3px; overflow: hidden; display: flex; align-items: flex-end;
+    }
+    .h24-tempbar > div { width: 100%; border-radius: 3px; transition: height .3s; }
+    .h24-rain { font-size: .56rem; font-weight: 600; margin-top: 2px; }
+    .h24-rainbar {
+      width: 5px; height: 12px; background: var(--border);
+      border-radius: 3px; overflow: hidden; display: flex; align-items: flex-end;
+    }
+    .h24-rainbar > div { border-radius: 3px; transition: height .3s; }
+
+    /* ── WEATHER INSIGHT CARD ── */
+    .w-insight {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; margin-bottom: 12px;
+      border-radius: var(--rad-md);
+      background: linear-gradient(135deg, var(--accent-subtle), color-mix(in srgb, var(--accent) 5%, var(--card)));
+      border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+      border-left: 3px solid var(--accent);
+    }
+    .w-insight-icon { font-size: 1.35rem; flex-shrink: 0; }
+    .w-insight-text { font-size: .85rem; font-weight: 500; color: var(--text); line-height: 1.35; }
+
+    /* ── ALLERGIKER-SCORE BADGE ── */
+    .ak-score {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 3px 9px; border-radius: 20px;
+      background: var(--accent-subtle); color: var(--accent2);
+      font-size: .72rem; font-weight: 600;
+      border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    }
+    [data-theme="dark"] .ak-score { color: var(--accent); }
+    .ak-score .ak-arrow { opacity: .5; }
+
+    /* ── CROSS-ALLERGY ALERT — informational sky-blue style ── */
     .cross-alert {
       margin-bottom: var(--sp-3); padding: var(--sp-4);
       border-radius: var(--rad-md);
-      border-left: 3px solid var(--risk-mid-fg);
-      background: var(--risk-mid-bg);
-      font-size: .82rem; color: var(--text); line-height: 1.45;
+      border-left: 3px solid var(--accent);
+      background: var(--accent-subtle);
+      font-size: .82rem; color: var(--text); line-height: 1.5;
       display: flex; flex-direction: column; gap: var(--sp-1);
     }
-    .cross-alert-title { font-weight: 700; color: var(--risk-mid-fg); display: block; font-size: .78rem; }
-    .cross-alert-desc { display: block; }
-    .cross-foods { display: flex; flex-wrap: wrap; gap: var(--sp-1); margin-top: var(--sp-1); }
-    .cross-food {
-      display: inline-block; padding: 2px 9px; border-radius: 20px;
-      font-size: .72rem; background: var(--card);
-      color: var(--risk-mid-fg); font-weight: 500;
-      border: 1px solid var(--risk-mid-ring);
+    .cross-alert-title {
+      font-weight: 700; color: var(--accent2); display: flex;
+      align-items: center; gap: 6px; font-size: .74rem;
+      letter-spacing: .03em; text-transform: uppercase;
     }
+    .cross-alert-title::before {
+      content: ""; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 0 3px var(--accent-subtle);
+    }
+    [data-theme="dark"] .cross-alert-title { color: var(--accent); }
+    .cross-alert-desc { display: block; color: var(--text2); }
+    .cross-foods { display: flex; flex-wrap: wrap; gap: var(--sp-1); margin-top: var(--sp-2); }
+    .cross-food {
+      display: inline-block; padding: 3px 10px; border-radius: 20px;
+      font-size: .72rem; background: var(--card);
+      color: var(--accent2); font-weight: 500;
+      border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    }
+    [data-theme="dark"] .cross-food { color: var(--accent); }
   </style>
 </head>
 <body>
 
+<div id="status-shield"></div>
 <div id="drawer-overlay" onclick="closeDrawer()"></div>
 <div id="drawer" role="dialog" aria-modal="true" aria-label="Menü">
   <div id="drawer-head">
@@ -1101,6 +1178,18 @@ const STRINGS = {
     cross_ragweed: "Ambrosia ist {lv} – mögliche Kreuzreaktionen:",
     cross_alder: "Erle ist {lv} – mögliche Kreuzreaktionen:",
     cross_hazel: "Hasel ist {lv} – mögliche Kreuzreaktionen:",
+    // weather 2.0
+    hourly24_title: "Heute stündlich",
+    insight_rain_today: "Regen heute ({mm}mm) → Pollen stark gedämpft",
+    insight_rain_soon: "Regen in {h}h → Pollen sinken danach",
+    insight_wind_high: "Wind >{v} km/h → Pollen verteilen sich weit",
+    insight_dry_warm: "Warm, trocken, windig → Spitzentag für Pollen",
+    insight_calm: "Stabiles Wetter — Pollenwerte bleiben gleich",
+    daylight_title: "Tageslicht",
+    daylight_left: "noch {h}h {m}min",
+    daylight_done: "Sonne untergegangen",
+    allergiker_title: "Gefühlt für Allergiker",
+    allergiker_hint: "Objektiv vs. gefühlt (Wind + Trockenheit + UV)",
   },
   en: {
     // days
@@ -1306,6 +1395,18 @@ const STRINGS = {
     cross_ragweed: "Ragweed is {lv} – possible cross-reactions:",
     cross_alder: "Alder is {lv} – possible cross-reactions:",
     cross_hazel: "Hazel is {lv} – possible cross-reactions:",
+    // weather 2.0
+    hourly24_title: "Today hourly",
+    insight_rain_today: "Rain today ({mm}mm) → pollen strongly suppressed",
+    insight_rain_soon: "Rain in {h}h → pollen will drop after",
+    insight_wind_high: "Wind >{v} km/h → pollen spreads widely",
+    insight_dry_warm: "Warm, dry, windy → peak pollen day",
+    insight_calm: "Stable weather — pollen levels steady",
+    daylight_title: "Daylight",
+    daylight_left: "{h}h {m}min left",
+    daylight_done: "Sun has set",
+    allergiker_title: "Feels like for allergy sufferers",
+    allergiker_hint: "Objective vs. felt (wind + dryness + UV)",
   },
   tr: {
     today:"Bugün", tomorrow:"Yarın", dayafter:"Öbür gün",
@@ -1489,6 +1590,18 @@ const STRINGS = {
     cross_ragweed:"Ambrosia {lv} – olası çapraz reaksiyonlar:",
     cross_alder:"Kızılağaç {lv} – olası çapraz reaksiyonlar:",
     cross_hazel:"Fındık {lv} – olası çapraz reaksiyonlar:",
+    // weather 2.0
+    hourly24_title: "Bugün saatlik",
+    insight_rain_today: "Bugün yağmur ({mm}mm) → polen güçlü bastırılıyor",
+    insight_rain_soon: "{h}h sonra yağmur → polen düşecek",
+    insight_wind_high: "Rüzgar >{v} km/s → polen geniş yayılır",
+    insight_dry_warm: "Sıcak, kuru, rüzgarlı → yüksek polen günü",
+    insight_calm: "Stabil hava — polen seviyeleri sabit",
+    daylight_title: "Gün ışığı",
+    daylight_left: "{h}sa {m}dk kaldı",
+    daylight_done: "Güneş battı",
+    allergiker_title: "Alerjikler için hissedilen",
+    allergiker_hint: "Objektif vs. hissedilen (rüzgar + kuruluk + UV)",
   }
 };
 
@@ -2350,6 +2463,41 @@ function _renderInner() {
         if (wind > 25) return "💨";
         return "☀️";
       }
+      let insight = null, akS = null, h24 = "", sunArc = "";
+      try { insight = weatherInsight(activeDay); } catch(e) { console.error("weatherInsight", e); }
+      try {
+        const pollenMaxForScore = (typeof dayScores !== "undefined" && dayScores[activeDay] != null) ? dayScores[activeDay] : null;
+        akS = allergikerScore(activeDay, pollenMaxForScore);
+      } catch(e) { console.error("allergikerScore", e); }
+      try { h24 = hourly24Strip(activeDay); } catch(e) { console.error("hourly24Strip", e); }
+      try { sunArc = sunArcSvg((weather.daily[activeDay]||{}).sunrise, (weather.daily[activeDay]||{}).sunset); } catch(e) { console.error("sunArcSvg", e); }
+      const akRow = akS ? `<div style="padding:4px 14px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+        <span style="font-size:.72rem;color:var(--text3)">${t("allergiker_title")}</span>
+        <span class="ak-score" title="${t("allergiker_hint")}">${akS.base} <span class="ak-arrow">→</span> <strong>${akS.felt}</strong></span>
+      </div>` : "";
+      let aqInline = "";
+      if (airQuality && airQuality.aqi != null) {
+        const aqi = airQuality.aqi;
+        const aqiPct = Math.min(100, Math.round(aqi));
+        const aqiCol = isDark()
+          ? (aqi <= 20 ? "#bae6fd" : aqi <= 40 ? "#7cb8d4" : aqi <= 60 ? "#fb923c" : aqi <= 80 ? "#f87171" : "#ef4444")
+          : (aqi <= 20 ? "#03e946" : aqi <= 40 ? "#268931" : aqi <= 60 ? "#c07800" : aqi <= 80 ? "#c0392b" : "#7b1a13");
+        aqInline = `<div style="padding:10px 14px;margin-bottom:12px;border-radius:var(--rad-md);background:var(--card);border:1px solid var(--border);display:flex;align-items:center;gap:12px">
+          <span class="di" style="font-size:1.1rem;flex-shrink:0">💨</span>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:4px">
+              <span style="font-size:.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">${t("air_quality_title")}</span>
+              ${airQuality.pm25 != null ? `<span style="font-size:.65rem;color:var(--text3)">PM2.5 ${airQuality.pm25} · PM10 ${airQuality.pm10}</span>` : ""}
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:.95rem;font-weight:700;color:${aqiCol};flex-shrink:0">${aqi} <span style="font-size:.7rem;font-weight:500;color:var(--text2)">${aqiLabel(aqi)}</span></span>
+              <div style="flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden">
+                <div style="width:${aqiPct}%;height:100%;background:${aqiCol};border-radius:2px;transition:width .4s"></div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }
       return `
       <div class="card" style="margin-bottom:12px">
         <div class="card-head">
@@ -2391,24 +2539,46 @@ function _renderInner() {
             </div>`;
           }).join("")}
         </div>
+        ${akRow}
       </div>
-      ${weather.daily.length > 3 ? `
-      <div class="card" style="margin-bottom:12px">
-        <div class="card-head"><span class="card-title"><span class="di">📅</span> ${t("week_title")||"7 Tage"}</span></div>
-        ${weather.daily.map((wd, i) => {
-          const dt = new Date(); dt.setDate(dt.getDate() + i);
-          const dayName = i===0 ? t("today") : wkNames[dt.getDay() === 0 ? 6 : dt.getDay() - 1];
-          const uvW = wd.uv ?? null;
-          const uvWCls = uvW === null ? "" : uvW >= 8 ? "uv-hi" : uvW >= 5 ? "uv-mid" : uvW >= 2 ? "uv-low" : "";
-          return `<div style="display:grid;grid-template-columns:3rem 1.8rem 1fr auto auto;align-items:center;gap:8px;padding:8px 14px;${i>0?"border-top:1px solid var(--border)":""}">
-            <div style="font-size:.78rem;font-weight:${i===0?"700":"400"};color:${i===0?"var(--text)":"var(--text2)"}">${dayName}</div>
-            <div style="font-size:1rem;text-align:center" class="di">${wmoIcon(wd.weatherCode ?? 0)}</div>
-            <div style="font-size:.75rem;color:var(--text3)">${wd.rain > 0 ? wd.rain+weather.units.rain : "–"}</div>
-            <div style="font-size:.82rem;font-weight:600">${wd.tempMax}°</div>
-            ${uvW !== null ? `<div style="font-size:.65rem;text-align:right" class="${uvWCls}">UV ${uvW}</div>` : "<div></div>"}
-          </div>`;
-        }).join("")}
-      </div>` : ""}
+      ${insight ? `<div class="w-insight"><span class="w-insight-icon di">${insight.icon}</span><span class="w-insight-text">${insight.text}</span></div>` : ""}
+      ${aqInline}
+      ${h24}
+      ${sunArc}
+      ${weather.daily.length > 3 ? (() => {
+        const mins = weather.daily.map(w => w.tempMin ?? w.tempMax);
+        const maxs = weather.daily.map(w => w.tempMax);
+        const wkMin = Math.min(...mins), wkMax = Math.max(...maxs);
+        const wkRange = (wkMax - wkMin) || 1;
+        return `<div class="card" style="margin-bottom:12px">
+          <div class="card-head">
+            <span class="card-title"><span class="di">📅</span> ${t("week_title")||"7 Tage"}</span>
+            <span style="font-size:.62rem;color:var(--text3)">${wkMin}° — ${wkMax}°</span>
+          </div>
+          ${weather.daily.map((wd, i) => {
+            const dt = new Date(); dt.setDate(dt.getDate() + i);
+            const dayName = i===0 ? t("today") : wkNames[dt.getDay() === 0 ? 6 : dt.getDay() - 1];
+            const uvW = wd.uv ?? null;
+            const uvWCls = uvW === null ? "" : uvW >= 8 ? "uv-hi" : uvW >= 5 ? "uv-mid" : uvW >= 2 ? "uv-low" : "";
+            const lo = wd.tempMin ?? wd.tempMax;
+            const hi = wd.tempMax;
+            const left = ((lo - wkMin) / wkRange) * 100;
+            const width = Math.max(8, ((hi - lo) / wkRange) * 100);
+            const rainTxt = wd.rain > 0 ? wd.rain+weather.units.rain : "";
+            return `<div style="display:grid;grid-template-columns:2.2rem 1.3rem 2.6rem 2rem 1fr 2rem 1.8rem;align-items:center;gap:6px;padding:9px 14px;${i>0?"border-top:1px solid var(--border)":""}">
+              <div style="font-size:.78rem;font-weight:${i===0?"700":"500"};color:${i===0?"var(--text)":"var(--text2)"}">${dayName}</div>
+              <div style="font-size:1rem;text-align:center" class="di">${wmoIcon(wd.weatherCode ?? 0)}</div>
+              <div style="font-size:.68rem;color:${rainTxt?"var(--accent)":"var(--text3)"};font-weight:${rainTxt?"600":"400"}">${rainTxt || "–"}</div>
+              <div style="font-size:.72rem;color:var(--text3);text-align:right">${lo}°</div>
+              <div style="position:relative;height:5px;background:var(--border);border-radius:3px;overflow:hidden" title="${lo}° — ${hi}°">
+                <div style="position:absolute;left:${left.toFixed(1)}%;width:${width.toFixed(1)}%;height:100%;border-radius:3px;background:linear-gradient(to right, #7ab3d9, #f9c74f, #e76f51)"></div>
+              </div>
+              <div style="font-size:.82rem;font-weight:700;text-align:left">${hi}°</div>
+              ${uvW !== null ? `<div style="font-size:.62rem;text-align:right" class="${uvWCls}">UV ${uvW}</div>` : "<div></div>"}
+            </div>`;
+          }).join("")}
+        </div>`;
+      })() : ""}
       `;
     })() : ""}
 
@@ -2441,39 +2611,6 @@ function _renderInner() {
       }).join("")}
     </div>
 
-    ${activeTab === "weather" ? (() => {
-      if (!weather?.hourlyRainProb || !weather?.hourlyTime) return "";
-      // Filter hourly entries for the active day, every 3h
-      const dayDate = new Date(); dayDate.setDate(dayDate.getDate() + activeDay);
-      const dayStr = dayDate.toISOString().slice(0,10);
-      const slots = [];
-      weather.hourlyTime.forEach((ts, i) => {
-        if (!ts.startsWith(dayStr)) return;
-        const h = parseInt(ts.slice(11,13));
-        if (h % 3 !== 0) return;
-        slots.push({ h, prob: weather.hourlyRainProb[i] ?? 0 });
-      });
-      if (!slots.length) return "";
-      const bars = slots.map(s => {
-        const col = isDark()
-          ? (s.prob > 60 ? "#3b82f6" : s.prob > 30 ? "#93c5fd" : "#bfdbfe")
-          : (s.prob > 60 ? "#268931" : s.prob > 30 ? "#60c07a" : "#a8dbb5");
-        return `<div style="display:flex;align-items:center;gap:6px;font-size:.72rem">
-          <span style="color:var(--text3);width:2.2em;flex-shrink:0">${String(s.h).padStart(2,"0")}h</span>
-          <div style="flex:1;height:6px;border-radius:3px;background:var(--border);overflow:hidden">
-            <div style="width:${s.prob}%;height:100%;border-radius:3px;background:${col};transition:width .3s"></div>
-          </div>
-          <span style="color:var(--text2);width:2.5em;text-align:right;flex-shrink:0">${s.prob}%</span>
-        </div>`;
-      }).join("");
-      return `<div class="card">
-        <div class="card-head">
-          <span class="card-title"><span class="di">🌧️</span> ${t("rain_prob_title")}</span>
-        </div>
-        <div style="padding:10px 14px;display:flex;flex-direction:column;gap:5px">${bars}</div>
-      </div>`;
-    })() : ""}
-
     ${activeTab === "weather" && weather ? (() => {
       const d = weather.daily[activeDay] ?? weather.daily[0];
       const rows = [];
@@ -2496,69 +2633,6 @@ function _renderInner() {
             : `<div style="padding:10px 14px;font-size:.82rem;color:var(--text2)">${t("besttime_note")}</div>`}
           </div>`);
         }
-      }
-
-      // ── Temperaturkurve (stündlich) ──────────────────────
-      if (weather.hourlyTemp && weather.hourlyTime) {
-        const dayDate = new Date(); dayDate.setDate(dayDate.getDate() + activeDay);
-        const dayStr = `${dayDate.getFullYear()}-${String(dayDate.getMonth()+1).padStart(2,"0")}-${String(dayDate.getDate()).padStart(2,"0")}`;
-        const pts = [];
-        weather.hourlyTime.forEach((ts, i) => {
-          if (!ts.startsWith(dayStr)) return;
-          pts.push({ h: parseInt(ts.slice(11,13)), v: weather.hourlyTemp[i] });
-        });
-        if (pts.length >= 2) {
-          const min = Math.min(...pts.map(p=>p.v)), max = Math.max(...pts.map(p=>p.v));
-          const range = max - min || 1;
-          const W = 300, H = 90, PAD = 10, TOP = 18;
-          const px = h => PAD + (h / 23) * (W - PAD * 2);
-          const py = v => TOP + (1 - (v - min) / range) * (H - TOP - 10);
-          const path = pts.map((p, i) => {
-            if (i === 0) return `M${px(p.h).toFixed(1)},${py(p.v).toFixed(1)}`;
-            const prev = pts[i-1];
-            const cpx = (px(p.h) - px(prev.h)) / 2;
-            return `C${(px(prev.h)+cpx).toFixed(1)},${py(prev.v).toFixed(1)} ${(px(p.h)-cpx).toFixed(1)},${py(p.v).toFixed(1)} ${px(p.h).toFixed(1)},${py(p.v).toFixed(1)}`;
-          }).join(" ");
-          const area = path + ` L${px(pts[pts.length-1].h).toFixed(1)},${H} L${px(pts[0].h).toFixed(1)},${H} Z`;
-          const valLabels = pts.filter(p => p.h % 6 === 0).map(p =>
-            `<text x="${px(p.h).toFixed(1)}" y="${(py(p.v)-5).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="600" fill="${isDark()?"#e2e8f0":"#1a1620"}">${Math.round(p.v)}°</text>`).join("");
-          const axisLabels = [0,3,6,9,12,15,18,21].map(h =>
-            `<text x="${px(h).toFixed(1)}" y="${H+12}" text-anchor="middle" font-size="7.5" fill="var(--text3)">${String(h).padStart(2,"0")}</text>`).join("");
-          rows.push(`<div class="card">
-            <div class="card-head"><span class="card-title"><span class="di">🌡️</span> ${t("temp")}</span></div>
-            <div style="padding:10px 0 10px">
-              <svg viewBox="0 0 ${W} ${H+20}" style="width:100%;height:140px;display:block">
-                <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${isDark()?"#bae6fd":"#03e946"}" stop-opacity=".22"/><stop offset="100%" stop-color="${isDark()?"#bae6fd":"#03e946"}" stop-opacity="0"/></linearGradient></defs>
-                <path d="${area}" fill="url(#tg)"/>
-                <path d="${path}" fill="none" stroke="${isDark()?"#bae6fd":"#268931"}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-                ${valLabels}
-                ${axisLabels}
-              </svg>
-            </div>
-          </div>`);
-        }
-      }
-
-
-      // ── Luftqualität ──────────────────────────────────────
-      if (airQuality) {
-        const aqi = airQuality.aqi;
-        const aqiPct = aqi !== null ? Math.min(100, Math.round(aqi)) : 0;
-        const aqiCol = isDark()
-          ? (aqi <= 20 ? "#bae6fd" : aqi <= 40 ? "#7cb8d4" : aqi <= 60 ? "#fb923c" : aqi <= 80 ? "#f87171" : "#ef4444")
-          : (aqi <= 20 ? "#03e946" : aqi <= 40 ? "#268931" : aqi <= 60 ? "#c07800" : aqi <= 80 ? "#c0392b" : "#7b1a13");
-        rows.push(`<div class="card">
-          <div class="card-head"><span class="card-title"><span class="di">💨</span> ${t("air_quality_title")}</span></div>
-          <div style="padding:10px 16px 14px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-              <span style="font-size:1.2rem;font-weight:700;color:${aqiCol}">${aqi ?? "–"} <span style="font-size:.75rem;font-weight:400;color:var(--text2)">${aqiLabel(aqi)}</span></span>
-              ${airQuality.pm25 !== null ? `<span style="font-size:.75rem;color:var(--text3)">PM2.5: ${airQuality.pm25} · PM10: ${airQuality.pm10}</span>` : ""}
-            </div>
-            <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
-              <div style="width:${aqiPct}%;height:100%;background:${aqiCol};border-radius:3px;transition:width .4s"></div>
-            </div>
-          </div>
-        </div>`);
       }
 
       return rows.join("");
@@ -2982,11 +3056,27 @@ async function loadWeather() {
   const coords = appMode === "de"
     ? (REGION_COORDS[rKey] || {lat:52.37,lon:9.73})
     : {lat: geoInfo?.latitude ?? 52.37, lon: geoInfo?.longitude ?? 9.73};
-  const wCacheKey = `p_weather_${coords.lat}_${coords.lon}`;
+  const wCacheKey = `p_weather_v2_${coords.lat}_${coords.lon}`;
   // Use cached weather if < 15 min old
   try {
     const cached = JSON.parse(localStorage.getItem(wCacheKey));
-    if (cached && (Date.now() - cached.fetchedAt) < 900000 && cached.hourlyRainProb && cached.daily?.[0]?.weatherCode !== undefined) { weather = cached; render(); return; }
+    if (cached && (Date.now() - cached.fetchedAt) < 900000 && cached.hourlyRainProb && cached.daily?.[0]?.weatherCode !== undefined) {
+      weather = cached;
+      render();
+      // still fetch AQ (not cached with weather)
+      try {
+        const aqUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${coords.lat}&longitude=${coords.lon}&current=european_aqi,pm10,pm2_5`;
+        const aqRes = await fetch(aqUrl, { signal });
+        const aqData = await aqRes.json();
+        airQuality = {
+          aqi:  aqData.current?.european_aqi ?? null,
+          pm10: aqData.current?.pm10 ? Math.round(aqData.current.pm10) : null,
+          pm25: aqData.current?.pm2_5 ? Math.round(aqData.current.pm2_5) : null,
+        };
+        render();
+      } catch { airQuality = null; }
+      return;
+    }
   } catch(e) {}
 
   const tz    = appMode === "de" ? "Europe%2FBerlin" : "auto";
@@ -2997,8 +3087,8 @@ async function loadWeather() {
     : "";
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}`
     + `&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code,apparent_temperature`
-    + `&daily=temperature_2m_max,apparent_temperature_max,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant,uv_index_max,precipitation_probability_max,weather_code,sunrise,sunset`
-    + `&hourly=precipitation_probability,temperature_2m`
+    + `&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant,uv_index_max,precipitation_probability_max,weather_code,sunrise,sunset`
+    + `&hourly=precipitation_probability,temperature_2m,wind_speed_10m,relative_humidity_2m,weather_code`
     + `&timezone=${tz}&forecast_days=7${units}`;
   weatherError = false;
   try {
@@ -3016,6 +3106,7 @@ async function loadWeather() {
       },
       daily: data.daily.time.map((_, i) => ({
         tempMax:      Math.round(data.daily.temperature_2m_max[i]),
+        tempMin:      data.daily.temperature_2m_min ? Math.round(data.daily.temperature_2m_min[i]) : null,
         apparentTemp: data.daily.apparent_temperature_max ? Math.round(data.daily.apparent_temperature_max[i]) : null,
         rain:         Math.round((data.daily.precipitation_sum[i] ?? 0) * 10) / 10,
         wind:         Math.round(data.daily.wind_speed_10m_max[i]),
@@ -3029,6 +3120,9 @@ async function loadWeather() {
       units: isUS ? {temp:"°F", wind:"mph", rain:"in"} : {temp:"°C", wind:"km/h", rain:"mm"},
       hourlyRainProb: data.hourly?.precipitation_probability ?? null,
       hourlyTemp:     data.hourly?.temperature_2m ?? null,
+      hourlyWind:     data.hourly?.wind_speed_10m ?? null,
+      hourlyHumidity: data.hourly?.relative_humidity_2m ?? null,
+      hourlyCode:     data.hourly?.weather_code ?? null,
       hourlyTime:     data.hourly?.time ?? null,
       fetchedAt: Date.now(),
     };
@@ -3050,6 +3144,125 @@ async function loadWeather() {
     };
   } catch { airQuality = null; }
   render();
+}
+
+// ── Weather 2.0 helpers ─────────────────────────────────────────────────────
+function weatherInsight(dayIdx) {
+  if (!weather) return null;
+  const d = weather.daily[dayIdx] ?? weather.daily[0];
+  if (activeDay === 0 && d.rain > 2) return { icon: "☔", text: t("insight_rain_today").replace("{mm}", d.rain) };
+  // Next rain within 6h (only today)
+  if (activeDay === 0 && weather.hourlyRainProb && weather.hourlyTime) {
+    const nowH = new Date().getHours();
+    const todayStr = new Date().toISOString().slice(0,10);
+    for (let i = 0; i < weather.hourlyTime.length; i++) {
+      const ts = weather.hourlyTime[i];
+      if (!ts.startsWith(todayStr)) continue;
+      const h = parseInt(ts.slice(11,13));
+      if (h <= nowH) continue;
+      if (h - nowH > 6) break;
+      if ((weather.hourlyRainProb[i] ?? 0) >= 60) {
+        return { icon: "🌦️", text: t("insight_rain_soon").replace("{h}", h - nowH) };
+      }
+    }
+  }
+  if (d.wind > 25 && d.rain < 1) return { icon: "💨", text: t("insight_wind_high").replace("{v}", 25) };
+  if (d.tempMax >= 18 && d.rain < 0.5 && d.wind >= 10) return { icon: "🌡️", text: t("insight_dry_warm") };
+  return { icon: "🌤️", text: t("insight_calm") };
+}
+
+function allergikerScore(dayIdx, pollenMax) {
+  if (!weather || pollenMax == null) return null;
+  const d = weather.daily[dayIdx] ?? weather.daily[0];
+  let felt = pollenMax;
+  if (d.wind >= 20) felt += 0.4;
+  else if (d.wind >= 12) felt += 0.2;
+  if (d.rain >= 2) felt -= 0.8;
+  else if (d.rain >= 0.5) felt -= 0.3;
+  if (weather.current?.humidity != null && weather.current.humidity < 40) felt += 0.2;
+  if ((d.uv ?? 0) >= 6) felt += 0.15;
+  felt = Math.max(0, Math.min(3, felt));
+  return { base: pollenMax, felt: Math.round(felt * 10) / 10 };
+}
+
+function sunArcSvg(sunriseISO, sunsetISO) {
+  if (!sunriseISO || !sunsetISO) return "";
+  const rise = new Date(sunriseISO), set = new Date(sunsetISO), now = new Date();
+  const total = set - rise, elapsed = now - rise;
+  const frac = Math.max(0, Math.min(1, elapsed / total));
+  const past = now > set;
+  const before = now < rise;
+  const W = 260, PAD = 20;
+  const r = (W - PAD * 2) / 2;
+  const cx = W / 2;
+  const cy = r + 14;
+  const H = cy + 6;
+  const angle = Math.PI - frac * Math.PI;
+  const sx = cx + r * Math.cos(angle), sy = cy - r * Math.sin(angle);
+  const arcPath = `M${PAD},${cy} A${r},${r} 0 0 1 ${W-PAD},${cy}`;
+  const progressX = cx + r * Math.cos(Math.PI - (past ? 1 : before ? 0 : frac) * Math.PI);
+  const progressPath = `M${PAD},${cy} A${r},${r} 0 0 1 ${progressX.toFixed(1)},${(cy - r * Math.sin(Math.PI - (past ? 1 : before ? 0 : frac) * Math.PI)).toFixed(1)}`;
+  const remMs = set - now;
+  const remH = Math.floor(remMs / 3600000), remM = Math.floor((remMs % 3600000) / 60000);
+  const remTxt = past || before ? t("daylight_done")
+    : t("daylight_left").replace("{h}", remH).replace("{m}", remM);
+  const sunCircle = !past && !before ? `<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="7" fill="#f9c74f" stroke="#fff" stroke-width="1.5"/>` : "";
+  return `<div class="card" style="margin-bottom:12px">
+    <div class="card-head"><span class="card-title"><span class="di">🌅</span> ${t("daylight_title")}</span><span style="font-size:.72rem;color:var(--text3)">${remTxt}</span></div>
+    <div style="padding:10px 14px 12px">
+      <svg viewBox="0 0 ${W} ${H+14}" style="width:100%;height:${H+14}px;max-height:160px;display:block;margin:0 auto">
+        <defs><linearGradient id="sunarc" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#f9c74f" stop-opacity=".2"/>
+          <stop offset="50%" stop-color="#f9c74f" stop-opacity=".5"/>
+          <stop offset="100%" stop-color="#e76f51" stop-opacity=".2"/>
+        </linearGradient></defs>
+        <path d="${arcPath}" fill="none" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <path d="${progressPath}" fill="none" stroke="url(#sunarc)" stroke-width="3" stroke-linecap="round"/>
+        ${sunCircle}
+        <text x="${PAD}" y="${H+11}" font-size="10" fill="var(--text3)">${fmtTime(sunriseISO)}</text>
+        <text x="${W-PAD}" y="${H+11}" font-size="10" fill="var(--text3)" text-anchor="end">${fmtTime(sunsetISO)}</text>
+      </svg>
+    </div>
+  </div>`;
+}
+
+function hourly24Strip(dayIdx) {
+  if (!weather?.hourlyTime) return "";
+  const dt = new Date(); dt.setDate(dt.getDate() + dayIdx);
+  const dayStr = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}-${String(dt.getDate()).padStart(2,"0")}`;
+  const slots = [];
+  weather.hourlyTime.forEach((ts, i) => {
+    if (!ts.startsWith(dayStr)) return;
+    slots.push({
+      h: parseInt(ts.slice(11,13)),
+      temp: weather.hourlyTemp?.[i] ?? null,
+      rain: weather.hourlyRainProb?.[i] ?? 0,
+      wind: weather.hourlyWind?.[i] ?? null,
+      code: weather.hourlyCode?.[i] ?? null,
+    });
+  });
+  if (!slots.length) return "";
+  const temps = slots.map(s => s.temp).filter(v => v != null);
+  const tMin = Math.min(...temps), tMax = Math.max(...temps), tRange = (tMax - tMin) || 1;
+  const nowH = new Date().getHours();
+  const isToday = dayIdx === 0;
+  const cells = slots.map(s => {
+    const tempPct = s.temp == null ? 0 : ((s.temp - tMin) / tRange) * 100;
+    const isNow = isToday && s.h === nowH;
+    const rainCol = s.rain > 60 ? "var(--accent)" : s.rain > 30 ? "color-mix(in srgb, var(--accent) 55%, transparent)" : "color-mix(in srgb, var(--accent) 20%, transparent)";
+    return `<div class="h24-cell${isNow?" h24-now":""}">
+      <div class="h24-h">${isNow ? t("now") || "jetzt" : String(s.h).padStart(2,"0")}</div>
+      <div class="h24-icon di">${wmoIcon(s.code ?? 0)}</div>
+      <div class="h24-temp">${s.temp != null ? Math.round(s.temp) + "°" : "–"}</div>
+      <div class="h24-tempbar"><div style="height:${tempPct.toFixed(0)}%;background:linear-gradient(to top, #f9c74f, #e76f51)"></div></div>
+      <div class="h24-rain" style="color:${s.rain>=30?"var(--accent)":"var(--text3)"};opacity:${s.rain>0?1:.35}">${s.rain}%</div>
+      <div class="h24-rainbar"><div style="width:100%;height:${Math.max(2, s.rain*0.4).toFixed(0)}%;background:${rainCol}"></div></div>
+    </div>`;
+  }).join("");
+  return `<div class="card" style="margin-bottom:12px">
+    <div class="card-head"><span class="card-title"><span class="di">⏱️</span> ${t("hourly24_title")}</span></div>
+    <div class="h24-strip">${cells}</div>
+  </div>`;
 }
 
 function wmoIcon(code) {
@@ -3908,11 +4121,6 @@ function toggleDrawerSec(id) {
   if (open && body.dataset.lazySeason === "1") {
     body.removeAttribute("data-lazy-season");
     body.innerHTML = renderSeason2025();
-  }
-  if (open) {
-    requestAnimationFrame(() => {
-      head.scrollIntoView({behavior:"smooth", block:"start"});
-    });
   }
 }
 
