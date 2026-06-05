@@ -1,6 +1,6 @@
 {
-  "last_update": "2026-06-04 11:00 Uhr",
-  "next_update": "2026-06-05 11:00 Uhr",
+  "last_update": "2026-06-05 11:00 Uhr",
+  "next_update": "2026-06-06 11:00 Uhr",
   "regions": [
     {
       "region_id": 10,
@@ -13,39 +13,39 @@
           "today": "0",
           "dayafter_to": "0"
         },
-        "Graeser": {
-          "tomorrow": "2",
-          "today": "2",
-          "dayafter_to": "2"
-        },
         "Ambrosia": {
           "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
+          "today": "0",
+          "dayafter_to": "0"
         },
-        "Beifuss": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Esche": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Roggen": {
-          "dayafter_to": "0-1",
-          "today": "0-1",
-          "tomorrow": "0-1"
+        "Graeser": {
+          "dayafter_to": "2",
+          "tomorrow": "3",
+          "today": "2"
         },
         "Hasel": {
-          "today": "0",
           "dayafter_to": "0",
+          "today": "0",
           "tomorrow": "0"
         },
-        "Birke": {
+        "Beifuss": {
+          "today": "0",
           "tomorrow": "0",
+          "dayafter_to": "0"
+        },
+        "Birke": {
           "dayafter_to": "0",
+          "today": "0",
+          "tomorrow": "0"
+        },
+        "Roggen": {
+          "today": "0-1",
+          "tomorrow": "1",
+          "dayafter_to": "0-1"
+        },
+        "Esche": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
           "today": "0"
         }
       }
@@ -56,29 +56,24 @@
       "region_name": "Schleswig-Holstein und Hamburg",
       "partregion_name": "Geest,Schleswig-Holstein und Hamburg",
       "pollen": {
-        "Graeser": {
-          "tomorrow": "2-3",
-          "dayafter_to": "2-3",
-          "today": "2"
-        },
-        "Ambrosia": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Erle": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Beifuss": {
+        "Esche": {
           "tomorrow": "0",
           "today": "0",
           "dayafter_to": "0"
         },
-        "Esche": {
-          "today": "0",
+        "Roggen": {
+          "dayafter_to": "2",
+          "tomorrow": "2-3",
+          "today": "2"
+        },
+        "Beifuss": {
           "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Birke": {
+          "dayafter_to": "0",
+          "today": "0",
           "tomorrow": "0"
         },
         "Hasel": {
@@ -86,14 +81,19 @@
           "today": "0",
           "tomorrow": "0"
         },
-        "Roggen": {
-          "tomorrow": "2",
-          "today": "2",
-          "dayafter_to": "2"
+        "Graeser": {
+          "dayafter_to": "2-3",
+          "today": "2-3",
+          "tomorrow": "3"
         },
-        "Birke": {
+        "Ambrosia": {
           "tomorrow": "0",
+          "today": "0",
+          "dayafter_to": "0"
+        },
+        "Erle": {
           "dayafter_to": "0",
+          "tomorrow": "0",
           "today": "0"
         }
       }
@@ -104,45 +104,45 @@
       "region_name": "Mecklenburg-Vorpommern",
       "partregion_name": "",
       "pollen": {
-        "Esche": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Birke": {
-          "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
-        },
-        "Roggen": {
-          "tomorrow": "2-3",
-          "dayafter_to": "2-3",
-          "today": "2-3"
-        },
-        "Hasel": {
+        "Erle": {
           "tomorrow": "0",
           "today": "0",
           "dayafter_to": "0"
-        },
-        "Erle": {
-          "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
         },
         "Ambrosia": {
           "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
+          "tomorrow": "0",
+          "today": "0"
         },
         "Graeser": {
           "tomorrow": "3",
-          "today": "2-3",
+          "today": "3",
           "dayafter_to": "3"
         },
-        "Beifuss": {
-          "tomorrow": "0",
+        "Hasel": {
           "today": "0",
+          "tomorrow": "0",
           "dayafter_to": "0"
+        },
+        "Beifuss": {
+          "dayafter_to": "0",
+          "today": "0",
+          "tomorrow": "0"
+        },
+        "Birke": {
+          "today": "0",
+          "tomorrow": "0",
+          "dayafter_to": "0"
+        },
+        "Roggen": {
+          "today": "2-3",
+          "tomorrow": "3",
+          "dayafter_to": "3"
+        },
+        "Esche": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
         }
       }
     },
@@ -152,45 +152,45 @@
       "region_name": "Niedersachsen und Bremen",
       "partregion_name": "Westl. Niedersachsen/Bremen",
       "pollen": {
-        "Graeser": {
-          "tomorrow": "2-3",
+        "Roggen": {
+          "dayafter_to": "3",
           "today": "2",
-          "dayafter_to": "2-3"
-        },
-        "Ambrosia": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Erle": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Beifuss": {
-          "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
+          "tomorrow": "3"
         },
         "Esche": {
           "tomorrow": "0",
           "today": "0",
           "dayafter_to": "0"
         },
-        "Birke": {
+        "Beifuss": {
+          "dayafter_to": "0",
           "tomorrow": "0",
+          "today": "0"
+        },
+        "Birke": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Erle": {
+          "dayafter_to": "0",
           "today": "0",
-          "dayafter_to": "0"
+          "tomorrow": "0"
+        },
+        "Ambrosia": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Graeser": {
+          "dayafter_to": "3",
+          "tomorrow": "3",
+          "today": "2-3"
         },
         "Hasel": {
           "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Roggen": {
-          "tomorrow": "2",
-          "dayafter_to": "2",
-          "today": "1-2"
+          "today": "0",
+          "dayafter_to": "0"
         }
       }
     },
@@ -200,45 +200,45 @@
       "region_name": "Niedersachsen und Bremen",
       "partregion_name": "Östl. Niedersachsen",
       "pollen": {
-        "Beifuss": {
-          "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
-        },
         "Erle": {
-          "today": "0",
           "dayafter_to": "0",
-          "tomorrow": "0"
-        },
-        "Ambrosia": {
           "tomorrow": "0",
+          "today": "0"
+        },
+        "Hasel": {
           "dayafter_to": "0",
+          "tomorrow": "0",
           "today": "0"
         },
         "Graeser": {
           "tomorrow": "3",
-          "dayafter_to": "3",
-          "today": "2-3"
+          "today": "3",
+          "dayafter_to": "3"
+        },
+        "Ambrosia": {
+          "tomorrow": "0",
+          "today": "0",
+          "dayafter_to": "0"
         },
         "Birke": {
           "dayafter_to": "0",
           "today": "0",
           "tomorrow": "0"
         },
-        "Roggen": {
-          "today": "2-3",
-          "dayafter_to": "3",
-          "tomorrow": "3"
-        },
-        "Hasel": {
-          "tomorrow": "0",
+        "Beifuss": {
           "today": "0",
+          "tomorrow": "0",
           "dayafter_to": "0"
         },
         "Esche": {
-          "today": "0",
           "dayafter_to": "0",
+          "today": "0",
           "tomorrow": "0"
+        },
+        "Roggen": {
+          "dayafter_to": "3",
+          "tomorrow": "3",
+          "today": "3"
         }
       }
     },
@@ -249,21 +249,6 @@
       "partregion_name": "Rhein.-Westfäl. Tiefland",
       "pollen": {
         "Birke": {
-          "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
-        },
-        "Hasel": {
-          "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
-        },
-        "Roggen": {
-          "today": "1-2",
-          "dayafter_to": "1-2",
-          "tomorrow": "1-2"
-        },
-        "Esche": {
           "dayafter_to": "0",
           "today": "0",
           "tomorrow": "0"
@@ -273,20 +258,35 @@
           "today": "0",
           "tomorrow": "0"
         },
-        "Graeser": {
-          "dayafter_to": "3",
-          "today": "2",
-          "tomorrow": "3"
+        "Roggen": {
+          "dayafter_to": "1-2",
+          "today": "1-2",
+          "tomorrow": "1-2"
         },
-        "Ambrosia": {
-          "tomorrow": "0",
+        "Esche": {
           "dayafter_to": "0",
-          "today": "0"
+          "today": "0",
+          "tomorrow": "0"
         },
         "Erle": {
           "today": "0",
+          "tomorrow": "0",
+          "dayafter_to": "0"
+        },
+        "Ambrosia": {
           "dayafter_to": "0",
-          "tomorrow": "0"
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Graeser": {
+          "today": "2-3",
+          "tomorrow": "3",
+          "dayafter_to": "3"
+        },
+        "Hasel": {
+          "tomorrow": "0",
+          "today": "0",
+          "dayafter_to": "0"
         }
       }
     },
@@ -296,45 +296,45 @@
       "region_name": "Nordrhein-Westfalen",
       "partregion_name": "Ostwestfalen",
       "pollen": {
-        "Hasel": {
+        "Beifuss": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Birke": {
+          "today": "0",
+          "tomorrow": "0",
+          "dayafter_to": "0"
+        },
+        "Esche": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Roggen": {
+          "tomorrow": "2",
+          "today": "2",
+          "dayafter_to": "2"
+        },
+        "Erle": {
           "tomorrow": "0",
           "today": "0",
           "dayafter_to": "0"
         },
-        "Roggen": {
-          "tomorrow": "2",
-          "dayafter_to": "2",
-          "today": "2"
-        },
-        "Birke": {
-          "tomorrow": "0",
+        "Hasel": {
           "dayafter_to": "0",
-          "today": "0"
-        },
-        "Esche": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Beifuss": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
+          "today": "0",
+          "tomorrow": "0"
         },
         "Ambrosia": {
-          "tomorrow": "0",
           "dayafter_to": "0",
-          "today": "0"
+          "today": "0",
+          "tomorrow": "0"
         },
         "Graeser": {
           "dayafter_to": "3",
-          "today": "2-3",
+          "today": "3",
           "tomorrow": "3"
-        },
-        "Erle": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
         }
       }
     },
@@ -346,43 +346,43 @@
       "pollen": {
         "Beifuss": {
           "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Birke": {
+          "dayafter_to": "0",
           "today": "0",
           "tomorrow": "0"
         },
-        "Graeser": {
-          "tomorrow": "3",
-          "today": "2-3",
-          "dayafter_to": "3"
+        "Esche": {
+          "dayafter_to": "0",
+          "today": "0",
+          "tomorrow": "0"
+        },
+        "Roggen": {
+          "today": "1",
+          "tomorrow": "1",
+          "dayafter_to": "1"
+        },
+        "Hasel": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
         },
         "Ambrosia": {
           "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
+          "today": "0",
+          "dayafter_to": "0"
+        },
+        "Graeser": {
+          "dayafter_to": "3",
+          "today": "3",
+          "tomorrow": "3"
         },
         "Erle": {
-          "today": "0",
           "dayafter_to": "0",
+          "today": "0",
           "tomorrow": "0"
-        },
-        "Hasel": {
-          "tomorrow": "0",
-          "today": "0",
-          "dayafter_to": "0"
-        },
-        "Roggen": {
-          "today": "0-1",
-          "dayafter_to": "0-1",
-          "tomorrow": "0-1"
-        },
-        "Birke": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Esche": {
-          "tomorrow": "0",
-          "today": "0",
-          "dayafter_to": "0"
         }
       }
     },
@@ -392,45 +392,45 @@
       "region_name": "Brandenburg und Berlin",
       "partregion_name": "",
       "pollen": {
+        "Ambrosia": {
+          "today": "0",
+          "tomorrow": "0",
+          "dayafter_to": "0"
+        },
+        "Graeser": {
+          "today": "3",
+          "tomorrow": "3",
+          "dayafter_to": "3"
+        },
+        "Hasel": {
+          "dayafter_to": "0",
+          "today": "0",
+          "tomorrow": "0"
+        },
+        "Erle": {
+          "tomorrow": "0",
+          "today": "0",
+          "dayafter_to": "0"
+        },
+        "Roggen": {
+          "dayafter_to": "3",
+          "today": "3",
+          "tomorrow": "3"
+        },
+        "Esche": {
+          "dayafter_to": "0",
+          "today": "0",
+          "tomorrow": "0"
+        },
         "Beifuss": {
           "tomorrow": "0",
           "today": "0",
           "dayafter_to": "0"
         },
-        "Ambrosia": {
-          "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
-        },
-        "Graeser": {
-          "tomorrow": "3",
-          "dayafter_to": "3",
-          "today": "3"
-        },
-        "Erle": {
-          "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
-        },
-        "Hasel": {
-          "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
-        },
-        "Roggen": {
-          "tomorrow": "3",
-          "dayafter_to": "3",
-          "today": "3"
-        },
         "Birke": {
-          "tomorrow": "0",
           "today": "0",
-          "dayafter_to": "0"
-        },
-        "Esche": {
           "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
+          "dayafter_to": "0"
         }
       }
     },
@@ -440,44 +440,44 @@
       "region_name": "Sachsen-Anhalt",
       "partregion_name": "Tiefland Sachsen-Anhalt",
       "pollen": {
-        "Erle": {
-          "tomorrow": "0",
+        "Ambrosia": {
           "today": "0",
+          "tomorrow": "0",
           "dayafter_to": "0"
         },
         "Graeser": {
           "today": "3",
-          "dayafter_to": "3",
-          "tomorrow": "3"
+          "tomorrow": "3",
+          "dayafter_to": "3"
         },
-        "Ambrosia": {
+        "Hasel": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Erle": {
           "dayafter_to": "0",
           "today": "0",
           "tomorrow": "0"
+        },
+        "Roggen": {
+          "dayafter_to": "3",
+          "tomorrow": "3",
+          "today": "3"
+        },
+        "Esche": {
+          "today": "0",
+          "tomorrow": "0",
+          "dayafter_to": "0"
+        },
+        "Birke": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
         },
         "Beifuss": {
           "dayafter_to": "0",
           "today": "0",
-          "tomorrow": "0"
-        },
-        "Esche": {
-          "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
-        },
-        "Roggen": {
-          "today": "3",
-          "dayafter_to": "3",
-          "tomorrow": "3"
-        },
-        "Hasel": {
-          "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
-        },
-        "Birke": {
-          "today": "0",
-          "dayafter_to": "0",
           "tomorrow": "0"
         }
       }
@@ -488,37 +488,37 @@
       "region_name": "Sachsen-Anhalt",
       "partregion_name": "Harz",
       "pollen": {
-        "Esche": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Birke": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Hasel": {
-          "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
-        },
-        "Roggen": {
-          "today": "0-1",
-          "dayafter_to": "0-1",
-          "tomorrow": "0-1"
-        },
         "Ambrosia": {
           "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
+          "tomorrow": "0",
+          "today": "0"
         },
         "Graeser": {
-          "tomorrow": "2-3",
-          "dayafter_to": "2-3",
-          "today": "2-3"
+          "today": "2-3",
+          "tomorrow": "3",
+          "dayafter_to": "3"
+        },
+        "Hasel": {
+          "today": "0",
+          "tomorrow": "0",
+          "dayafter_to": "0"
         },
         "Erle": {
+          "today": "0",
+          "tomorrow": "0",
+          "dayafter_to": "0"
+        },
+        "Roggen": {
+          "tomorrow": "1",
+          "today": "1",
+          "dayafter_to": "1"
+        },
+        "Esche": {
+          "tomorrow": "0",
+          "today": "0",
+          "dayafter_to": "0"
+        },
+        "Birke": {
           "tomorrow": "0",
           "today": "0",
           "dayafter_to": "0"
@@ -536,45 +536,45 @@
       "region_name": "Thüringen",
       "partregion_name": "Tiefland Thüringen",
       "pollen": {
-        "Roggen": {
-          "today": "2",
-          "dayafter_to": "2",
-          "tomorrow": "2"
+        "Erle": {
+          "today": "0",
+          "tomorrow": "0",
+          "dayafter_to": "0"
+        },
+        "Graeser": {
+          "today": "3",
+          "tomorrow": "3",
+          "dayafter_to": "3"
+        },
+        "Ambrosia": {
+          "today": "0",
+          "tomorrow": "0",
+          "dayafter_to": "0"
         },
         "Hasel": {
+          "today": "0",
           "tomorrow": "0",
+          "dayafter_to": "0"
+        },
+        "Beifuss": {
           "dayafter_to": "0",
-          "today": "0"
+          "today": "0",
+          "tomorrow": "0"
         },
         "Birke": {
-          "today": "0",
           "dayafter_to": "0",
-          "tomorrow": "0"
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Roggen": {
+          "dayafter_to": "2",
+          "today": "2",
+          "tomorrow": "2"
         },
         "Esche": {
           "dayafter_to": "0",
           "today": "0",
           "tomorrow": "0"
-        },
-        "Beifuss": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Erle": {
-          "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
-        },
-        "Ambrosia": {
-          "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
-        },
-        "Graeser": {
-          "today": "2-3",
-          "dayafter_to": "3",
-          "tomorrow": "3"
         }
       }
     },
@@ -584,40 +584,40 @@
       "region_name": "Thüringen",
       "partregion_name": "Mittelgebirge Thüringen",
       "pollen": {
-        "Beifuss": {
+        "Erle": {
+          "tomorrow": "0",
           "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
+          "dayafter_to": "0"
         },
         "Ambrosia": {
           "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
+          "tomorrow": "0",
+          "dayafter_to": "0"
         },
         "Graeser": {
-          "today": "2-3",
-          "dayafter_to": "2-3",
-          "tomorrow": "2-3"
-        },
-        "Erle": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
+          "dayafter_to": "3",
+          "tomorrow": "3",
+          "today": "2-3"
         },
         "Hasel": {
-          "tomorrow": "0",
           "dayafter_to": "0",
+          "tomorrow": "0",
           "today": "0"
         },
-        "Roggen": {
-          "today": "0-1",
-          "dayafter_to": "0-1",
-          "tomorrow": "0-1"
+        "Beifuss": {
+          "tomorrow": "0",
+          "today": "0",
+          "dayafter_to": "0"
         },
         "Birke": {
-          "tomorrow": "0",
           "dayafter_to": "0",
-          "today": "0"
+          "today": "0",
+          "tomorrow": "0"
+        },
+        "Roggen": {
+          "dayafter_to": "1",
+          "tomorrow": "1",
+          "today": "1"
         },
         "Esche": {
           "dayafter_to": "0",
@@ -633,44 +633,44 @@
       "partregion_name": "Tiefland Sachsen",
       "pollen": {
         "Roggen": {
-          "today": "3",
           "dayafter_to": "3",
-          "tomorrow": "3"
+          "tomorrow": "3",
+          "today": "3"
         },
-        "Hasel": {
+        "Esche": {
           "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
+          "today": "0",
+          "dayafter_to": "0"
+        },
+        "Beifuss": {
+          "today": "0",
+          "tomorrow": "0",
+          "dayafter_to": "0"
         },
         "Birke": {
           "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
+          "tomorrow": "0",
+          "today": "0"
         },
-        "Esche": {
+        "Ambrosia": {
+          "tomorrow": "0",
           "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
+          "dayafter_to": "0"
         },
-        "Beifuss": {
-          "dayafter_to": "0",
+        "Graeser": {
+          "dayafter_to": "3",
+          "today": "3",
+          "tomorrow": "3"
+        },
+        "Hasel": {
           "today": "0",
-          "tomorrow": "0"
+          "tomorrow": "0",
+          "dayafter_to": "0"
         },
         "Erle": {
           "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
-        },
-        "Graeser": {
-          "tomorrow": "3",
-          "dayafter_to": "3",
-          "today": "3"
-        },
-        "Ambrosia": {
-          "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
+          "tomorrow": "0",
+          "dayafter_to": "0"
         }
       }
     },
@@ -680,45 +680,45 @@
       "region_name": "Sachsen",
       "partregion_name": "Mittelgebirge Sachsen",
       "pollen": {
-        "Beifuss": {
-          "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
-        },
         "Erle": {
-          "tomorrow": "0",
           "dayafter_to": "0",
+          "tomorrow": "0",
           "today": "0"
         },
-        "Graeser": {
-          "today": "3",
-          "dayafter_to": "2-3",
-          "tomorrow": "2-3"
-        },
         "Ambrosia": {
+          "today": "0",
           "tomorrow": "0",
+          "dayafter_to": "0"
+        },
+        "Graeser": {
+          "tomorrow": "3",
+          "today": "2-3",
+          "dayafter_to": "3"
+        },
+        "Hasel": {
           "dayafter_to": "0",
+          "tomorrow": "0",
           "today": "0"
         },
         "Roggen": {
-          "tomorrow": "0-1",
-          "today": "0-1",
-          "dayafter_to": "0-1"
-        },
-        "Hasel": {
-          "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
-        },
-        "Birke": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
+          "today": "1",
+          "tomorrow": "1",
+          "dayafter_to": "1"
         },
         "Esche": {
-          "dayafter_to": "0",
+          "tomorrow": "0",
           "today": "0",
-          "tomorrow": "0"
+          "dayafter_to": "0"
+        },
+        "Birke": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Beifuss": {
+          "tomorrow": "0",
+          "today": "0",
+          "dayafter_to": "0"
         }
       }
     },
@@ -729,44 +729,44 @@
       "partregion_name": "Nordhessen und hess. Mittelgebirge",
       "pollen": {
         "Beifuss": {
-          "tomorrow": "0",
+          "dayafter_to": "0",
           "today": "0",
+          "tomorrow": "0"
+        },
+        "Birke": {
+          "today": "0",
+          "tomorrow": "0",
           "dayafter_to": "0"
         },
-        "Graeser": {
-          "tomorrow": "3",
-          "today": "2-3",
-          "dayafter_to": "3"
-        },
-        "Ambrosia": {
-          "tomorrow": "0",
+        "Esche": {
+          "dayafter_to": "0",
           "today": "0",
-          "dayafter_to": "0"
+          "tomorrow": "0"
+        },
+        "Roggen": {
+          "dayafter_to": "2",
+          "tomorrow": "2",
+          "today": "2"
         },
         "Erle": {
+          "tomorrow": "0",
           "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
+          "dayafter_to": "0"
         },
         "Hasel": {
           "tomorrow": "0",
           "today": "0",
           "dayafter_to": "0"
         },
-        "Roggen": {
-          "today": "2",
-          "dayafter_to": "2",
-          "tomorrow": "2"
+        "Graeser": {
+          "today": "3",
+          "tomorrow": "3",
+          "dayafter_to": "3"
         },
-        "Birke": {
-          "dayafter_to": "0",
+        "Ambrosia": {
           "today": "0",
-          "tomorrow": "0"
-        },
-        "Esche": {
-          "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
+          "tomorrow": "0",
+          "dayafter_to": "0"
         }
       }
     },
@@ -776,44 +776,44 @@
       "region_name": "Hessen",
       "partregion_name": "Rhein-Main",
       "pollen": {
+        "Hasel": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Ambrosia": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Graeser": {
+          "today": "3",
+          "tomorrow": "3",
+          "dayafter_to": "3"
+        },
+        "Erle": {
+          "today": "0",
+          "tomorrow": "0",
+          "dayafter_to": "0"
+        },
         "Esche": {
           "dayafter_to": "0",
           "today": "0",
           "tomorrow": "0"
         },
-        "Hasel": {
-          "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
-        },
         "Roggen": {
-          "tomorrow": "2-3",
           "dayafter_to": "2-3",
-          "today": "2"
-        },
-        "Birke": {
-          "tomorrow": "0",
-          "today": "0",
-          "dayafter_to": "0"
-        },
-        "Graeser": {
-          "tomorrow": "3",
           "today": "2-3",
-          "dayafter_to": "3"
-        },
-        "Ambrosia": {
-          "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
-        },
-        "Erle": {
-          "tomorrow": "0",
-          "today": "0",
-          "dayafter_to": "0"
+          "tomorrow": "2-3"
         },
         "Beifuss": {
-          "today": "0",
           "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Birke": {
+          "dayafter_to": "0",
+          "today": "0",
           "tomorrow": "0"
         }
       }
@@ -825,44 +825,44 @@
       "partregion_name": "Rhein, Pfalz, Nahe und Mosel",
       "pollen": {
         "Beifuss": {
-          "tomorrow": "0",
           "dayafter_to": "0",
+          "tomorrow": "0",
           "today": "0"
-        },
-        "Ambrosia": {
-          "tomorrow": "0",
-          "today": "0",
-          "dayafter_to": "0"
-        },
-        "Graeser": {
-          "dayafter_to": "3",
-          "today": "2-3",
-          "tomorrow": "3"
-        },
-        "Erle": {
-          "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
         },
         "Birke": {
           "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Hasel": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Roggen": {
-          "dayafter_to": "1-2",
-          "today": "1-2",
-          "tomorrow": "1-2"
+          "today": "0",
+          "dayafter_to": "0"
         },
         "Esche": {
           "dayafter_to": "0",
           "today": "0",
           "tomorrow": "0"
+        },
+        "Roggen": {
+          "dayafter_to": "1-2",
+          "tomorrow": "1-2",
+          "today": "1-2"
+        },
+        "Erle": {
+          "today": "0",
+          "tomorrow": "0",
+          "dayafter_to": "0"
+        },
+        "Hasel": {
+          "today": "0",
+          "tomorrow": "0",
+          "dayafter_to": "0"
+        },
+        "Graeser": {
+          "dayafter_to": "3",
+          "today": "3",
+          "tomorrow": "3"
+        },
+        "Ambrosia": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
         }
       }
     },
@@ -872,42 +872,42 @@
       "region_name": "Rheinland-Pfalz und Saarland",
       "partregion_name": "Mittelgebirgsbereich Rheinland-Pfalz",
       "pollen": {
-        "Graeser": {
-          "today": "2-3",
-          "dayafter_to": "3",
-          "tomorrow": "3"
+        "Esche": {
+          "today": "0",
+          "tomorrow": "0",
+          "dayafter_to": "0"
         },
-        "Ambrosia": {
+        "Roggen": {
+          "tomorrow": "1",
+          "today": "1",
+          "dayafter_to": "1"
+        },
+        "Beifuss": {
           "dayafter_to": "0",
           "today": "0",
           "tomorrow": "0"
         },
-        "Erle": {
-          "tomorrow": "0",
+        "Birke": {
           "today": "0",
-          "dayafter_to": "0"
-        },
-        "Beifuss": {
           "tomorrow": "0",
-          "today": "0",
-          "dayafter_to": "0"
-        },
-        "Esche": {
-          "tomorrow": "0",
-          "today": "0",
           "dayafter_to": "0"
         },
         "Hasel": {
-          "tomorrow": "0",
           "dayafter_to": "0",
-          "today": "0"
+          "today": "0",
+          "tomorrow": "0"
         },
-        "Roggen": {
-          "dayafter_to": "0-1",
-          "today": "0-1",
-          "tomorrow": "0-1"
+        "Ambrosia": {
+          "tomorrow": "0",
+          "today": "0",
+          "dayafter_to": "0"
         },
-        "Birke": {
+        "Graeser": {
+          "dayafter_to": "3",
+          "today": "3",
+          "tomorrow": "3"
+        },
+        "Erle": {
           "dayafter_to": "0",
           "today": "0",
           "tomorrow": "0"
@@ -920,45 +920,45 @@
       "region_name": "Rheinland-Pfalz und Saarland",
       "partregion_name": "Saarland",
       "pollen": {
-        "Hasel": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
         "Roggen": {
-          "tomorrow": "2-3",
           "dayafter_to": "2-3",
-          "today": "2"
-        },
-        "Birke": {
-          "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
+          "tomorrow": "2-3",
+          "today": "2-3"
         },
         "Esche": {
-          "dayafter_to": "0",
           "today": "0",
-          "tomorrow": "0"
+          "tomorrow": "0",
+          "dayafter_to": "0"
         },
         "Beifuss": {
           "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Graeser": {
-          "today": "2-3",
-          "dayafter_to": "3",
-          "tomorrow": "3"
-        },
-        "Ambrosia": {
           "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
+          "dayafter_to": "0"
+        },
+        "Birke": {
+          "tomorrow": "0",
+          "today": "0",
+          "dayafter_to": "0"
         },
         "Erle": {
           "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Ambrosia": {
           "today": "0",
-          "tomorrow": "0"
+          "tomorrow": "0",
+          "dayafter_to": "0"
+        },
+        "Graeser": {
+          "dayafter_to": "3",
+          "tomorrow": "3",
+          "today": "3"
+        },
+        "Hasel": {
+          "tomorrow": "0",
+          "today": "0",
+          "dayafter_to": "0"
         }
       }
     },
@@ -973,40 +973,40 @@
           "today": "0",
           "tomorrow": "0"
         },
-        "Roggen": {
-          "tomorrow": "2-3",
-          "today": "2",
-          "dayafter_to": "2-3"
-        },
-        "Hasel": {
+        "Beifuss": {
           "tomorrow": "0",
           "today": "0",
           "dayafter_to": "0"
+        },
+        "Roggen": {
+          "today": "2-3",
+          "tomorrow": "2-3",
+          "dayafter_to": "2-3"
         },
         "Esche": {
           "dayafter_to": "0",
           "today": "0",
           "tomorrow": "0"
         },
-        "Beifuss": {
-          "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
-        },
-        "Erle": {
-          "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
+        "Graeser": {
+          "dayafter_to": "3",
+          "today": "3",
+          "tomorrow": "3"
         },
         "Ambrosia": {
+          "today": "0",
           "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
+          "dayafter_to": "0"
         },
-        "Graeser": {
-          "tomorrow": "3",
-          "dayafter_to": "3",
-          "today": "2-3"
+        "Hasel": {
+          "tomorrow": "0",
+          "today": "0",
+          "dayafter_to": "0"
+        },
+        "Erle": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
         }
       }
     },
@@ -1016,45 +1016,45 @@
       "region_name": "Baden-Württemberg",
       "partregion_name": "Hohenlohe/mittlerer Neckar/Oberschwaben",
       "pollen": {
-        "Beifuss": {
+        "Birke": {
+          "dayafter_to": "0",
           "tomorrow": "0",
-          "today": "0",
-          "dayafter_to": "0"
-        },
-        "Erle": {
-          "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
-        },
-        "Ambrosia": {
-          "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
-        },
-        "Graeser": {
-          "tomorrow": "3",
-          "today": "2-3",
-          "dayafter_to": "3"
-        },
-        "Roggen": {
-          "today": "2",
-          "dayafter_to": "2-3",
-          "tomorrow": "2-3"
-        },
-        "Hasel": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
           "today": "0"
         },
-        "Birke": {
-          "tomorrow": "0",
+        "Beifuss": {
           "today": "0",
+          "tomorrow": "0",
           "dayafter_to": "0"
         },
         "Esche": {
-          "today": "0",
           "dayafter_to": "0",
+          "today": "0",
           "tomorrow": "0"
+        },
+        "Roggen": {
+          "today": "2-3",
+          "tomorrow": "2-3",
+          "dayafter_to": "2-3"
+        },
+        "Erle": {
+          "tomorrow": "0",
+          "today": "0",
+          "dayafter_to": "0"
+        },
+        "Hasel": {
+          "tomorrow": "0",
+          "today": "0",
+          "dayafter_to": "0"
+        },
+        "Graeser": {
+          "today": "3",
+          "tomorrow": "3",
+          "dayafter_to": "3"
+        },
+        "Ambrosia": {
+          "tomorrow": "0",
+          "today": "0",
+          "dayafter_to": "0"
         }
       }
     },
@@ -1065,44 +1065,44 @@
       "partregion_name": "Mittelgebirge Baden-Württemberg",
       "pollen": {
         "Erle": {
+          "dayafter_to": "0",
           "today": "0",
-          "dayafter_to": "0",
           "tomorrow": "0"
-        },
-        "Ambrosia": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
         },
         "Graeser": {
-          "today": "2-3",
           "dayafter_to": "3",
+          "today": "3",
           "tomorrow": "3"
         },
-        "Beifuss": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Esche": {
-          "tomorrow": "0",
+        "Ambrosia": {
           "today": "0",
+          "tomorrow": "0",
           "dayafter_to": "0"
-        },
-        "Roggen": {
-          "tomorrow": "0-1",
-          "dayafter_to": "0-1",
-          "today": "0-1"
         },
         "Hasel": {
-          "tomorrow": "0",
+          "dayafter_to": "0",
           "today": "0",
-          "dayafter_to": "0"
+          "tomorrow": "0"
+        },
+        "Beifuss": {
+          "dayafter_to": "0",
+          "today": "0",
+          "tomorrow": "0"
         },
         "Birke": {
-          "today": "0",
           "dayafter_to": "0",
-          "tomorrow": "0"
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Roggen": {
+          "tomorrow": "1",
+          "today": "1",
+          "dayafter_to": "1"
+        },
+        "Esche": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
         }
       }
     },
@@ -1113,41 +1113,41 @@
       "partregion_name": "Allgäu/Oberbayern/Bay. Wald",
       "pollen": {
         "Roggen": {
-          "dayafter_to": "2",
-          "today": "2-3",
-          "tomorrow": "2"
+          "tomorrow": "2-3",
+          "today": "2",
+          "dayafter_to": "2-3"
         },
-        "Hasel": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Birke": {
+        "Esche": {
           "dayafter_to": "0",
           "today": "0",
           "tomorrow": "0"
         },
-        "Esche": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
         "Beifuss": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Erle": {
-          "tomorrow": "0",
           "today": "0",
+          "tomorrow": "0",
           "dayafter_to": "0"
         },
+        "Birke": {
+          "today": "0",
+          "tomorrow": "0",
+          "dayafter_to": "0"
+        },
+        "Erle": {
+          "dayafter_to": "0",
+          "today": "0",
+          "tomorrow": "0"
+        },
         "Graeser": {
-          "tomorrow": "2-3",
-          "dayafter_to": "2-3",
-          "today": "3"
+          "dayafter_to": "3",
+          "tomorrow": "3",
+          "today": "2-3"
         },
         "Ambrosia": {
+          "dayafter_to": "0",
+          "today": "0",
+          "tomorrow": "0"
+        },
+        "Hasel": {
           "dayafter_to": "0",
           "today": "0",
           "tomorrow": "0"
@@ -1160,45 +1160,45 @@
       "region_name": "Bayern",
       "partregion_name": "Donauniederungen",
       "pollen": {
-        "Roggen": {
-          "today": "2-3",
-          "dayafter_to": "2",
-          "tomorrow": "2"
-        },
-        "Hasel": {
+        "Beifuss": {
           "dayafter_to": "0",
           "today": "0",
           "tomorrow": "0"
         },
         "Birke": {
-          "dayafter_to": "0",
           "today": "0",
-          "tomorrow": "0"
+          "tomorrow": "0",
+          "dayafter_to": "0"
         },
         "Esche": {
+          "tomorrow": "0",
+          "today": "0",
+          "dayafter_to": "0"
+        },
+        "Roggen": {
+          "dayafter_to": "2-3",
+          "today": "2",
+          "tomorrow": "2-3"
+        },
+        "Erle": {
           "dayafter_to": "0",
           "today": "0",
           "tomorrow": "0"
         },
-        "Beifuss": {
+        "Hasel": {
           "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Erle": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Graeser": {
-          "today": "3",
-          "dayafter_to": "2-3",
-          "tomorrow": "2-3"
+          "today": "0",
+          "dayafter_to": "0"
         },
         "Ambrosia": {
           "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
+          "today": "0",
+          "dayafter_to": "0"
+        },
+        "Graeser": {
+          "tomorrow": "3",
+          "today": "2-3",
+          "dayafter_to": "3"
         }
       }
     },
@@ -1209,44 +1209,44 @@
       "partregion_name": "Bayern nördl. der Donau, o. Bayr. Wald, o. Mainfranken",
       "pollen": {
         "Birke": {
-          "today": "0",
           "dayafter_to": "0",
-          "tomorrow": "0"
-        },
-        "Hasel": {
-          "dayafter_to": "0",
-          "today": "0",
-          "tomorrow": "0"
-        },
-        "Roggen": {
-          "tomorrow": "2-3",
-          "dayafter_to": "2-3",
-          "today": "2"
-        },
-        "Esche": {
-          "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
+          "tomorrow": "0",
+          "today": "0"
         },
         "Beifuss": {
           "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Esche": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Roggen": {
+          "tomorrow": "2-3",
+          "today": "2-3",
+          "dayafter_to": "2-3"
+        },
+        "Erle": {
+          "dayafter_to": "0",
           "today": "0",
           "tomorrow": "0"
         },
-        "Graeser": {
-          "dayafter_to": "3",
-          "today": "2-3",
-          "tomorrow": "3"
-        },
-        "Ambrosia": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
-        "Erle": {
+        "Hasel": {
           "tomorrow": "0",
           "today": "0",
           "dayafter_to": "0"
+        },
+        "Ambrosia": {
+          "dayafter_to": "0",
+          "tomorrow": "0",
+          "today": "0"
+        },
+        "Graeser": {
+          "dayafter_to": "3",
+          "today": "3",
+          "tomorrow": "3"
         }
       }
     },
@@ -1256,44 +1256,44 @@
       "region_name": "Bayern",
       "partregion_name": "Mainfranken",
       "pollen": {
+        "Graeser": {
+          "today": "3",
+          "tomorrow": "3",
+          "dayafter_to": "3"
+        },
+        "Ambrosia": {
+          "today": "0",
+          "tomorrow": "0",
+          "dayafter_to": "0"
+        },
+        "Hasel": {
+          "dayafter_to": "0",
+          "today": "0",
+          "tomorrow": "0"
+        },
         "Erle": {
           "dayafter_to": "0",
           "today": "0",
           "tomorrow": "0"
         },
-        "Graeser": {
-          "tomorrow": "3",
-          "dayafter_to": "3",
-          "today": "2-3"
-        },
-        "Ambrosia": {
-          "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
-        },
         "Beifuss": {
-          "today": "0",
           "dayafter_to": "0",
-          "tomorrow": "0"
-        },
-        "Esche": {
-          "today": "0",
-          "dayafter_to": "0",
-          "tomorrow": "0"
+          "tomorrow": "0",
+          "today": "0"
         },
         "Birke": {
+          "today": "0",
           "tomorrow": "0",
-          "dayafter_to": "0",
-          "today": "0"
+          "dayafter_to": "0"
         },
         "Roggen": {
           "tomorrow": "2",
           "today": "2",
           "dayafter_to": "2"
         },
-        "Hasel": {
-          "tomorrow": "0",
+        "Esche": {
           "today": "0",
+          "tomorrow": "0",
           "dayafter_to": "0"
         }
       }
